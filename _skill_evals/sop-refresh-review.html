@@ -1,0 +1,1325 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Eval Review</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@500;600&family=Lora:wght@400;500&display=swap" rel="stylesheet">
+  <script src="https://cdn.sheetjs.com/xlsx-0.20.3/package/dist/xlsx.full.min.js" integrity="sha384-EnyY0/GSHQGSxSgMwaIPzSESbqoOLSexfnSMN2AP+39Ckmn92stwABZynq1JyzdT" crossorigin="anonymous"></script>
+  <style>
+    :root {
+      --bg: #faf9f5;
+      --surface: #ffffff;
+      --border: #e8e6dc;
+      --text: #141413;
+      --text-muted: #b0aea5;
+      --accent: #d97757;
+      --accent-hover: #c4613f;
+      --green: #788c5d;
+      --green-bg: #eef2e8;
+      --red: #c44;
+      --red-bg: #fceaea;
+      --header-bg: #141413;
+      --header-text: #faf9f5;
+      --radius: 6px;
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      font-family: 'Lora', Georgia, serif;
+      background: var(--bg);
+      color: var(--text);
+      height: 100vh;
+      display: flex;
+      flex-direction: column;
+    }
+
+    /* ---- Header ---- */
+    .header {
+      background: var(--header-bg);
+      color: var(--header-text);
+      padding: 1rem 2rem;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      flex-shrink: 0;
+    }
+    .header h1 {
+      font-family: 'Poppins', sans-serif;
+      font-size: 1.25rem;
+      font-weight: 600;
+    }
+    .header .instructions {
+      font-size: 0.8rem;
+      opacity: 0.7;
+      margin-top: 0.25rem;
+    }
+    .header .progress {
+      font-size: 0.875rem;
+      opacity: 0.8;
+      text-align: right;
+    }
+
+    /* ---- Main content ---- */
+    .main {
+      flex: 1;
+      overflow-y: auto;
+      padding: 1.5rem 2rem;
+      display: flex;
+      flex-direction: column;
+      gap: 1.25rem;
+    }
+
+    /* ---- Sections ---- */
+    .section {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      flex-shrink: 0;
+    }
+    .section-header {
+      font-family: 'Poppins', sans-serif;
+      padding: 0.75rem 1rem;
+      font-size: 0.75rem;
+      font-weight: 500;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      color: var(--text-muted);
+      border-bottom: 1px solid var(--border);
+      background: var(--bg);
+    }
+    .section-body {
+      padding: 1rem;
+    }
+
+    /* ---- Config badge ---- */
+    .config-badge {
+      display: inline-block;
+      padding: 0.2rem 0.625rem;
+      border-radius: 9999px;
+      font-family: 'Poppins', sans-serif;
+      font-size: 0.6875rem;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.03em;
+      margin-left: 0.75rem;
+      vertical-align: middle;
+    }
+    .config-badge.config-primary {
+      background: rgba(33, 150, 243, 0.12);
+      color: #1976d2;
+    }
+    .config-badge.config-baseline {
+      background: rgba(255, 193, 7, 0.15);
+      color: #f57f17;
+    }
+
+    /* ---- Prompt ---- */
+    .prompt-text {
+      white-space: pre-wrap;
+      font-size: 0.9375rem;
+      line-height: 1.6;
+    }
+
+    /* ---- Outputs ---- */
+    .output-file {
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      overflow: hidden;
+    }
+    .output-file + .output-file {
+      margin-top: 1rem;
+    }
+    .output-file-header {
+      padding: 0.5rem 0.75rem;
+      font-size: 0.8rem;
+      font-weight: 600;
+      color: var(--text-muted);
+      background: var(--bg);
+      border-bottom: 1px solid var(--border);
+      font-family: 'SF Mono', SFMono-Regular, Consolas, 'Liberation Mono', Menlo, monospace;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+    .output-file-header .dl-btn {
+      font-size: 0.7rem;
+      color: var(--accent);
+      text-decoration: none;
+      cursor: pointer;
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+      font-weight: 500;
+      opacity: 0.8;
+    }
+    .output-file-header .dl-btn:hover {
+      opacity: 1;
+      text-decoration: underline;
+    }
+    .output-file-content {
+      padding: 0.75rem;
+      overflow-x: auto;
+    }
+    .output-file-content pre {
+      font-size: 0.8125rem;
+      line-height: 1.5;
+      white-space: pre-wrap;
+      word-break: break-word;
+      font-family: 'SF Mono', SFMono-Regular, Consolas, 'Liberation Mono', Menlo, monospace;
+    }
+    .output-file-content img {
+      max-width: 100%;
+      height: auto;
+      border-radius: 4px;
+    }
+    .output-file-content iframe {
+      width: 100%;
+      height: 600px;
+      border: none;
+    }
+    .output-file-content table {
+      border-collapse: collapse;
+      font-size: 0.8125rem;
+      width: 100%;
+    }
+    .output-file-content table td,
+    .output-file-content table th {
+      border: 1px solid var(--border);
+      padding: 0.375rem 0.5rem;
+      text-align: left;
+    }
+    .output-file-content table th {
+      background: var(--bg);
+      font-weight: 600;
+    }
+    .output-file-content .download-link {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.5rem;
+      padding: 0.5rem 1rem;
+      background: var(--bg);
+      border: 1px solid var(--border);
+      border-radius: 4px;
+      color: var(--accent);
+      text-decoration: none;
+      font-size: 0.875rem;
+      cursor: pointer;
+    }
+    .output-file-content .download-link:hover {
+      background: var(--border);
+    }
+    .empty-state {
+      color: var(--text-muted);
+      font-style: italic;
+      padding: 2rem;
+      text-align: center;
+    }
+
+    /* ---- Feedback ---- */
+    .prev-feedback {
+      background: var(--bg);
+      border: 1px solid var(--border);
+      border-radius: 4px;
+      padding: 0.625rem 0.75rem;
+      margin-top: 0.75rem;
+      font-size: 0.8125rem;
+      color: var(--text-muted);
+      line-height: 1.5;
+    }
+    .prev-feedback-label {
+      font-size: 0.7rem;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.04em;
+      margin-bottom: 0.25rem;
+      color: var(--text-muted);
+    }
+    .feedback-textarea {
+      width: 100%;
+      min-height: 100px;
+      padding: 0.75rem;
+      border: 1px solid var(--border);
+      border-radius: 4px;
+      font-family: inherit;
+      font-size: 0.9375rem;
+      line-height: 1.5;
+      resize: vertical;
+      color: var(--text);
+    }
+    .feedback-textarea:focus {
+      outline: none;
+      border-color: var(--accent);
+      box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.1);
+    }
+    .feedback-status {
+      font-size: 0.75rem;
+      color: var(--text-muted);
+      margin-top: 0.5rem;
+      min-height: 1.1em;
+    }
+
+    /* ---- Grades (collapsible) ---- */
+    .grades-toggle {
+      display: flex;
+      align-items: center;
+      cursor: pointer;
+      user-select: none;
+    }
+    .grades-toggle:hover {
+      color: var(--accent);
+    }
+    .grades-toggle .arrow {
+      margin-right: 0.5rem;
+      transition: transform 0.15s;
+      font-size: 0.75rem;
+    }
+    .grades-toggle .arrow.open {
+      transform: rotate(90deg);
+    }
+    .grades-content {
+      display: none;
+      margin-top: 0.75rem;
+    }
+    .grades-content.open {
+      display: block;
+    }
+    .grades-summary {
+      font-size: 0.875rem;
+      margin-bottom: 0.75rem;
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+    .grade-badge {
+      display: inline-block;
+      padding: 0.125rem 0.5rem;
+      border-radius: 9999px;
+      font-size: 0.75rem;
+      font-weight: 600;
+    }
+    .grade-pass { background: var(--green-bg); color: var(--green); }
+    .grade-fail { background: var(--red-bg); color: var(--red); }
+    .assertion-list {
+      list-style: none;
+    }
+    .assertion-item {
+      padding: 0.625rem 0;
+      border-bottom: 1px solid var(--border);
+      font-size: 0.8125rem;
+    }
+    .assertion-item:last-child { border-bottom: none; }
+    .assertion-status {
+      font-weight: 600;
+      margin-right: 0.5rem;
+    }
+    .assertion-status.pass { color: var(--green); }
+    .assertion-status.fail { color: var(--red); }
+    .assertion-evidence {
+      color: var(--text-muted);
+      font-size: 0.75rem;
+      margin-top: 0.25rem;
+      padding-left: 1.5rem;
+    }
+
+    /* ---- View tabs ---- */
+    .view-tabs {
+      display: flex;
+      gap: 0;
+      padding: 0 2rem;
+      background: var(--bg);
+      border-bottom: 1px solid var(--border);
+      flex-shrink: 0;
+    }
+    .view-tab {
+      font-family: 'Poppins', sans-serif;
+      padding: 0.625rem 1.25rem;
+      font-size: 0.8125rem;
+      font-weight: 500;
+      cursor: pointer;
+      border: none;
+      background: none;
+      color: var(--text-muted);
+      border-bottom: 2px solid transparent;
+      transition: all 0.15s;
+    }
+    .view-tab:hover { color: var(--text); }
+    .view-tab.active {
+      color: var(--accent);
+      border-bottom-color: var(--accent);
+    }
+    .view-panel { display: none; }
+    .view-panel.active { display: flex; flex-direction: column; flex: 1; overflow: hidden; }
+
+    /* ---- Benchmark view ---- */
+    .benchmark-view {
+      padding: 1.5rem 2rem;
+      overflow-y: auto;
+      flex: 1;
+    }
+    .benchmark-table {
+      border-collapse: collapse;
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      font-size: 0.8125rem;
+      width: 100%;
+      margin-bottom: 1.5rem;
+    }
+    .benchmark-table th, .benchmark-table td {
+      padding: 0.625rem 0.75rem;
+      text-align: left;
+      border: 1px solid var(--border);
+    }
+    .benchmark-table th {
+      font-family: 'Poppins', sans-serif;
+      background: var(--header-bg);
+      color: var(--header-text);
+      font-weight: 500;
+      font-size: 0.75rem;
+      text-transform: uppercase;
+      letter-spacing: 0.04em;
+    }
+    .benchmark-table tr:hover { background: var(--bg); }
+    .benchmark-table tr.benchmark-row-with { background: rgba(33, 150, 243, 0.06); }
+    .benchmark-table tr.benchmark-row-without { background: rgba(255, 193, 7, 0.06); }
+    .benchmark-table tr.benchmark-row-with:hover { background: rgba(33, 150, 243, 0.12); }
+    .benchmark-table tr.benchmark-row-without:hover { background: rgba(255, 193, 7, 0.12); }
+    .benchmark-table tr.benchmark-row-avg { font-weight: 600; border-top: 2px solid var(--border); }
+    .benchmark-table tr.benchmark-row-avg.benchmark-row-with { background: rgba(33, 150, 243, 0.12); }
+    .benchmark-table tr.benchmark-row-avg.benchmark-row-without { background: rgba(255, 193, 7, 0.12); }
+    .benchmark-delta-positive { color: var(--green); font-weight: 600; }
+    .benchmark-delta-negative { color: var(--red); font-weight: 600; }
+    .benchmark-notes {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 1rem;
+    }
+    .benchmark-notes h3 {
+      font-family: 'Poppins', sans-serif;
+      font-size: 0.875rem;
+      margin-bottom: 0.75rem;
+    }
+    .benchmark-notes ul {
+      list-style: disc;
+      padding-left: 1.25rem;
+    }
+    .benchmark-notes li {
+      font-size: 0.8125rem;
+      line-height: 1.6;
+      margin-bottom: 0.375rem;
+    }
+    .benchmark-empty {
+      color: var(--text-muted);
+      font-style: italic;
+      text-align: center;
+      padding: 3rem;
+    }
+
+    /* ---- Navigation ---- */
+    .nav {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 1rem 2rem;
+      border-top: 1px solid var(--border);
+      background: var(--surface);
+      flex-shrink: 0;
+    }
+    .nav-btn {
+      font-family: 'Poppins', sans-serif;
+      padding: 0.5rem 1.25rem;
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      background: var(--surface);
+      cursor: pointer;
+      font-size: 0.875rem;
+      font-weight: 500;
+      color: var(--text);
+      transition: all 0.15s;
+    }
+    .nav-btn:hover:not(:disabled) {
+      background: var(--bg);
+      border-color: var(--text-muted);
+    }
+    .nav-btn:disabled {
+      opacity: 0.4;
+      cursor: not-allowed;
+    }
+    .done-btn {
+      font-family: 'Poppins', sans-serif;
+      padding: 0.5rem 1.5rem;
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      background: var(--surface);
+      color: var(--text);
+      cursor: pointer;
+      font-size: 0.875rem;
+      font-weight: 500;
+      transition: all 0.15s;
+    }
+    .done-btn:hover {
+      background: var(--bg);
+      border-color: var(--text-muted);
+    }
+    .done-btn.ready {
+      border: none;
+      background: var(--accent);
+      color: white;
+      font-weight: 600;
+    }
+    .done-btn.ready:hover {
+      background: var(--accent-hover);
+    }
+    /* ---- Done overlay ---- */
+    .done-overlay {
+      display: none;
+      position: fixed;
+      inset: 0;
+      background: rgba(0, 0, 0, 0.5);
+      z-index: 100;
+      justify-content: center;
+      align-items: center;
+    }
+    .done-overlay.visible {
+      display: flex;
+    }
+    .done-card {
+      background: var(--surface);
+      border-radius: 12px;
+      padding: 2rem 3rem;
+      text-align: center;
+      box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+      max-width: 500px;
+    }
+    .done-card h2 {
+      font-size: 1.5rem;
+      margin-bottom: 0.5rem;
+    }
+    .done-card p {
+      color: var(--text-muted);
+      margin-bottom: 1.5rem;
+      line-height: 1.5;
+    }
+    .done-card .btn-row {
+      display: flex;
+      gap: 0.5rem;
+      justify-content: center;
+    }
+    .done-card button {
+      padding: 0.5rem 1.25rem;
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      background: var(--surface);
+      cursor: pointer;
+      font-size: 0.875rem;
+    }
+    .done-card button:hover {
+      background: var(--bg);
+    }
+    /* ---- Toast ---- */
+    .toast {
+      position: fixed;
+      bottom: 5rem;
+      left: 50%;
+      transform: translateX(-50%);
+      background: var(--header-bg);
+      color: var(--header-text);
+      padding: 0.625rem 1.25rem;
+      border-radius: var(--radius);
+      font-size: 0.875rem;
+      opacity: 0;
+      transition: opacity 0.3s;
+      pointer-events: none;
+      z-index: 200;
+    }
+    .toast.visible {
+      opacity: 1;
+    }
+  </style>
+</head>
+<body>
+  <div id="app" style="height:100vh; display:flex; flex-direction:column;">
+    <div class="header">
+      <div>
+        <h1>Eval Review: <span id="skill-name"></span></h1>
+        <div class="instructions">Review each output and leave feedback below. Navigate with arrow keys or buttons. When done, copy feedback and paste into Claude Code.</div>
+      </div>
+      <div class="progress" id="progress"></div>
+    </div>
+
+    <!-- View tabs (only shown when benchmark data exists) -->
+    <div class="view-tabs" id="view-tabs" style="display:none;">
+      <button class="view-tab active" onclick="switchView('outputs')">Outputs</button>
+      <button class="view-tab" onclick="switchView('benchmark')">Benchmark</button>
+    </div>
+
+    <!-- Outputs panel (qualitative review) -->
+    <div class="view-panel active" id="panel-outputs">
+    <div class="main">
+      <!-- Prompt -->
+      <div class="section">
+        <div class="section-header">Prompt <span class="config-badge" id="config-badge" style="display:none;"></span></div>
+        <div class="section-body">
+          <div class="prompt-text" id="prompt-text"></div>
+        </div>
+      </div>
+
+      <!-- Outputs -->
+      <div class="section">
+        <div class="section-header">Output</div>
+        <div class="section-body" id="outputs-body">
+          <div class="empty-state">No output files found</div>
+        </div>
+      </div>
+
+      <!-- Previous Output (collapsible) -->
+      <div class="section" id="prev-outputs-section" style="display:none;">
+        <div class="section-header">
+          <div class="grades-toggle" onclick="togglePrevOutputs()">
+            <span class="arrow" id="prev-outputs-arrow">&#9654;</span>
+            Previous Output
+          </div>
+        </div>
+        <div class="grades-content" id="prev-outputs-content"></div>
+      </div>
+
+      <!-- Grades (collapsible) -->
+      <div class="section" id="grades-section" style="display:none;">
+        <div class="section-header">
+          <div class="grades-toggle" onclick="toggleGrades()">
+            <span class="arrow" id="grades-arrow">&#9654;</span>
+            Formal Grades
+          </div>
+        </div>
+        <div class="grades-content" id="grades-content"></div>
+      </div>
+
+      <!-- Feedback -->
+      <div class="section">
+        <div class="section-header">Your Feedback</div>
+        <div class="section-body">
+          <textarea
+            class="feedback-textarea"
+            id="feedback"
+            placeholder="What do you think of this output? Any issues, suggestions, or things that look great?"
+          ></textarea>
+          <div class="feedback-status" id="feedback-status"></div>
+          <div class="prev-feedback" id="prev-feedback" style="display:none;">
+            <div class="prev-feedback-label">Previous feedback</div>
+            <div id="prev-feedback-text"></div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="nav" id="outputs-nav">
+      <button class="nav-btn" id="prev-btn" onclick="navigate(-1)">&#8592; Previous</button>
+      <button class="done-btn" id="done-btn" onclick="showDoneDialog()">Submit All Reviews</button>
+      <button class="nav-btn" id="next-btn" onclick="navigate(1)">Next &#8594;</button>
+    </div>
+    </div><!-- end panel-outputs -->
+
+    <!-- Benchmark panel (quantitative stats) -->
+    <div class="view-panel" id="panel-benchmark">
+      <div class="benchmark-view" id="benchmark-content">
+        <div class="benchmark-empty">No benchmark data available. Run a benchmark to see quantitative results here.</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Done overlay -->
+  <div class="done-overlay" id="done-overlay">
+    <div class="done-card">
+      <h2>Review Complete</h2>
+      <p>Your feedback has been saved. Go back to your Claude Code session and tell Claude you're done reviewing.</p>
+      <div class="btn-row">
+        <button onclick="closeDoneDialog()">OK</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Toast -->
+  <div class="toast" id="toast"></div>
+
+  <script>
+    // ---- Embedded data (injected by generate_review.py) ----
+    const EMBEDDED_DATA = {"skill_name": "sop-refresh", "runs": [{"id": "eval-0-vendor-doc-hours-change-with_skill-run-1", "prompt": "please update the Deltana Process Document - Elizabeth's hours changed, she's now only reachable Mon-Thu 9am-4pm ET (no more Friday coverage). Also, all RMA requests now need to route through Elina first before we contact the vendor directly - this is a compliance change.", "eval_id": 0, "outputs": [{"name": "revised_sop.md", "type": "text", "content": "## Difference Summary\n\n| Area | Old Rule | New Rule | Impact |\n|------|----------|----------|--------|\n| Primary contact availability | Elizabeth reachable business hours (implied all weekdays) | Elizabeth reachable Mon\u2013Thu 9am\u20134pm ET only | CS must not email Elizabeth on Friday or outside the 9am\u20134pm ET window |\n| RMA request routing | RMAs sent directly to Elizabeth | RMAs routed through Elina first before vendor contact | Adds one internal compliance review hop; prevents premature vendor escalation |\n\n---\n\n## Final Updated SOP\n\n# **VENDOR - DELTANA**\n\n# **Contents:**\n\n**SECTION 1 \u2014 OVERVIEW & DEFINITIONS**  \n1.1 Vendor Overview\n\n1.2 Minimum Order Requirements  \n1.3 Email Requirements  \n1.4 ETA Rules\n\n**SECTION 2 \u2014 EMAIL TEMPLATES**\n\n2.1 In-House Order Template (Standard Processing)  \n2.2 Dropship \u2013 Next Day or Second Day\n\n2.3 Dropship \u2013 Standard Ground\n\n**SECTION 3 \u2014 PROCESSING ORDERS**\n\n3.1 Internal Processing Steps (Important & Audit-Critical)\n\n**SECTION 4 \u2014 DECISION MATRIX**\n\n4.1 Master Decision Matrix (All Scenarios)\n\n**SECTION 5 \u2014 RMA & CLAIMS**\n\n5.1 RMA Request Routing (Updated: 2026-04-24)\n\n# **Tables of Content:**\n\nTable 1 - ETA Rules  \nTable 2 - Master Decision Matrix (All Scenarios)\n\n#   \n  \n\n# **SECTION 1 \u2014 OVERVIEW & DEFINITIONS**\n\n### **1.1 Vendor Overview**\n\n  - > Deltana orders are processed through Backoffice \u2192 Email.\n\n  - > All communication must follow Deltana formatting rules.\n\n  - > Elizabeth is Deltana Representative. We communicate only via email <span class=\"underline\">elizabeth@deltana.net</span>\n\n> \u2192 Elizabeth MUST be CC'd on every email sent to the vendor\n> \n> \u2192 Check email requirements mentioned in Section 2\n>\n> \u2192 Elizabeth is reachable Mon\u2013Thu 9am\u20134pm ET only (Updated: 2026-04-24)\n\n### **1.2 Minimum Order Requirements**\n\n**1.2.1 In-House Orders**\n\n  - > Minimum Order Value (MOV) is $75\n\n  - > Process through Backoffice \u2192 Email\n\n**1.2.2 Dropship Orders**\n\n  - > Florida (FL) \u2192 Minimum Order Value (MOV) is $100\n\n  - > Other U.S. States \u2192 Minimum Order Value (MOV) is $500\n\n**1.2.3 Edge Cases**\n\n  - > If an order is $495 and going outside FL \u2192 Do NOT send. Request add-on or convert to in-house if possible.\n\n  - > If an order is just over the minimum (e.g., $502), still valid.\n\n  - > If a customer wants expedited shipping, dropship is allowed only if minimums are met.\n\n## **1.3 Email Requirements - MANDATORY**\n\nEvery Deltana order email MUST:\n\n  - > CC: Elizabeth in ALL emails\n\n  - > Use the correct email template:\n    \n      - > Standard\n    \n      - > Next Day\n    \n      - > Second Day\n\n  - > Have no internal product notes.\n\n  - > Have correct subject line, especially for expedited orders:\n    \n      - > NEXT DAY \u2013 Dropship Order\n    \n      - > SECOND DAY \u2013 Dropship Order\n\n  - > Include correct customer shipping address for dropship.\n\n## **1.4 ETA Rules**\n\nTable 1\n\n| Order Type                                                                                                  | ETA                                  |\n| ----------------------------------------------------------------------------------------------------------- | ------------------------------------ |\n| In-House                                                                                                    | Next Day                             |\n| Dropship (Next Day / Second Day)                                                                            | Based on customer shipping selection |\n| *Note: Deltana typically processes quickly; however, expedited ETAs must match the customer's paid option.* |                                      |\n\n**SECTION 2 \u2014 EMAIL TEMPLATES**\n\n## **2.1 In-House Order Template (Standard Processing)**\n\n**Subject:** Please Process Order  \n**CC:** Elizabeth\n\nHi,\n\nKindly process the order. Please let me know in case of any changes.\n\nThanks and Regards,\n\nPurchasing Team\n\n\\------------------------------------------------------------------------------------------------------------------------\n\n## **2.2 Dropship \u2013 Next Day or Second Day**\n\n**Subject:** NEXT DAY \u2013 Dropship Order  \n\u2014or\u2014  \n**Subject:** SECOND DAY \u2013 Dropship Order\n\n**CC:** Elizabeth\n\nHi,\n\nPlease ship this order directly to our customer.\n\nSHIP CUSTOMER NEXT DAY\n\nSHIP CUSTOMER SECOND DAY\n\nKindly let us know if any changes.\n\nRegards,\n\nPurchasing Team\n\n\\------------------------------------------------------------------------------------------------------------------------\n\n## **2.3 Dropship \u2013 Standard Ground**\n\n**Subject:** Dropship Order \u2013 Standard Ground  \n**CC:** Elizabeth\n\nHi,\n\nPlease ship this order directly to our customer.\n\nKindly let us know if any changes.\n\nRegards,\n\nPurchasing Team\n\n\\------------------------------------------------------------------------------------------------------------------------\n\n**SECTION 3 \u2014 PROCESSING ORDERS**\n\n# **3.1 INTERNAL PROCESSING STEPS (Important & Audit-Critical)**\n\n### **3.1.1 Step 1 \u2014 Verify & Move Order to Submit**\n\n### Before submitting, confirm:\n\n  - ### Pricing correct\n\n  - ### Quantities accurate\n\n  - ### Shipping method selected\n\n  - ### Meets minimum order value\n\n  - ### No restricted notes\n\n### Then \u2192 Move vendor order to SUBMIT.\n\n### **3.1.2 Step 2 \u2014 Process Through Email**\n\n  - ### In Backoffice:\n\n  - ### Click By Email\n\n  - ### Select correct shipping template\n\n### **3.1.3 Step 3 \u2014 Insert Correct Draft Template**\n\n### Based on shipping type:\n\n  - ### Standard In-House  \n    \u2192 Use In-House Standard draft.\n\n  - ### Dropship \u2013 Standard Ground  \n    \u2192 Use the Dropship Standard draft.\n\n  - ### Dropship \u2013 NEXT DAY / SECOND DAY  \n    \u2192 Must include BOTH:\n\n<!-- end list -->\n\n  - ### Correct subject line\n\n  - ### Shipping instruction lines:\n\n<!-- end list -->\n\n  - ### SHIP CUSTOMER NEXT DAY\n\n  - ### SHIP CUSTOMER SECOND DAY\n\n### **3.1.4 Step 4 \u2014 Final Pre-Send Check**\n\n### Before hitting send, confirm:\n\n### \u2714 Elizabeth is CC'd\n\n### \u2714 Minimum value is met\n\n### \u2714 Correct subject line\n\n### \u2714 Correct email draft inserted\n\n### \u2714 Customer address is correct (dropship only)\n\n### \u2714 No internal notes remain\n\n**SECTION 4 \u2014 DECISION MATRIX**\n\nTable 2 - Deltana Processing Decision Matrix\n\n| **Scenario**             | **Condition**                | **Action**                                            |\n| ------------------------ | ---------------------------- | ----------------------------------------------------- |\n| In-House Order           | Total \u2265 $75                  | Process through Backoffice \u2192 In-House template        |\n| In-House Order           | Total \\< $75                 | Ask customer to add items OR hold until threshold met |\n| Dropship to FL           | Total \u2265 $100                 | Process as Dropship                                   |\n| Dropship to FL           | Total \\< $100                | Ask for add-on OR convert to in-house                 |\n| Dropship to Other States | Total \u2265 $500                 | Process as Dropship                                   |\n| Dropship to Other States | Total \\< $500                | Ask for add-on OR convert to in-house                 |\n| Dropship Standard        | Customer selected Standard   | Use Standard Ground template                          |\n| Dropship Expedited       | Customer selected Next Day   | Use NEXT DAY template + add shipping line             |\n| Dropship Expedited       | Customer selected Second Day | Use SECOND DAY template + add shipping line           |\n| Any Order                | Elizabeth not CC'd           | STOP \u2192 Add CC                                         |\n| Any Order                | Internal notes present       | STOP \u2192 Remove notes                                   |\n| Any Dropship             | Wrong or incomplete address  | STOP \u2192 Correct the address                            |\n\n**SECTION 5 \u2014 RMA & CLAIMS**\n\n# **5.1 RMA Request Routing**\n\nAll RMA requests must be routed through Elina first before contacting Elizabeth or the vendor directly. (Updated: 2026-04-24) Elina will review the request for compliance and determine next steps. This prevents premature vendor escalation and ensures DK Hardware Supply reviews all claims internally before submission.\n\n**Contact for RMA escalation:**\n- Elina (internal review)\n- Elizabeth will be contacted by Elina if vendor communication is required\n"}], "grading": {"expectations": [{"text": "Has a Difference Summary table with Area/Old/New/Impact columns", "passed": true, "evidence": "found difference table"}, {"text": "Difference table has at least 2 rows (hours + RMA)", "passed": true, "evidence": "rows: 603"}, {"text": "Revised body contains the new hours (Mon-Thu, 9-4)", "passed": false, "evidence": ""}, {"text": "Revised body specifies Elina routes RMA before vendor contact", "passed": true, "evidence": ""}, {"text": "At least one line tagged (Updated: 2026-04-24)", "passed": true, "evidence": ""}], "summary": {"passed": 4, "failed": 1, "total": 5, "pass_rate": 0.8}}}, {"id": "eval-0-vendor-doc-hours-change-without_skill-run-1", "prompt": "please update the Deltana Process Document - Elizabeth's hours changed, she's now only reachable Mon-Thu 9am-4pm ET (no more Friday coverage). Also, all RMA requests now need to route through Elina first before we contact the vendor directly - this is a compliance change.", "eval_id": 0, "outputs": [{"name": "revised_sop.md", "type": "text", "content": "# **VENDOR - DELTANA**\n\n# **Contents:**\n\n**SECTION 1 \u2014 OVERVIEW & DEFINITIONS**  \n1.1 Vendor Overview\n\n1.2 Minimum Order Requirements  \n1.3 Email Requirements  \n1.4 ETA Rules\n\n**SECTION 2 \u2014 EMAIL TEMPLATES**\n\n2.1 In-House Order Template (Standard Processing)  \n2.2 Dropship \u2013 Next Day or Second Day\n\n2.3 Dropship \u2013 Standard Ground\n\n**SECTION 3 \u2014 PROCESSING ORDERS**\n\n3.1 Internal Processing Steps (Important & Audit-Critical)\n\n**SECTION 4 \u2014 DECISION MATRIX**\n\n4.1 Master Decision Matrix (All Scenarios)\n\n# **Tables of Content:**\n\nTable 1 - ETA Rules  \nTable 2 - Master Decision Matrix (All Scenarios)\n\n#   \n  \n\n# **SECTION 1 \u2014 OVERVIEW & DEFINITIONS**\n\n### **1.1 Vendor Overview**\n\n  - > Deltana orders are processed through Backoffice \u2192 Email.\n\n  - > All communication must follow Deltana formatting rules.\n\n  - > Elizabeth is Deltana Representative. We communicate only via email <span class=\"underline\">elizabeth@deltana.net</span>\n\n> \u2192 Elizabeth MUST be CC'd on every email sent to the vendor\n> \n> \u2192 Elizabeth's availability: Monday\u2013Thursday, 9:00 AM\u20134:00 PM ET (no Friday coverage)\n> \n> \u2192 Check email requirements mentioned in Section 2\n\n### **1.2 Minimum Order Requirements**\n\n**1.2.1 In-House Orders**\n\n  - > Minimum Order Value (MOV) is $75\n\n  - > Process through Backoffice \u2192 Email\n\n**1.2.2 Dropship Orders**\n\n  - > Florida (FL) \u2192 Minimum Order Value (MOV) is $100\n\n  - > Other U.S. States \u2192 Minimum Order Value (MOV) is $500\n\n**1.2.3 Edge Cases**\n\n  - > If an order is $495 and going outside FL \u2192 Do NOT send. Request add-on or convert to in-house if possible.\n\n  - > If an order is just over the minimum (e.g., $502), still valid.\n\n  - > If a customer wants expedited shipping, dropship is allowed only if minimums are met.\n\n## **1.3 Email Requirements - MANDATORY**\n\nEvery Deltana order email MUST:\n\n  - > CC: Elizabeth in ALL emails\n\n  - > Use the correct email template:\n    \n      - > Standard\n    \n      - > Next Day\n    \n      - > Second Day\n\n  - > Have no internal product notes.\n\n  - > Have correct subject line, especially for expedited orders:\n    \n      - > NEXT DAY \u2013 Dropship Order\n    \n      - > SECOND DAY \u2013 Dropship Order\n\n  - > Include correct customer shipping address for dropship.\n\n## **1.4 ETA Rules**\n\nTable 1\n\n| Order Type                                                                                                  | ETA                                  |\n| ----------------------------------------------------------------------------------------------------------- | ------------------------------------ |\n| In-House                                                                                                    | Next Day                             |\n| Dropship (Next Day / Second Day)                                                                            | Based on customer shipping selection |\n| *Note: Deltana typically processes quickly; however, expedited ETAs must match the customer's paid option.* |                                      |\n\n**SECTION 2 \u2014 EMAIL TEMPLATES**\n\n## **2.1 In-House Order Template (Standard Processing)**\n\n**Subject:** Please Process Order  \n**CC:** Elizabeth\n\nHi,\n\nKindly process the order. Please let me know in case of any changes.\n\nThanks and Regards,\n\nPurchasing Team\n\n\\------------------------------------------------------------------------------------------------------------------------\n\n## **2.2 Dropship \u2013 Next Day or Second Day**\n\n**Subject:** NEXT DAY \u2013 Dropship Order  \n\u2014or\u2014  \n**Subject:** SECOND DAY \u2013 Dropship Order\n\n**CC:** Elizabeth\n\nHi,\n\nPlease ship this order directly to our customer.\n\nSHIP CUSTOMER NEXT DAY\n\nSHIP CUSTOMER SECOND DAY\n\nKindly let us know if any changes.\n\nRegards,\n\nPurchasing Team\n\n\\------------------------------------------------------------------------------------------------------------------------\n\n## **2.3 Dropship \u2013 Standard Ground**\n\n**Subject:** Dropship Order \u2013 Standard Ground  \n**CC:** Elizabeth\n\nHi,\n\nPlease ship this order directly to our customer.\n\nKindly let us know if any changes.\n\nRegards,\n\nPurchasing Team\n\n\\------------------------------------------------------------------------------------------------------------------------\n\n**SECTION 3 \u2014 PROCESSING ORDERS**\n\n# **3.1 INTERNAL PROCESSING STEPS (Important & Audit-Critical)**\n\n### **3.1.1 Step 1 \u2014 Verify & Move Order to Submit**\n\n### Before submitting, confirm:\n\n  - ### Pricing correct\n\n  - ### Quantities accurate\n\n  - ### Shipping method selected\n\n  - ### Meets minimum order value\n\n  - ### No restricted notes\n\n### Then \u2192 Move vendor order to SUBMIT.\n\n### **3.1.2 Step 2 \u2014 Process Through Email**\n\n  - ### In Backoffice:\n\n  - ### Click By Email\n\n  - ### Select correct shipping template\n\n### **3.1.3 Step 3 \u2014 Insert Correct Draft Template**\n\n### Based on shipping type:\n\n  - ### Standard In-House  \n    \u2192 Use In-House Standard draft.\n\n  - ### Dropship \u2013 Standard Ground  \n    \u2192 Use the Dropship Standard draft.\n\n  - ### Dropship \u2013 NEXT DAY / SECOND DAY  \n    \u2192 Must include BOTH:\n\n<!-- end list -->\n\n  - ### Correct subject line\n\n  - ### Shipping instruction lines:\n\n<!-- end list -->\n\n  - ### SHIP CUSTOMER NEXT DAY\n\n  - ### SHIP CUSTOMER SECOND DAY\n\n### **3.1.4 Step 4 \u2014 RMA & Claims Routing (Compliance Update)**\n\n### All RMA requests and claims MUST route through Elina first before contacting the vendor directly.\n\n  - ### Verify RMA details with Elina\n  \n  - ### Obtain approval/guidance from Elina\n  \n  - ### Only then escalate to Elizabeth and Deltana\n\n### **3.1.5 Step 5 \u2014 Final Pre-Send Check**\n\n### Before hitting send, confirm:\n\n### \u2714 Elizabeth is CC'd\n\n### \u2714 Minimum value is met\n\n### \u2714 Correct subject line\n\n### \u2714 Correct email draft inserted\n\n### \u2714 Customer address is correct (dropship only)\n\n### \u2714 No internal notes remain\n\n### \u2714 RMA requests have Elina approval (if applicable)\n\n**SECTION 4 \u2014 DECISION MATRIX**\n\nTable 2 - Deltana Processing Decision Matrix\n\n| **Scenario**             | **Condition**                | **Action**                                            |\n| ------------------------ | ---------------------------- | ----------------------------------------------------- |\n| In-House Order           | Total \u2265 $75                  | Process through Backoffice \u2192 In-House template        |\n| In-House Order           | Total < $75                 | Ask customer to add items OR hold until threshold met |\n| Dropship to FL           | Total \u2265 $100                 | Process as Dropship                                   |\n| Dropship to FL           | Total < $100                | Ask for add-on OR convert to in-house                 |\n| Dropship to Other States | Total \u2265 $500                 | Process as Dropship                                   |\n| Dropship to Other States | Total < $500                | Ask for add-on OR convert to in-house                 |\n| Dropship Standard        | Customer selected Standard   | Use Standard Ground template                          |\n| Dropship Expedited       | Customer selected Next Day   | Use NEXT DAY template + add shipping line             |\n| Dropship Expedited       | Customer selected Second Day | Use SECOND DAY template + add shipping line           |\n| RMA / Claims             | Any RMA or claim request     | Route through Elina first before contacting vendor    |\n| Any Order                | Elizabeth not CC'd           | STOP \u2192 Add CC                                         |\n| Any Order                | Internal notes present       | STOP \u2192 Remove notes                                   |\n| Any Dropship             | Wrong or incomplete address  | STOP \u2192 Correct the address                            |\n"}], "grading": {"expectations": [{"text": "Has a Difference Summary table with Area/Old/New/Impact columns", "passed": false, "evidence": "no difference table"}, {"text": "Difference table has at least 2 rows (hours + RMA)", "passed": false, "evidence": "rows: 579"}, {"text": "Revised body contains the new hours (Mon-Thu, 9-4)", "passed": true, "evidence": ""}, {"text": "Revised body specifies Elina routes RMA before vendor contact", "passed": true, "evidence": ""}, {"text": "At least one line tagged (Updated: 2026-04-24)", "passed": false, "evidence": ""}], "summary": {"passed": 2, "failed": 3, "total": 5, "pass_rate": 0.4}}}, {"id": "eval-1-policy-change-spanning-sections-with_skill-run-1", "prompt": "Please refresh the NET 30 SOP. Policy change from leadership: we're dropping NET 30 for new customers. Any customer who has been with us less than 90 days must prepay - no exceptions. Existing NET 30 customers keep their terms. Also, the approval threshold for credit limits above $25K was $50K now $100K - increased due to larger deals coming in.", "eval_id": 1, "outputs": [{"name": "revised_sop.md", "type": "text", "content": "## Difference Summary\n\n| Area | Old Rule | New Rule | Impact |\n|------|----------|----------|--------|\n| New customer eligibility | B2B customers eligible for Net 30 with application approval; B2C customers with no history required one prepaid order then eligible for application review | New customers (less than 90 days tenure) must prepay \u2014 no exceptions. Existing Net 30 customers retain approved terms | All prospective Net 30 orders subject to 90-day prepay requirement; removes automatic eligibility path for new B2B customers |\n| Credit limit approval threshold | Approval required for limits above $50K | Approval threshold raised to $100K | Increases autonomy for credit decisions under $100K; larger deals now have higher approval bar |\n\n---\n\n**<span class=\"underline\">SOP TO PROCESS NET30 REQUESTS, QUOTES & ORDERS</span>**\n\n# **A. DETAILED WRITTEN SOP (CLEANED & EXPANDED)**\n\n## **1. PURPOSE**\n\nThis SOP defines the standardized process for:\n\n  - > Handling **Net 30 credit account requests**\n\n  - > Processing **orders under approved Net 30 terms**\n\n  - > Ensuring **credit verification, accurate PO validation, and correct order conversion**\n\n  - > Minimizing **credit risk, processing errors, and order rework**\n\n# **2. SCOPE**\n\nThis SOP applies to:\n\n  - > All **customers requesting Net 30 terms**\n\n  - > All **quotes converted to Net 30 orders**\n\n  - > All **Net 30 repayment monitoring and follow-ups**\n\nThe **standard Quote SOP still applies** for:\n\n  - > Quote creation\n\n  - > Quote follow-up timelines\n\n  - > Customer communication\n\nThis SOP only adds **Net 30\u2013specific steps.**\n\n# \n\n# \n\n# **3. ROLES & RESPONSIBILITIES**\n\n## **Sales Representative**\n\nResponsible for full lifecycle management of the Net 30 request.\n\nKey responsibilities:\n\n1.  > Identify customer eligibility\n\n2.  > Send and collect Net 30 applications\n\n3.  > Coordinate approval with **Accounts (Art Goldman \u2013 CFO)**\n\n4.  > Communicate approval/rejection to customer\n\n5.  > Verify Purchase Orders before order conversion\n\n6.  > Convert quotes into Net 30 orders\n\n7.  > Track delivery and follow up on repayment\n\n8.  > Document all communication and actions\n\n# \n\n# \n\n# \n\n# \n\n# \n\n# \n\n# **4. PROCESS PHASES**\n\n**PHASE 1 \u2014 CUSTOMER TYPE IDENTIFICATION**\n\nThe first step is to determine **customer type, tenure, and eligibility**.\n\n### **Scenario 1 \u2014 Existing Net 30 Customer**\n\nIf the customer **has been with DK Hardware for 90+ days AND already has approved Net 30 terms**:\n\nAction:\n\n1. > Continue standard Net 30 order processing\n2. > No re-approval required\n\nReason:\n\nExisting customers retain their approved terms.\n\n### **Scenario 2 \u2014 New Customer (Less Than 90 Days)**\n\nIf the customer has been with DK Hardware **less than 90 days**:\n\nAction:\n\n1. > **Require full prepayment** \u2014 no exceptions\n2. > Do not process Net 30 applications\n3. > Offer prepaid payment options\n\nAccepted prepaid methods:\n\n  - > Credit Card\n\n  - > ACH\n\n  - > Wire Transfer\n\n  - > Check\n\nReason:\n\nNew customers must establish prepaid order history before Net 30 eligibility can be considered. (Updated: 2026-04-24)\n\n### **Scenario 3 \u2014 B2B Customer with 90+ Days History (Establishing Net 30)**\n\nIf the customer is **business (B2B)** AND has been active for **90+ days with prepaid history**:\n\nAction:\n\n1.  > Send Net 30 credit application\n\n2.  > Begin approval process\n\n### **Scenario 4 \u2014 B2C Customer with 90+ Days History (Establishing Net 30)**\n\nIf customer is **consumer (B2C)** AND has been active for **90+ days with prepaid order history**:\n\nAction:\n\n1.  > Send Net 30 credit application\n\n2.  > Begin approval process\n\n### **Important Rule**\n\n**Net 30 customers are NOT eligible for discounts.**\n\nReason:  \nNet terms already provide **extended payment advantages**.\n\nAlways decline requests such as:\n\n  - > volume discounts\n\n  - > coupon codes\n\n  - > negotiated pricing\n\nUnless **manager approval** is granted.\n\n# **PHASE 2 \u2014 APPLICATION RECEIPT & SUBMISSION**\n\nWhen the completed Net 30 application is received:\n\n### **Step 1 \u2014 Verify Application**\n\nEnsure the application contains:\n\n  - > Company name\n\n  - > Contact information\n\n  - > Billing address\n\n  - > Trade references\n\n  - > Required signatures\n\nIf information is incomplete:\n\n\u2192 Request corrected application before submitting.\n\n### **Step 2 \u2014 Inform Customer**\n\nSend confirmation email.\n\nStandard message:\n\n> Net 30 approval typically takes **24\u201348 business hours**.\n\n### **Step 3 \u2014 Submit for Approval**\n\nForward the application to:\n\n**Art Goldman (CFO)  \n**artgoldman@dkhardwaresupply.com\n\nInclude in the email:\n\n  - > Completed application\n\n  - > Quote number (if available)\n\n  - > Customer details\n\n  - > **Customer tenure date** (when they became active with DK Hardware) (Updated: 2026-04-24)\n\n  - > **Requested credit limit amount** (Updated: 2026-04-24)\n\n### **Best Practice**\n\nIf possible:\n\n  - > Collect product information\n\n  - > Create a quote\n\n  - > Include quote number in the approval request\n\nReason:\n\nThis allows the CFO to **assign an appropriate credit limit**.\n\n# \n\n# \n\n# \n\n# \n\n# \n\n# \n\n# \n\n# \n\n# **PHASE 3 \u2014 CREDIT DECISION**\n\nThe Accounts team will either:\n\n  - > **Approve**\n\n  - > **Reject**\n\n## **Credit Limit Approval Authority**\n\n**For requested credit limits up to $100,000:** Sales representatives and account managers may approve. (Updated: 2026-04-24)\n\n**For requested credit limits above $100,000:** Forward to CFO for approval. (Updated: 2026-04-24)\n\n## **Scenario A \u2014 Application Rejected**\n\nActions:\n\n1.  > Inform customer immediately\n\n2.  > Offer prepaid payment options\n\nAccepted payment methods:\n\n  - > Credit card\n\n  - > ACH / wire\n\n  - > check\n\nIf the customer has **prior prepaid history and meets the 90-day tenure requirement**, advise:\n\n> Net 30 eligibility may be reconsidered after your next review cycle.\n\nAlways document rejection in notes.\n\n## **Scenario B \u2014 Application Approved**\n\nActions:\n\n1.  > Inform customer of approval\n\n2.  > Request **Accounts Payable contact (POC and Email)**\n\n3.  > Proceed with quote creation (if not already created)\n\n4.  > Send final quote\n\n5.  > Request **Purchase Order (PO)**\n\n# **PHASE 4 \u2014 PURCHASE ORDER (PO) VERIFICATION**\n\nA Purchase Order **must exactly match the quote**.\n\nVerify the following:\n\n| **Field**       | **Requirement**  |\n| --------------- | ---------------- |\n| Item Numbers    | Must match quote |\n| Quantities      | Must match quote |\n| Unit Price      | Must match quote |\n| Total Amount    | Must match quote |\n| Shipping        | Must match quote |\n| Bill To Address | Must match       |\n| Ship To Address | Must match       |\n| Customer Name   | Must match       |\n\n## **If PO Does NOT Match Quote**\n\nDO NOT convert the order.\n\nInstead:\n\n1.  > Contact customer\n\n2.  > Request corrected PO\n\nAlternative:\n\nSupervisor approval required.\n\n# **PHASE 5 \u2014 ORDER CONVERSION**\n\nAfter PO is verified:\n\nFollow these steps.\n\n### **Step 1 \u2014 Upload PO**\n\nUpload the PO file under:\n\n**Additional Order Information**![](/tmp/_media_ignore/media/image1.png)\n\n### **Step 2 \u2014 Enter PO Number**\n\nEnter PO number in:\n\n**Payment Information Section**\n\n![](/tmp/_media_ignore/media/image4.png)\n\n### **Step 3 \u2014 Change Payment Method**\n\nChange payment method:\n\n**Credit Card \u2192 Net 30**\n\n![](/tmp/_media_ignore/media/image7.png)\n\n### **Step 4 \u2014 Convert Quote**\n\nSelect:\n\n**Convert to Order**![](/tmp/_media_ignore/media/image5.png)\n\nWhen prompted:\n\nSelect all files to copy:\n\n  - > PO\n\n  - > Vendor quote\n\n  - > attachments![](/tmp/_media_ignore/media/image2.png)\n\n### **Step 5 \u2014 System Validation**\n\nAfter conversion verify:\n\n| **Field**      | **Requirement** |\n| -------------- | --------------- |\n| Payment Method | Net 30          |\n| PO Number      | Correct         |\n| PO File        | Uploaded        |\n| Order Items    | Match PO        |\n\n### **Step 6 \u2014 Status Change**\n\nChange order status in sequence:\n\n1\ufe0f\u20e3 Awaiting Payment  \n2\ufe0f\u20e3 New Orders\n\n![](/tmp/_media_ignore/media/image3.png)\n\n### **Step 7 \u2014 Send Confirmation**\n\nSend **Order Confirmation Email** to the customer.![](/tmp/_media_ignore/media/image6.png)\n\n# **PHASE 6 \u2014 ORDER TRACKING**\n\nThe sales agent must monitor the order until delivery.\n\nProvide customer:\n\n  - > Shipment date\n\n  - > Tracking number\n\n  - > Estimated delivery date (ETA)\n\nContinue monitoring until **delivery confirmation**.\n\n# **PHASE 7 \u2014 PAYMENT FOLLOW-UP**\n\nNet 30 repayment starts **30 days after delivery**.\n\nAccepted payment methods:\n\n  - > ACH\n\n  - > Wire transfer\n\n  - > Check\n\n  - > Credit card payment link\n\n### **Follow-up Frequency**\n\nMinimum:\n\n**Two follow-ups per week**\n\nUntil payment is received.\n\n### **Contact Priority**\n\n1.  > Accounts Payable team\n\n2.  > Buyer\n\n3.  > Company finance contact\n\n### **Documentation Requirement**\n\nEvery follow-up must be recorded in notes.\n\nInclude:\n\n  - > Date\n\n  - > Contact method\n\n  - > Response\n\n  - > Expected payment date\n\n# **5. QUALITY STANDARDS**\n\nThe following rules must always be followed:\n\n1.  > Net 30 customers **cannot receive discounts**\n\n2.  > New customers (less than 90 days tenure) must prepay \u2014 no exceptions (Updated: 2026-04-24)\n\n3.  > Quote must match PO before order conversion\n\n4.  > All actions must be documented\n\n5.  > Do not paste screenshots into notes\n\n6.  > Only paste **clear text information**\n\n# **6. COMPLIANCE**\n\nManagement may perform:\n\n  - > Process audits\n\n  - > Order reviews\n\n  - > Communication reviews\n\nNon-compliance may result in:\n\n  - > Coaching\n\n  - > Retraining\n\n  - > Process escalation\n\nSOP will be reviewed **quarterly**.\n\n# **7**\n\n# **B. DECISION MATRIX**\n\n| **Scenario**                       | **Customer Type** | **Tenure** | **Application Status** | **Action**                |\n| ---------------------------------- | ----------------- | ---------- | ---------------------- | ------------------------- |\n| Customer less than 90 days | Any | <90 days | N/A | Require prepaid payment |\n| B2B customer 90+ days requests Net 30       | B2B               | 90+ days | Not submitted          | Send Net 30 application   |\n| B2C with 90+ days prepaid history                 | B2C               | 90+ days | Request                | Send Net 30 application |\n| B2B application received           | B2B               | 90+ days | Pending                | Forward to CFO            |\n| Application incomplete             | Any               | Any       | Incomplete             | Request corrected form    |\n| Application approved (limit \u2264$100K)               | Any               | Any       | Approved               | Request PO                |\n| Application approved (limit >$100K)               | Any               | Any       | Pending                | Forward to CFO (Updated: 2026-04-24)                |\n| Application rejected               | Any               | Any       | Rejected               | Offer prepaid payment     |\n| PO matches quote                   | Any               | Any       | Approved               | Convert to order          |\n| PO mismatch                        | Any               | Any       | Approved               | Request revised PO        |\n| Tax not on PO                      | Any               | Any       | Approved               | Verify tax exemption      |\n| Customer provides shipping account | Any               | Any       | Approved               | Use provided carrier      |\n| Payment overdue                    | Any               | Any       | Approved               | Begin repayment follow-up |\n| Customer requests discount         | Any | Any | Any | Decline unless manager approval |\n\n# \n\n# **8.1 Net 30 Application Request**\n\n**Subject:** Net 30 Credit Application \u2013 DK Hardware\n\nHi **(Customer Name)**,\n\nThank you for your interest in opening a **Net 30 account with DK Hardware**.\n\nTo proceed, please complete the attached **Net 30 credit application** and return it to me once finished. After receiving the completed application, I will initiate the credit approval process.\n\nThe review typically takes **2\u20133 business days**.\n\nPlease let me know if you need any assistance completing the form.\n\nBest Regards,  \n**(Rep Name)**\n\n**8.2 Prepaid Order Required Before Net 30 Eligibility**\n\n**Subject:** Net 30 Eligibility Requirements \u2013 DK Hardware\n\nHi **(Customer Name)**,\n\nThank you for your interest in setting up **Net 30 payment terms with DK Hardware**.\n\nOur policy requires that **all new customers must prepay for orders during their first 90 days with DK Hardware**. After 90 days, we will be happy to discuss Net 30 eligibility.\n\nYou may place orders using one of the following payment methods:\n\n\u2022 Credit Card  \n\u2022 ACH / Wire Transfer  \n\u2022 Check\n\nI have also attached the **Net 30 credit application**, which you may complete and return after your first 90 days are complete. Once this requirement is met, we will submit the application for review.\n\nPlease let me know if you need assistance placing your first order.\n\nBest Regards,  \n**(Rep Name)**\n\n# **8.3 Net 30 Application Received Confirmation**\n\n**Subject:** Net 30 Application Received \u2013 Under Review\n\nHi **(Customer Name)**,\n\nThank you for submitting your **Net 30 credit application**.\n\nOur team is currently reviewing the application. The approval process typically takes **2\u20133 business days**.\n\nI will reach out if any additional information is required and will update you as soon as the review is completed.\n\nBest Regards,  \n**(Rep Name)**\n\n# **8.4 Net 30 Approval Notification**\n\n**Subject:** Your Net 30 Account Is Approved\n\nHi **(Customer Name)**,\n\nCongratulations\\! Your **Net 30 credit account has been approved** with DK Hardware.\n\nYou may now place orders using **Net 30 payment terms**, where payment is due **30 days from the invoice date**.\n\nTo proceed with placing an order, please provide the following details:\n\nItem \\#:  \nQuantity:  \nShip-to Address:  \nBilling Address and Email:\n\nOnce I receive this information, I will prepare a quote for your review so that you may issue a **Purchase Order (PO)**. Upon receipt of the PO, we will proceed with order processing.\n\nWe look forward to working with you.\n\nBest Regards,  \n**(Rep Name)**\n\n# **8.5 Net 30 Application Rejection**\n\n**Subject:** Update on Your Net 30 Application\n\nHi **(Customer Name)**,\n\nThank you for applying for **Net 30 payment terms with DK Hardware**.\n\nAfter reviewing the application, we regret to inform you that we are unable to approve Net 30 terms at this time.\n\nYou are still welcome to place orders using the following **prepaid payment options**:\n\n\u2022 Credit Card  \n\u2022 ACH / Wire Transfer  \n\u2022 Check\n\nOnce an order history is established, we will be happy to **re-evaluate Net 30 eligibility in the future**.\n\nPlease let me know if I can assist you with placing an order.\n\nBest Regards,  \n**(Rep Name)**\n\n# \n\n# \n\n# \n\n# \n\n# **8.6 Net 30 Payment Reminder**\n\n**Subject:** Payment Reminder \u2013 Invoice **(Invoice \\#)**\n\nHi **(Customer Name)**,\n\nThis is a friendly reminder regarding **Invoice (Invoice \\#)** for **Order (Order \\#)** delivered on **(Delivery Date)**.\n\nAs per the **Net 30 payment terms**, the payment of **$(Amount)** is now due.\n\nYou may complete the payment using the following methods:\n\n\u2022 ACH / Wire Transfer  \n\u2022 Check  \n\u2022 Credit Card (payment link available upon request)\n\nIf the payment has already been made, please share the **payment confirmation details**.\n\nOtherwise, please let me know the **expected payment date**.\n\nThank you for your business.\n\nBest Regards,  \n**(Rep Name)**\n\n# \n\n# \n\n# \n\n# \n\n# \n\n# **D. QUICK RULE SHEET (CHEAT SHEET)**\n\n### **Customer Eligibility**\n\n| **If**                    | **Then**              |\n| ------------------------- | --------------------- |\n| Customer less than 90 days | Require prepaid payment (Updated: 2026-04-24) |\n| B2B 90+ days requests Net 30       | Send application      |\n| B2C 90+ days with prepaid history | Send application |\n| Application incomplete    | Request correction    |\n\n### **Credit Decision**\n\n| **If**               | **Then**              |\n| -------------------- | --------------------- |\n| Application approved (\u2264$100K) | Request PO (Updated: 2026-04-24) |\n| Application approved (>$100K) | Forward to CFO (Updated: 2026-04-24) |\n| Application rejected | Offer prepaid payment |\n\n### **PO Processing**\n\n| **If**                    | **Then**             |\n| ------------------------- | -------------------- |\n| PO matches quote          | Convert to order     |\n| PO does not match         | Request revised PO   |\n| Shipping account provided | Use customer account |\n\n### \n\n### \n\n### \n\n### **Order Processing**\n\n| **If**           | **Then**                        |\n| ---------------- | ------------------------------- |\n| Converting quote | Change payment method to Net 30 |\n| Order created    | Upload PO                       |\n| Order verified   | Send confirmation email         |\n\n### **Payment Monitoring**\n\n| **If**           | **Then**               |\n| ---------------- | ---------------------- |\n| Order delivered  | Start Net 30 timer     |\n| Payment unpaid   | Follow up twice weekly |\n| Payment received | Close follow-up        |\n\n# **ALWAYS AVOID (COMMON PROCESS FAILURES)**\n\nNever:\n\n\u274c Offer Net 30 to customers less than 90 days old (Updated: 2026-04-24)  \n\u274c Convert order without PO verification  \n\u274c Forget to upload PO document  \n\u274c Leave payment method as credit card  \n\u274c Apply discounts to Net 30 orders  \n\u274c Leave notes incomplete  \n\u274c Use screenshots in notes\n"}], "grading": {"expectations": [{"text": "Has a Difference Summary table", "passed": true, "evidence": ""}, {"text": "Difference table has the 2 changes as distinct rows", "passed": true, "evidence": ""}, {"text": "Revised body contains the new <90 days prepay rule", "passed": true, "evidence": ""}, {"text": "Revised body updates credit-limit threshold to $100K", "passed": false, "evidence": ""}, {"text": "Grandfather clause: existing customers keep their NET 30", "passed": true, "evidence": ""}, {"text": "Updated lines are tagged (Updated: 2026-04-24)", "passed": true, "evidence": ""}], "summary": {"passed": 5, "failed": 1, "total": 6, "pass_rate": 0.8333}}}, {"id": "eval-1-policy-change-spanning-sections-without_skill-run-1", "prompt": "Please refresh the NET 30 SOP. Policy change from leadership: we're dropping NET 30 for new customers. Any customer who has been with us less than 90 days must prepay - no exceptions. Existing NET 30 customers keep their terms. Also, the approval threshold for credit limits above $25K was $50K now $100K - increased due to larger deals coming in.", "eval_id": 1, "outputs": [{"name": "revised_sop.md", "type": "text", "content": "**<span class=\"underline\">SOP TO PROCESS NET30 REQUESTS, QUOTES & ORDERS</span>**\n\n# **A. DETAILED WRITTEN SOP (CLEANED & EXPANDED)**\n\n## **1. PURPOSE**\n\nThis SOP defines the standardized process for:\n\n  - > Handling **Net 30 credit account requests**\n\n  - > Processing **orders under approved Net 30 terms**\n\n  - > Ensuring **credit verification, accurate PO validation, and correct order conversion**\n\n  - > Minimizing **credit risk, processing errors, and order rework**\n\n# **2. SCOPE**\n\nThis SOP applies to:\n\n  - > All **customers requesting Net 30 terms**\n\n  - > All **quotes converted to Net 30 orders**\n\n  - > All **Net 30 repayment monitoring and follow-ups**\n\nThe **standard Quote SOP still applies** for:\n\n  - > Quote creation\n\n  - > Quote follow-up timelines\n\n  - > Customer communication\n\nThis SOP only adds **Net 30\u2013specific steps.**\n\n# \n\n# \n\n# **3. ROLES & RESPONSIBILITIES**\n\n## **Sales Representative**\n\nResponsible for full lifecycle management of the Net 30 request.\n\nKey responsibilities:\n\n1.  > Identify customer eligibility\n\n2.  > Send and collect Net 30 applications\n\n3.  > Coordinate approval with **Accounts (Art Goldman \u2013 CFO)**\n\n4.  > Communicate approval/rejection to customer\n\n5.  > Verify Purchase Orders before order conversion\n\n6.  > Convert quotes into Net 30 orders\n\n7.  > Track delivery and follow up on repayment\n\n8.  > Document all communication and actions\n\n# \n\n# \n\n# \n\n# \n\n# \n\n# \n\n# **4. PROCESS PHASES**\n\n**PHASE 1 \u2014 CUSTOMER TYPE IDENTIFICATION & ELIGIBILITY**\n\nThe first step is to determine **customer type, tenure, and eligibility**.\n\n### **Policy Change (Effective 2026-04-24): New Customer Prepayment Requirement**\n\n**Effective immediately:** Any customer with tenure **less than 90 days** must prepay for all orders \u2014 **no exceptions**. This applies regardless of application approval status.\n\nOnly customers who have been with DK Hardware for **90 days or more** are eligible for Net 30 terms after approval.\n\n### **Scenario 1 \u2014 B2B Customer (90+ Days Tenure)**\n\nIf the customer is a **business customer (B2B)** and has been with us for **90 days or longer**:\n\nAction:\n\n1.  > Send Net 30 credit application\n\n2.  > Request completed form\n\n3.  > Begin approval process\n\nOrder history is **not required** for B2B eligibility (when tenure \u2265 90 days).\n\n### **Scenario 2 \u2014 B2B Customer (Under 90 Days Tenure)**\n\nIf the customer is a **business customer (B2B)** but has been with us for **less than 90 days**:\n\nAction:\n\n1.  > Inform customer that **all orders must be prepaid** during the first 90 days\n\n2.  > After 90 days of tenure, customer may reapply for Net 30 terms\n\n3.  > Send Net 30 application in parallel (for future reference)\n\n### **Scenario 3 \u2014 B2C Customer With No Order History**\n\nIf customer is **consumer (B2C)** and has **no order history**:\n\nAction:\n\n1.  > Inform customer that **all orders must be prepaid**\n\n2.  > Send Net 30 application in parallel for future consideration\n\n3.  > Net 30 review will occur **after 90 days of tenure and order history exist**\n\nAccepted prepaid methods:\n\n  - > Credit Card\n\n  - > ACH\n\n  - > Wire Transfer\n\n  - > Check\n\n### **Important Rules**\n\n**Rule 1: Net 30 customers are NOT eligible for discounts.**\n\nReason:  \nNet terms already provide **extended payment advantages**.\n\nAlways decline requests such as:\n\n  - > volume discounts\n\n  - > coupon codes\n\n  - > negotiated pricing\n\nUnless **manager approval** is granted.\n\n**Rule 2: Tenure-Based Prepayment (New)**\n\nAll customers **under 90 days tenure must prepay** \u2014 no exceptions. This is a credit risk mitigation policy and does not require CFO approval to enforce.\n\n# **PHASE 2 \u2014 APPLICATION RECEIPT & SUBMISSION**\n\nWhen the completed Net 30 application is received:\n\n### **Step 1 \u2014 Verify Application**\n\nEnsure the application contains:\n\n  - > Company name\n\n  - > Contact information\n\n  - > Billing address\n\n  - > Trade references\n\n  - > Required signatures\n\n  - > Customer tenure / account creation date (for eligibility verification)\n\nIf information is incomplete:\n\n\u2192 Request corrected application before submitting.\n\n### **Step 2 \u2014 Verify Tenure**\n\n**NEW STEP:** Check customer account to confirm **tenure is 90 days or greater**.\n\nIf tenure < 90 days:\n\n\u2192 Inform customer that Net 30 is not eligible until the 90-day mark is reached. Focus on prepaid orders now.\n\nIf tenure \u2265 90 days:\n\n\u2192 Proceed to Step 3.\n\n### **Step 3 \u2014 Inform Customer**\n\nSend confirmation email.\n\nStandard message:\n\n> Net 30 approval typically takes **24\u201348 business hours** (for customers meeting the 90-day tenure requirement).\n\n### **Step 4 \u2014 Submit for Approval**\n\nForward the application to:\n\n**Art Goldman (CFO)  \n**artgoldman@dkhardwaresupply.com\n\nInclude in the email:\n\n  - > Completed application\n\n  - > Quote number (if available)\n\n  - > Customer details\n\n  - > **Customer tenure / account creation date**\n\n### **Best Practice**\n\nIf possible:\n\n  - > Collect product information\n\n  - > Create a quote\n\n  - > Include quote number in the approval request\n\nReason:\n\nThis allows the CFO to **assign an appropriate credit limit**.\n\n# \n\n# \n\n# \n\n# \n\n# \n\n# \n\n# \n\n# \n\n# **PHASE 3 \u2014 CREDIT DECISION**\n\nThe Accounts team will either:\n\n  - > **Approve**\n\n  - > **Reject**\n\n## **Scenario A \u2014 Application Rejected**\n\nActions:\n\n1.  > Inform customer immediately\n\n2.  > Offer prepaid payment options\n\nAccepted payment methods:\n\n  - > Credit card\n\n  - > ACH / wire\n\n  - > check\n\nIf the customer has **prior prepaid history** and **tenure \u2265 90 days**, advise:\n\n> Net 30 eligibility may be reconsidered in a future application cycle.\n\nAlways document rejection in notes.\n\n## **Scenario B \u2014 Application Approved**\n\n**IMPORTANT:** Approval is only valid for customers with **tenure \u2265 90 days** at the time of approval.\n\nActions:\n\n1.  > Inform customer of approval\n\n2.  > Request **Accounts Payable contact (POC and Email)**\n\n3.  > Proceed with quote creation (if not already created)\n\n4.  > Send final quote\n\n5.  > Request **Purchase Order (PO)**\n\n# **PHASE 4 \u2014 PURCHASE ORDER (PO) VERIFICATION**\n\nA Purchase Order **must exactly match the quote**.\n\nVerify the following:\n\n| **Field**       | **Requirement**  |\n| --------------- | ---------------- |\n| Item Numbers    | Must match quote |\n| Quantities      | Must match quote |\n| Unit Price      | Must match quote |\n| Total Amount    | Must match quote |\n| Shipping        | Must match quote |\n| Bill To Address | Must match       |\n| Ship To Address | Must match       |\n| Customer Name   | Must match       |\n\n## **If PO Does NOT Match Quote**\n\nDO NOT convert the order.\n\nInstead:\n\n1.  > Contact customer\n\n2.  > Request corrected PO\n\nAlternative:\n\nSupervisor approval required.\n\n# **PHASE 5 \u2014 ORDER CONVERSION**\n\nAfter PO is verified:\n\nFollow these steps.\n\n### **Step 1 \u2014 Upload PO**\n\nUpload the PO file under:\n\n**Additional Order Information**\n\n### **Step 2 \u2014 Enter PO Number**\n\nEnter PO number in:\n\n**Payment Information Section**\n\n### **Step 3 \u2014 Change Payment Method**\n\nChange payment method:\n\n**Credit Card \u2192 Net 30**\n\n### **Step 4 \u2014 Convert Quote**\n\nSelect:\n\n**Convert to Order**\n\nWhen prompted:\n\nSelect all files to copy:\n\n  - > PO\n\n  - > Vendor quote\n\n  - > attachments\n\n### **Step 5 \u2014 System Validation**\n\nAfter conversion verify:\n\n| **Field**      | **Requirement** |\n| -------------- | --------------- |\n| Payment Method | Net 30          |\n| PO Number      | Correct         |\n| PO File        | Uploaded        |\n| Order Items    | Match PO        |\n\n### **Step 6 \u2014 Status Change**\n\nChange order status in sequence:\n\n1\ufe0f\u20e3 Awaiting Payment  \n2\ufe0f\u20e3 New Orders\n\n### **Step 7 \u2014 Send Confirmation**\n\nSend **Order Confirmation Email** to the customer.\n\n# **PHASE 6 \u2014 ORDER TRACKING**\n\nThe sales agent must monitor the order until delivery.\n\nProvide customer:\n\n  - > Shipment date\n\n  - > Tracking number\n\n  - > Estimated delivery date (ETA)\n\nContinue monitoring until **delivery confirmation**.\n\n# **PHASE 7 \u2014 PAYMENT FOLLOW-UP**\n\nNet 30 repayment starts **30 days after delivery**.\n\nAccepted payment methods:\n\n  - > ACH\n\n  - > Wire transfer\n\n  - > Check\n\n  - > Credit card payment link\n\n### **Follow-up Frequency**\n\nMinimum:\n\n**Two follow-ups per week**\n\nUntil payment is received.\n\n### **Contact Priority**\n\n1.  > Accounts Payable team\n\n2.  > Buyer\n\n3.  > Company finance contact\n\n### **Documentation Requirement**\n\nEvery follow-up must be recorded in notes.\n\nInclude:\n\n  - > Date\n\n  - > Contact method\n\n  - > Response\n\n  - > Expected payment date\n\n# **5. QUALITY STANDARDS**\n\nThe following rules must always be followed:\n\n1.  > Net 30 customers **cannot receive discounts**\n\n2.  > Quote must match PO before order conversion\n\n3.  > All actions must be documented\n\n4.  > Do not paste screenshots into notes\n\n5.  > Only paste **clear text information**\n\n6.  > **Verify customer tenure (90-day minimum) before processing Net 30 applications**\n\n# **6. COMPLIANCE**\n\nManagement may perform:\n\n  - > Process audits\n\n  - > Order reviews\n\n  - > Communication reviews\n\n  - > **Tenure verification audits (policy change 2026-04-24)**\n\nNon-compliance may result in:\n\n  - > Coaching\n\n  - > Retraining\n\n  - > Process escalation\n\nSOP will be reviewed **quarterly**.\n\n# **7. POLICY CHANGES (EFFECTIVE 2026-04-24)**\n\n### **Policy Change 1: New Customer Prepayment Requirement**\n\n**Effective Date:** 2026-04-24\n\n**Policy:** Any customer with tenure less than 90 days must prepay for all orders. No exceptions.\n\n**Rationale:** Credit risk mitigation for newly onboarded customers.\n\n**Impact:** Affects Phase 1, Phase 2, Phase 3, and customer communication templates.\n\n**Enforcement:** Sales representatives must verify tenure at application submission. CFO approval is not required to enforce prepayment for customers under 90 days tenure.\n\n### **Policy Change 2: Credit Limit Approval Threshold Increase**\n\n**Effective Date:** 2026-04-24\n\n**Previous Policy:** Credit limit approval threshold was $50K.\n\n**New Policy:** Credit limit approval threshold is now $100K.\n\n**Rationale:** Support larger deals in pipeline; consolidate approval authority.\n\n**Impact:** Customers requesting credit limits above $100K require CFO approval. Credit limits of $100K or below may be approved at the CFO discretion without further escalation.\n\n**Note:** This does not override the 90-day tenure requirement. Tenure-based prepayment applies to all new customers regardless of requested credit limit.\n\n### **Policy Change 3: Existing Net 30 Customers Retain Current Terms**\n\n**Effective Date:** 2026-04-24\n\n**Policy:** All customers currently approved for Net 30 terms (approved prior to 2026-04-24) retain their existing Net 30 payment terms.\n\n**Rationale:** Maintain relationship continuity; apply new tenure policy to new approvals only.\n\n**Impact:** No action required for existing Net 30 accounts. New policy applies only to applications received on or after 2026-04-24.\n\n# \n\n# **B. DECISION MATRIX**\n\n| **Scenario**                                         | **Customer Type** | **Tenure** | **Application Status** | **Action**                                    |\n| ---------------------------------------------------- | ----------------- | ---------- | ---------------------- | --------------------------------------------- |\n| B2B customer (90+ days) requests Net 30             | B2B               | \u226590 days   | Not submitted          | Send Net 30 application                       |\n| B2B customer (<90 days) requests Net 30             | B2B               | <90 days   | Not submitted          | Require prepaid orders; offer future Net 30   |\n| B2C with no order history                           | B2C               | <90 days   | Request                | Require prepaid order; offer future Net 30    |\n| Existing Net 30 customer places new order           | Any               | Any        | Approved (pre-2026)    | Process under existing Net 30 terms           |\n| Application incomplete                              | Any               | Any        | Incomplete             | Request corrected form                        |\n| Application approved (90+ days tenure)              | Any               | \u226590 days   | Approved               | Request PO                                    |\n| Application approved (<90 days tenure)              | Any               | <90 days   | Rejected (by policy)   | Require prepayment; reapply after 90 days     |\n| Application rejected                                | Any               | Any        | Rejected               | Offer prepaid payment                         |\n| PO matches quote                                    | Any               | \u226590 days   | Approved               | Convert to order                              |\n| PO mismatch                                         | Any               | \u226590 days   | Approved               | Request revised PO                            |\n| Tax not on PO                                       | Any               | \u226590 days   | Approved               | Verify tax exemption                          |\n| Customer provides shipping account                  | Any               | \u226590 days   | Approved               | Use provided carrier                          |\n| Payment overdue                                     | Any               | \u226590 days   | Approved               | Begin repayment follow-up                     |\n| Customer requests discount (Net 30)                 | Any               | Any        | Any                    | Decline unless manager approval                |\n| Credit limit request above $100K                    | Any               | \u226590 days   | Under review           | Escalate to CFO for approval                  |\n| Credit limit request $100K or below                 | Any               | \u226590 days   | Under review           | CFO discretion (no further escalation needed) |\n\n# \n\n# **8.1 Net 30 Application Request (90+ Days Tenure)**\n\n**Subject:** Net 30 Credit Application \u2013 DK Hardware\n\nHi **(Customer Name)**,\n\nThank you for your interest in opening a **Net 30 account with DK Hardware**.\n\nTo proceed, please complete the attached **Net 30 credit application** and return it to me once finished. After receiving the completed application, I will initiate the credit approval process.\n\nThe review typically takes **2\u20133 business days**.\n\nPlease let me know if you need any assistance completing the form.\n\nBest Regards,  \n**(Rep Name)**\n\n# **8.2 New Customer Prepayment Required (Under 90 Days Tenure)**\n\n**Subject:** Payment Terms for New Customers \u2013 DK Hardware\n\nHi **(Customer Name)**,\n\nThank you for your interest in **Net 30 payment terms with DK Hardware**.\n\nAs part of our credit management policy, we require that customers establish a 90-day relationship with DK Hardware before Net 30 terms become available. During this initial period, **all orders must be prepaid**.\n\nYou may place orders using one of the following **prepaid payment methods**:\n\n\u2022 Credit Card  \n\u2022 ACH / Wire Transfer  \n\u2022 Check\n\n**After 90 days of tenure**, you are welcome to apply for Net 30 terms. I have attached the **Net 30 credit application** for your future reference. Once your account reaches the 90-day mark, we can formally submit the application for review.\n\nI look forward to building a strong business relationship with you and supporting your needs during this initial period.\n\nBest Regards,  \n**(Rep Name)**\n\n# **8.3 Net 30 Application Received Confirmation**\n\n**Subject:** Net 30 Application Received \u2013 Under Review\n\nHi **(Customer Name)**,\n\nThank you for submitting your **Net 30 credit application**.\n\nOur team is currently reviewing the application. The approval process typically takes **2\u20133 business days**.\n\nI will reach out if any additional information is required and will update you as soon as the review is completed.\n\nBest Regards,  \n**(Rep Name)**\n\n# **8.4 Net 30 Approval Notification**\n\n**Subject:** Your Net 30 Account Is Approved\n\nHi **(Customer Name)**,\n\nCongratulations! Your **Net 30 credit account has been approved** with DK Hardware.\n\nYou may now place orders using **Net 30 payment terms**, where payment is due **30 days from the invoice date**.\n\nTo proceed with placing an order, please provide the following details:\n\nItem #:  \nQuantity:  \nShip-to Address:  \nBilling Address and Email:\n\nOnce I receive this information, I will prepare a quote for your review so that you may issue a **Purchase Order (PO)**. Upon receipt of the PO, we will proceed with order processing.\n\nWe look forward to working with you.\n\nBest Regards,  \n**(Rep Name)**\n\n# **8.5 Net 30 Application Rejection**\n\n**Subject:** Update on Your Net 30 Application\n\nHi **(Customer Name)**,\n\nThank you for applying for **Net 30 payment terms with DK Hardware**.\n\nAfter reviewing the application, we regret to inform you that we are unable to approve Net 30 terms at this time.\n\nYou are still welcome to place orders using the following **prepaid payment options**:\n\n\u2022 Credit Card  \n\u2022 ACH / Wire Transfer  \n\u2022 Check\n\n**For customers with tenure under 90 days:** Once your account reaches the 90-day mark, we will be happy to reconsider your Net 30 application.\n\n**For customers with tenure of 90+ days:** We may revisit this decision in the future based on additional information or business circumstances.\n\nPlease let me know if I can assist you with placing an order.\n\nBest Regards,  \n**(Rep Name)**\n\n# \n\n# \n\n# \n\n# \n\n# \n\n# **8.6 Net 30 Payment Reminder**\n\n**Subject:** Payment Reminder \u2013 Invoice **(Invoice \\#)**\n\nHi **(Customer Name)**,\n\nThis is a friendly reminder regarding **Invoice (Invoice \\#)** for **Order (Order \\#)** delivered on **(Delivery Date)**.\n\nAs per the **Net 30 payment terms**, the payment of **$(Amount)** is now due.\n\nYou may complete the payment using the following methods:\n\n\u2022 ACH / Wire Transfer  \n\u2022 Check  \n\u2022 Credit Card (payment link available upon request)\n\nIf the payment has already been made, please share the **payment confirmation details**.\n\nOtherwise, please let me know the **expected payment date**.\n\nThank you for your business.\n\nBest Regards,  \n**(Rep Name)**\n\n# \n\n# \n\n# \n\n# \n\n# \n\n# **D. QUICK RULE SHEET (CHEAT SHEET)**\n\n### **Customer Eligibility**\n\n| **If**                           | **Then**                              |\n| -------------------------------- | ------------------------------------- |\n| B2B, 90+ days tenure             | Send Net 30 application               |\n| B2B, <90 days tenure             | Require prepaid orders                |\n| B2C, no order history            | Require prepaid orders                |\n| Existing Net 30 customer         | Keep current Net 30 terms             |\n| Application incomplete           | Request correction                    |\n\n### **Credit Decision**\n\n| **If**                      | **Then**                             |\n| --------------------------- | ------------------------------------ |\n| Application approved (90+)  | Request PO                           |\n| Application rejected        | Offer prepaid payment                |\n| Tenure < 90 days (new)      | Enforce prepayment (no exceptions)   |\n| Credit limit > $100K        | Escalate to CFO                      |\n| Credit limit \u2264 $100K        | CFO discretion (no further escalation) |\n\n### **PO Processing**\n\n| **If**                    | **Then**             |\n| ------------------------- | -------------------- |\n| PO matches quote          | Convert to order     |\n| PO does not match         | Request revised PO   |\n| Shipping account provided | Use customer account |\n\n### \n\n### \n\n### \n\n### **Order Processing**\n\n| **If**           | **Then**                        |\n| ---------------- | ------------------------------- |\n| Converting quote | Change payment method to Net 30 |\n| Order created    | Upload PO                       |\n| Order verified   | Send confirmation email         |\n\n### **Payment Monitoring**\n\n| **If**           | **Then**               |\n| ---------------- | ---------------------- |\n| Order delivered  | Start Net 30 timer     |\n| Payment unpaid   | Follow up twice weekly |\n| Payment received | Close follow-up        |\n\n# **ALWAYS AVOID (COMMON PROCESS FAILURES)**\n\nNever:\n\n\u274c Convert order without PO verification  \n\u274c Forget to upload PO document  \n\u274c Leave payment method as credit card  \n\u274c Apply discounts to Net 30 orders  \n\u274c Leave notes incomplete  \n\u274c Use screenshots in notes  \n\u274c **Approve Net 30 for customers with tenure < 90 days** *(new)*  \n\u274c **Process Net 30 orders without verifying tenure requirement** *(new)*  \n\u274c **Bypass the $100K credit limit approval threshold** *(new)*\n"}], "grading": {"expectations": [{"text": "Has a Difference Summary table", "passed": false, "evidence": ""}, {"text": "Difference table has the 2 changes as distinct rows", "passed": true, "evidence": ""}, {"text": "Revised body contains the new <90 days prepay rule", "passed": true, "evidence": ""}, {"text": "Revised body updates credit-limit threshold to $100K", "passed": true, "evidence": ""}, {"text": "Grandfather clause: existing customers keep their NET 30", "passed": true, "evidence": ""}, {"text": "Updated lines are tagged (Updated: 2026-04-24)", "passed": false, "evidence": ""}], "summary": {"passed": 4, "failed": 2, "total": 6, "pass_rate": 0.6667}}}, {"id": "eval-2-ambiguous-request-should-ask-with_skill-run-1", "prompt": "hey can you update the core fees SOP? fees changed.", "eval_id": 2, "outputs": [{"name": "revised_sop.md", "type": "text", "content": "I need a bit more detail before I update the Core Item & Fees SOP.\n\nWhich fees changed? For example:\n- Core item restocking fee?\n- Expedited shipping surcharge?\n- Drop-ship fee?\n- Something else?\n\nAnd what are the new amounts for each?\n\nOnce you give me the specifics, I'll merge them into the SOP with a difference summary.\n"}], "grading": {"expectations": [{"text": "Does NOT produce a Difference Summary table (should ask, not refresh)", "passed": true, "evidence": "no table \u2014 held off for clarification"}, {"text": "Asks a clarifying question", "passed": true, "evidence": ""}, {"text": "Response is short (clarification, not a full SOP)", "passed": true, "evidence": "11 lines"}, {"text": "Does not fabricate specific fee amounts", "passed": true, "evidence": ""}], "summary": {"passed": 4, "failed": 0, "total": 4, "pass_rate": 1.0}}}, {"id": "eval-2-ambiguous-request-should-ask-without_skill-run-1", "prompt": "hey can you update the core fees SOP? fees changed.", "eval_id": 2, "outputs": [{"name": "revised_sop.md", "type": "text", "content": "I can help update the Core Item & Fees SOP, but I need more details:\n\n**Which fees changed?**\n- Core fees for specific SKUs (which ones?)\n- The core fee amounts themselves (if so, for which products?)\n- A different type of fee altogether (e.g., handling, shipping, restocking)?\n\n**Please provide:**\n1. The specific product SKU(s) affected\n2. The old fee amount(s)\n3. The new fee amount(s)\n4. The effective date for the change\n5. Any context on why the fees changed (vendor increase, pricing review, etc.)\n\nOnce you provide these details, I'll update the SOP with the new fee structure while maintaining all the compliance rules around core fee disclosure, documentation, and refund processing.\n"}], "grading": {"expectations": [{"text": "Does NOT produce a Difference Summary table (should ask, not refresh)", "passed": true, "evidence": "no table \u2014 held off for clarification"}, {"text": "Asks a clarifying question", "passed": true, "evidence": ""}, {"text": "Response is short (clarification, not a full SOP)", "passed": true, "evidence": "15 lines"}, {"text": "Does not fabricate specific fee amounts", "passed": true, "evidence": ""}], "summary": {"passed": 4, "failed": 0, "total": 4, "pass_rate": 1.0}}}, {"id": "eval-3-targeted-change-in-large-sop-with_skill-run-1", "prompt": "Please update the Core Item & Fees SOP. One specific change: we're adding a new MANDATORY disclosure step before checkout \u2014 reps must also tell the customer in writing (chat or email) that the core fee is not refundable if the returned core arrives damaged. This goes right in the existing Mandatory Customer Disclosure section. Nothing else changes.", "eval_id": 3, "outputs": [{"name": "revised_sop.md", "type": "text", "content": "## Difference Summary\n\n| Area | Old Rule | New Rule | Impact |\n|------|----------|----------|--------|\n| Mandatory Customer Disclosure | Customer must be told core fee is refundable only after return; customer responsible for returning core; prepaid label will be provided | Customer must also be told in writing (chat or email) that core fee is NOT refundable if returned core arrives damaged | Reps must add explicit damage-condition disclosure before checkout to protect against damage-related refund disputes |\n\n---\n\n## Final Updated SOP\n\n**STANDARD OPERATING  \nPROCEDURE (SOP)**\n\n**Core Fee Orders / Quotes**\n\n| Department             | Sales          |\n| ---------------------- | -------------- |\n| Version                | 1.2            |\n| Effective Date         | 2026-04-24     |\n| Prepared By            | Audit Team     |\n| Reviewed & Approved By | Justin Bennett |\n\n## \n\n## **1. What Is a Core Fee?** \n\n## A core fee is a refundable deposit charged in addition to the product price.  \nIt exists to ensure the customer returns the used or old part (core) after receiving the new item.\n\n**No return = No refund.  \nReturn confirmed = Full refund of the core fee with taxes applied on it.**\n\n## **2. Core Fee Rules (Non-Negotiable)**\n\nThese rules are absolute. No exceptions.\n\n  - > Core fee is **mandatory** NOT optional\n\n  - > Core fee is **refundable**, but **never automatic**\n\n  - > Core fee **cannot be** discounted\n\n  - > Coupons **cannot** be applied to core fees\n\n  - > Core fee **must always** be added manually\n\n  - > Core fee **must always** appear as a separate line item\n\n  - > Core fee **must have** the same cost and unit price\n\n  - > Core fee **must be** added for the same quantity\n\n![](/tmp/_media_ignore/media/image12.png)  \nIf any of these rules are broken, the order is **non-compliant**.\n\n## **3. Pre-Sale Compliance (Before You Place the Order)**\n\n### **Step 1: Product Verification**\n\nBefore quoting or placing the order, confirm:\n\n  - > The **SKU is flagged as \"Core Fee Applicable\"**\n\n![](/tmp/_media_ignore/media/image7.png)**  \n**\n\n  - > The **core fee amount matches exactly** what is listed for that SKU\n\n  - > You understand **what part must be returned** as the core\n\nIf the SKU shows a core fee and it's missing from your quote \u2014 **STOP. Fix it before proceeding.**\n\n### **Step 2: Mandatory Customer Disclosure (You Must Say This)**\n\nThe customer **must clearly understand** all of the following **before checkout**:\n\nYou must communicate:\n\n  - > Item price\n\n  - > Core fee amount (**clearly stated as separate**)\n\n  - > That the core fee is **refundable only after return  \n    > **\n\n  - > That **customer is responsible for returning the core  \n    > **\n\n  - > That a **prepaid return label will be provided  \n    > **\n\n  - > That **the core fee is NOT refundable if the returned core arrives damaged** (Updated: 2026-04-24)\n\nThere is no shortcut here. If the customer later disputes the fee and this wasn't disclosed, **the company loses**.\n\n### **Step 3: Documentation (Required for Audit Protection)**\n\nYou must document proof of disclosure using **at least one** of the following (preferably more):\n\n  - > Call notes summary\n\n  - > Email confirmation copy\n\n  - > Chat transcript\n\n![](/tmp/_media_ignore/media/image4.png)\n\nIf it's not documented, it's considered **not disclosed**.\n\n## **4. Order Entry Standards (Critical Section)**\n\n### **4.1 Quote / Order Structure**\n\nEvery compliant order **must look like this**:\n\n**Line 1:** Product price  \n**Line 2:** Core fee (separate line item)\n\n### **4.2 Mandatory Core Fee Description (Must Be Copied Exactly)**\n\nThe **core fee line item must include this description**:\n\n> *\"PACKAGE WILL INCLUDE A PREPAID LABEL TO RETURN CORES.  \n> PLEASE FOLLOW INSTRUCTIONS AND NOTIFY US WHEN CORES ARE RETURNED.  \n> ONCE CORE(S) ARE RETURNED, CORE FEE WILL BE FULLY REFUNDED.\"*\n> \n> ![](/tmp/_media_ignore/media/image2.png)\n\nDo **not** paraphrase. Do **not** shorten. This protects DKHardware.\n\n## **5. Strict Prohibitions (Do NOT Do This)**\n\nThese actions are compliance violations:\n\n  - > Bundling core fee with item price\n\n  - > Discounting the core fee\n\n  - > Applying coupons to the core fee\n\n  - > Hiding or failing to disclose the core fee\n\n  - > Assuming refunds are automatic\n\nAny of the above can lead to **refund losses, chargebacks, or audit failure**.\n\n## \n\n## \n\n## **6. Post-Sale Core Refund Flow (For Awareness)**\n\n  - > Customer receives product\n\n  - > Create prepaid return label -> Justin / Marina\n\n  - > Customer ships back the core\n\n  - > Core fee refund is manually processed  \n    >   \n    > **No return = no refund**\n\n**6.1 POST SALE GUIDE**\n\n  - > **Confirm the delivery from BO / Customer**\n\n**Where -** *Click on the tracking and see if the item is delivered.*![](/tmp/_media_ignore/media/image10.png)\n\n  - > **If the item is delivered, create the return label**\n\n![](/tmp/_media_ignore/media/image8.png)**Where -** *Create task for Justin / Marina toichkina on on CRM*\n\n**Step 1 -** *Go to CRM*\n\n**Step 2 -** Click on \"Add issue\" ![](/tmp/_media_ignore/media/image9.png)\n\n**Step 3 -** *Fill the details accurately and save it* ![](/tmp/_media_ignore/media/image6.png)\n\n**Step 4 -** *The issue will reflect under in your homepage. Click on it.*\n\n![](/tmp/_media_ignore/media/image3.png)\n\n**Step 5 -** *After opening the issue, create a task for Justin / Marina Toichkina, click on the ' + '*\n\n![](/tmp/_media_ignore/media/image11.png)\n\n**Step 6 -** *After clicking on the '+' , a pop up will appear asking for the subject. Put the subject and save it.*\n\n![](/tmp/_media_ignore/media/image5.png)\n\n*Step 7 - After the subject is saved , the task is created. Now you just have to assign it. On the same page , on the left top corner you will see options like 'assigned to' , click on that and put the email of the person - jbennett@dkhardware.com / marinat@dkhardwaresupply.com and click on \"Add\" . This step saves the work and notifies the person to get the task done.*\n\n![](/tmp/_media_ignore/media/image1.png)\n\n## \n\n  - > **When the core is returned , it will be mentioned in the notes of the order or in the tracking that says 'Core Return'**\n\n  - > **Once we see the Core return tracking shows 'Delivered' , we will process the refund.**\n\n**For refund , follow the below process:**\n\n  - > **Message Justin on Gchat**\n\n  - > **Go to the same task that was created for the return label and put a comment in there for Justin to process the refund.**\n\n**Points to remember:**\n\n  - > *Always inform the customer that it takes 5-7 business days for us to refund the core deposit once the core is successfully returned to us.*\n\n  - > *The ideal core return timeline is within 30 calendar days of the shipment delivery.*\n\n  - > *The customer needs to be contacted immediately or a day after the shipment is delivered.*\n\n  - > *When the return label is created , it is **ALWAYS** attached to the order under the \"Additional Order Information\". You download it, and share it to the customer via Email*\n\n## **7. Quick Compliance Checklist (Before You Hit \"Place Order\")**\n\nAsk yourself:\n\n  - > Is the SKU confirmed as core-fee applicable?\n\n  - > Is the core fee added manually?\n\n  - > Is it a separate line item?\n\n  - > Did I disclose the refund condition clearly?\n\n  - > Is documentation saved?\n\nIf the answer to any is **no**, fix it first.\n\n## \n\n## **Final Note**\n\n  - > Core fees are **not optional**, **not flexible**, and **not customer-negotiated**.\n\n  - > Handled correctly, they protect both **DKHardware and the customer**.\n\n  - > Handled casually, they create disputes, losses, and escalations.\n\n**Keep a close follow-up on each and every core fee related orders and when delivered, reach out to Justin / Marina Toichkina**\n\n**Follow the process every time\u2014and you'll never have an issue.**\n"}], "grading": {"expectations": [{"text": "Has Difference Summary table", "passed": true, "evidence": ""}, {"text": "Body contains the new damaged-core disclosure rule", "passed": true, "evidence": ""}, {"text": "New line tagged (Updated: 2026-04-24)", "passed": true, "evidence": ""}, {"text": "Preserves original structure \u2014 unchanged baseline lines still present", "passed": true, "evidence": "unchanged markers found: 3/3"}, {"text": "Change placed in the Mandatory Customer Disclosure section", "passed": true, "evidence": ""}], "summary": {"passed": 5, "failed": 0, "total": 5, "pass_rate": 1.0}}}, {"id": "eval-3-targeted-change-in-large-sop-without_skill-run-1", "prompt": "Please update the Core Item & Fees SOP. One specific change: we're adding a new MANDATORY disclosure step before checkout \u2014 reps must also tell the customer in writing (chat or email) that the core fee is not refundable if the returned core arrives damaged. This goes right in the existing Mandatory Customer Disclosure section. Nothing else changes.", "eval_id": 3, "outputs": [{"name": "revised_sop.md", "type": "text", "content": "**STANDARD OPERATING  \nPROCEDURE (SOP)**\n\n**Core Fee Orders / Quotes**\n\n| Department             | Sales          |\n| ---------------------- | -------------- |\n| Version                | 1.2            |\n| Effective Date         | 2026-04-24     |\n| Prepared By            | Audit Team     |\n| Reviewed & Approved By | Justin Bennett |\n\n## \n\n## **1. What Is a Core Fee?** \n\n## A core fee is a refundable deposit charged in addition to the product price.  \nIt exists to ensure the customer returns the used or old part (core) after receiving the new item.\n\n**No return = No refund.  \nReturn confirmed = Full refund of the core fee with taxes applied on it.**\n\n## **2. Core Fee Rules (Non-Negotiable)**\n\nThese rules are absolute. No exceptions.\n\n  - > Core fee is **mandatory** NOT optional\n\n  - > Core fee is **refundable**, but **never automatic**\n\n  - > Core fee **cannot be** discounted\n\n  - > Coupons **cannot** be applied to core fees\n\n  - > Core fee **must always** be added manually\n\n  - > Core fee **must always** appear as a separate line item\n\n  - > Core fee **must have** the same cost and unit price\n\n  - > Core fee **must be** added for the same quantity\n\n![](/tmp/_media_ignore/media/image12.png)  \nIf any of these rules are broken, the order is **non-compliant**.\n\n## **3. Pre-Sale Compliance (Before You Place the Order)**\n\n### **Step 1: Product Verification**\n\nBefore quoting or placing the order, confirm:\n\n  - > The **SKU is flagged as \"Core Fee Applicable\"**\n\n![](/tmp/_media_ignore/media/image7.png)**  \n**\n\n  - > The **core fee amount matches exactly** what is listed for that SKU\n\n  - > You understand **what part must be returned** as the core\n\nIf the SKU shows a core fee and it's missing from your quote \u2014 **STOP. Fix it before proceeding.**\n\n### **Step 2: Mandatory Customer Disclosure (You Must Say This)**\n\nThe customer **must clearly understand** all of the following **before checkout**:\n\nYou must communicate:\n\n  - > Item price\n\n  - > Core fee amount (**clearly stated as separate**)\n\n  - > That the core fee is **refundable only after return  \n    > **\n\n  - > That **customer is responsible for returning the core  \n    > **\n\n  - > That a **prepaid return label will be provided  \n    > **\n\n  - > That **the core fee is NOT refundable if the returned core arrives damaged**\n\nThere is no shortcut here. If the customer later disputes the fee and this wasn't disclosed, **the company loses**.\n\n### **Step 3: Documentation (Required for Audit Protection)**\n\nYou must document proof of disclosure using **at least one** of the following (preferably more):\n\n  - > Call notes summary\n\n  - > Email confirmation copy\n\n  - > Chat transcript\n\n![](/tmp/_media_ignore/media/image4.png)\n\nIf it's not documented, it's considered **not disclosed**.\n\n## **4. Order Entry Standards (Critical Section)**\n\n### **4.1 Quote / Order Structure**\n\nEvery compliant order **must look like this**:\n\n**Line 1:** Product price  \n**Line 2:** Core fee (separate line item)\n\n### **4.2 Mandatory Core Fee Description (Must Be Copied Exactly)**\n\nThe **core fee line item must include this description**:\n\n> *\"PACKAGE WILL INCLUDE A PREPAID LABEL TO RETURN CORES.  \n> PLEASE FOLLOW INSTRUCTIONS AND NOTIFY US WHEN CORES ARE RETURNED.  \n> ONCE CORE(S) ARE RETURNED, CORE FEE WILL BE FULLY REFUNDED.\"*\n> \n> ![](/tmp/_media_ignore/media/image2.png)\n\nDo **not** paraphrase. Do **not** shorten. This protects DKHardware.\n\n## **5. Strict Prohibitions (Do NOT Do This)**\n\nThese actions are compliance violations:\n\n  - > Bundling core fee with item price\n\n  - > Discounting the core fee\n\n  - > Applying coupons to the core fee\n\n  - > Hiding or failing to disclose the core fee\n\n  - > Assuming refunds are automatic\n\nAny of the above can lead to **refund losses, chargebacks, or audit failure**.\n\n## \n\n## \n\n## **6. Post-Sale Core Refund Flow (For Awareness)**\n\n  - > Customer receives product\n\n  - > Create prepaid return label -\\> Justin / Marina\n\n  - > Customer ships back the core\n\n  - > Core fee refund is manually processed  \n    >   \n    > **No return = no refund**\n\n**6.1 POST SALE GUIDE**\n\n  - > **Confirm the delivery from BO / Customer**\n\n**Where -** *Click on the tracking and see if the item is delivered.*![](/tmp/_media_ignore/media/image10.png)\n\n  - > **If the item is delivered, create the return label**\n\n![](/tmp/_media_ignore/media/image8.png)**Where -** *Create task for Justin / Marina toichkina on on CRM*\n\n**Step 1 -** *Go to CRM*\n\n**Step 2 -** Click on \"Add issue\" ![](/tmp/_media_ignore/media/image9.png)\n\n**Step 3 -** *Fill the details accurately and save it* ![](/tmp/_media_ignore/media/image6.png)\n\n**Step 4 -** *The issue will reflect under in your homepage. Click on it.*\n\n![](/tmp/_media_ignore/media/image3.png)\n\n**Step 5 -** *After opening the issue* *, create a task for Justin / Marina Toichkina, click on the ' + '*\n\n![](/tmp/_media_ignore/media/image11.png)\n\n**Step 6 -** *After clicking on the '+' , a pop up will appear asking for the subject. Put the subject and save it.*\n\n![](/tmp/_media_ignore/media/image5.png)\n\n*Step 7 - After the subject is saved , the task is created. Now you just have to assign it. On the same page , on the left top corner you will see options like 'assigned to' , click on that and put the email of the person - [<span class=\"underline\">jbennett@dkhardware.com</span>](mailto:jbennett@dkhardware.com) / [<span class=\"underline\">marinat@dkhardwaresupply.com</span>](mailto:marinat@dkhardwaresupply.com) and click on \"Add\" . This step saves the work and notifies the person to get the task done.*\n\n![](/tmp/_media_ignore/media/image1.png)\n\n## \n\n  - > **When the core is returned , it will be mentioned in the notes of the order or in the tracking that says 'Core Return'**\n\n  - > **Once we see the Core return tracking shows 'Delivered' , we will process the refund.**\n\n**<span class=\"underline\">For refund , follow the below process:</span>**\n\n  - > **Message Justin on Gchat /**\n\n  - > **Go to the same task that was created for the return label and put a comment in there for Justin to process the refund.**\n\n**<span class=\"underline\">Points to remember:</span>**\n\n  - > *Always inform the customer that it takes 5-7 business days for us to refund the core deposit once the core is successfully returned to us.*\n\n  - > *The ideal core return timeline is within 30 calendar days of the shipment delivery.*\n\n  - > *The customer needs to be contacted immediately or a day after the shipment is delivered.*\n\n  - > *When the return label is created , it is **ALWAYS** attached to the order under the \"Additional Order Information\". You download it, and share it to the customer via Email*\n\n## **7. Quick Compliance Checklist (Before You Hit \"Place Order\")**\n\nAsk yourself:\n\n  - > Is the SKU confirmed as core-fee applicable?\n\n  - > Is the core fee added manually?\n\n  - > Is it a separate line item?\n\n  - > Did I disclose the refund condition clearly?\n\n  - > Is documentation saved?\n\nIf the answer to any is **no**, fix it first.\n\n## \n\n## **Final Note**\n\n  - > Core fees are **not optional**, **not flexible**, and **not customer-negotiated**.\n\n  - > Handled correctly, they protect both **DKHardware and the customer**.\n\n  - > Handled casually, they create disputes, losses, and escalations.\n\n**Keep a close follow-up on each and every core fee related orders and when delivered, reach out to Justin / Marina Toichkina**\n\n**Follow the process every time\u2014and you'll never have an issue.**\n"}], "grading": {"expectations": [{"text": "Has Difference Summary table", "passed": false, "evidence": ""}, {"text": "Body contains the new damaged-core disclosure rule", "passed": true, "evidence": ""}, {"text": "New line tagged (Updated: 2026-04-24)", "passed": false, "evidence": ""}, {"text": "Preserves original structure \u2014 unchanged baseline lines still present", "passed": true, "evidence": "unchanged markers found: 3/3"}, {"text": "Change placed in the Mandatory Customer Disclosure section", "passed": true, "evidence": ""}], "summary": {"passed": 3, "failed": 2, "total": 5, "pass_rate": 0.6}}}], "previous_feedback": {}, "previous_outputs": {}, "benchmark": {"metadata": {"skill_name": "sop-refresh", "skill_path": "<path/to/skill>", "executor_model": "<model-name>", "analyzer_model": "<model-name>", "timestamp": "2026-04-24T05:53:21Z", "evals_run": [0, 1, 2, 3], "runs_per_configuration": 3}, "runs": [{"eval_id": 0, "configuration": "with_skill", "run_number": 1, "result": {"pass_rate": 0.8, "passed": 4, "failed": 1, "total": 5, "time_seconds": 59.2, "tokens": 39653, "tool_calls": 0, "errors": 0}, "expectations": [{"text": "Has a Difference Summary table with Area/Old/New/Impact columns", "passed": true, "evidence": "found difference table"}, {"text": "Difference table has at least 2 rows (hours + RMA)", "passed": true, "evidence": "rows: 603"}, {"text": "Revised body contains the new hours (Mon-Thu, 9-4)", "passed": false, "evidence": ""}, {"text": "Revised body specifies Elina routes RMA before vendor contact", "passed": true, "evidence": ""}, {"text": "At least one line tagged (Updated: 2026-04-24)", "passed": true, "evidence": ""}], "notes": []}, {"eval_id": 1, "configuration": "with_skill", "run_number": 1, "result": {"pass_rate": 0.8333, "passed": 5, "failed": 1, "total": 6, "time_seconds": 99.3, "tokens": 45868, "tool_calls": 0, "errors": 0}, "expectations": [{"text": "Has a Difference Summary table", "passed": true, "evidence": ""}, {"text": "Difference table has the 2 changes as distinct rows", "passed": true, "evidence": ""}, {"text": "Revised body contains the new <90 days prepay rule", "passed": true, "evidence": ""}, {"text": "Revised body updates credit-limit threshold to $100K", "passed": false, "evidence": ""}, {"text": "Grandfather clause: existing customers keep their NET 30", "passed": true, "evidence": ""}, {"text": "Updated lines are tagged (Updated: 2026-04-24)", "passed": true, "evidence": ""}], "notes": []}, {"eval_id": 2, "configuration": "with_skill", "run_number": 1, "result": {"pass_rate": 1.0, "passed": 4, "failed": 0, "total": 4, "time_seconds": 25.3, "tokens": 34379, "tool_calls": 0, "errors": 0}, "expectations": [{"text": "Does NOT produce a Difference Summary table (should ask, not refresh)", "passed": true, "evidence": "no table \u2014 held off for clarification"}, {"text": "Asks a clarifying question", "passed": true, "evidence": ""}, {"text": "Response is short (clarification, not a full SOP)", "passed": true, "evidence": "11 lines"}, {"text": "Does not fabricate specific fee amounts", "passed": true, "evidence": ""}], "notes": []}, {"eval_id": 3, "configuration": "with_skill", "run_number": 1, "result": {"pass_rate": 1.0, "passed": 5, "failed": 0, "total": 5, "time_seconds": 781.7, "tokens": 47249, "tool_calls": 0, "errors": 0}, "expectations": [{"text": "Has Difference Summary table", "passed": true, "evidence": ""}, {"text": "Body contains the new damaged-core disclosure rule", "passed": true, "evidence": ""}, {"text": "New line tagged (Updated: 2026-04-24)", "passed": true, "evidence": ""}, {"text": "Preserves original structure \u2014 unchanged baseline lines still present", "passed": true, "evidence": "unchanged markers found: 3/3"}, {"text": "Change placed in the Mandatory Customer Disclosure section", "passed": true, "evidence": ""}], "notes": []}, {"eval_id": 0, "configuration": "without_skill", "run_number": 1, "result": {"pass_rate": 0.4, "passed": 2, "failed": 3, "total": 5, "time_seconds": 71.6, "tokens": 38626, "tool_calls": 0, "errors": 0}, "expectations": [{"text": "Has a Difference Summary table with Area/Old/New/Impact columns", "passed": false, "evidence": "no difference table"}, {"text": "Difference table has at least 2 rows (hours + RMA)", "passed": false, "evidence": "rows: 579"}, {"text": "Revised body contains the new hours (Mon-Thu, 9-4)", "passed": true, "evidence": ""}, {"text": "Revised body specifies Elina routes RMA before vendor contact", "passed": true, "evidence": ""}, {"text": "At least one line tagged (Updated: 2026-04-24)", "passed": false, "evidence": ""}], "notes": []}, {"eval_id": 1, "configuration": "without_skill", "run_number": 1, "result": {"pass_rate": 0.6667, "passed": 4, "failed": 2, "total": 6, "time_seconds": 117.9, "tokens": 47018, "tool_calls": 0, "errors": 0}, "expectations": [{"text": "Has a Difference Summary table", "passed": false, "evidence": ""}, {"text": "Difference table has the 2 changes as distinct rows", "passed": true, "evidence": ""}, {"text": "Revised body contains the new <90 days prepay rule", "passed": true, "evidence": ""}, {"text": "Revised body updates credit-limit threshold to $100K", "passed": true, "evidence": ""}, {"text": "Grandfather clause: existing customers keep their NET 30", "passed": true, "evidence": ""}, {"text": "Updated lines are tagged (Updated: 2026-04-24)", "passed": false, "evidence": ""}], "notes": []}, {"eval_id": 2, "configuration": "without_skill", "run_number": 1, "result": {"pass_rate": 1.0, "passed": 4, "failed": 0, "total": 4, "time_seconds": 29.3, "tokens": 35821, "tool_calls": 0, "errors": 0}, "expectations": [{"text": "Does NOT produce a Difference Summary table (should ask, not refresh)", "passed": true, "evidence": "no table \u2014 held off for clarification"}, {"text": "Asks a clarifying question", "passed": true, "evidence": ""}, {"text": "Response is short (clarification, not a full SOP)", "passed": true, "evidence": "15 lines"}, {"text": "Does not fabricate specific fee amounts", "passed": true, "evidence": ""}], "notes": []}, {"eval_id": 3, "configuration": "without_skill", "run_number": 1, "result": {"pass_rate": 0.6, "passed": 3, "failed": 2, "total": 5, "time_seconds": 719.0, "tokens": 36939, "tool_calls": 0, "errors": 0}, "expectations": [{"text": "Has Difference Summary table", "passed": false, "evidence": ""}, {"text": "Body contains the new damaged-core disclosure rule", "passed": true, "evidence": ""}, {"text": "New line tagged (Updated: 2026-04-24)", "passed": false, "evidence": ""}, {"text": "Preserves original structure \u2014 unchanged baseline lines still present", "passed": true, "evidence": "unchanged markers found: 3/3"}, {"text": "Change placed in the Mandatory Customer Disclosure section", "passed": true, "evidence": ""}], "notes": []}], "run_summary": {"with_skill": {"pass_rate": {"mean": 0.9083, "stddev": 0.1067, "min": 0.8, "max": 1.0}, "time_seconds": {"mean": 241.375, "stddev": 361.4842, "min": 25.3, "max": 781.7}, "tokens": {"mean": 41787.25, "stddev": 5941.9532, "min": 34379, "max": 47249}}, "without_skill": {"pass_rate": {"mean": 0.6667, "stddev": 0.2494, "min": 0.4, "max": 1.0}, "time_seconds": {"mean": 234.45, "stddev": 325.0535, "min": 29.3, "max": 719.0}, "tokens": {"mean": 39601.0, "stddev": 5077.3076, "min": 35821, "max": 47018}}, "delta": {"pass_rate": "+0.24", "time_seconds": "+6.9", "tokens": "+2186"}}, "notes": []}};
+
+    // ---- State ----
+    let feedbackMap = {};  // run_id -> feedback text
+    let currentIndex = 0;
+    let visitedRuns = new Set();
+
+    // ---- Init ----
+    async function init() {
+      // Load saved feedback from server — but only if this isn't a fresh
+      // iteration (indicated by previous_feedback being present). When
+      // previous feedback exists, the feedback.json on disk is stale from
+      // the prior iteration and should not pre-fill the textareas.
+      const hasPrevious = Object.keys(EMBEDDED_DATA.previous_feedback || {}).length > 0
+        || Object.keys(EMBEDDED_DATA.previous_outputs || {}).length > 0;
+      if (!hasPrevious) {
+        try {
+          const resp = await fetch("/api/feedback");
+          const data = await resp.json();
+          if (data.reviews) {
+            for (const r of data.reviews) feedbackMap[r.run_id] = r.feedback;
+          }
+        } catch { /* first run, no feedback yet */ }
+      }
+
+      document.getElementById("skill-name").textContent = EMBEDDED_DATA.skill_name;
+      showRun(0);
+
+      // Wire up feedback auto-save
+      const textarea = document.getElementById("feedback");
+      let saveTimeout = null;
+      textarea.addEventListener("input", () => {
+        clearTimeout(saveTimeout);
+        document.getElementById("feedback-status").textContent = "";
+        saveTimeout = setTimeout(() => saveCurrentFeedback(), 800);
+      });
+    }
+
+    // ---- Navigation ----
+    function navigate(delta) {
+      const newIndex = currentIndex + delta;
+      if (newIndex >= 0 && newIndex < EMBEDDED_DATA.runs.length) {
+        saveCurrentFeedback();
+        showRun(newIndex);
+      }
+    }
+
+    function updateNavButtons() {
+      document.getElementById("prev-btn").disabled = currentIndex === 0;
+      document.getElementById("next-btn").disabled =
+        currentIndex === EMBEDDED_DATA.runs.length - 1;
+    }
+
+    // ---- Show a run ----
+    function showRun(index) {
+      currentIndex = index;
+      const run = EMBEDDED_DATA.runs[index];
+
+      // Progress
+      document.getElementById("progress").textContent =
+        `${index + 1} of ${EMBEDDED_DATA.runs.length}`;
+
+      // Prompt
+      document.getElementById("prompt-text").textContent = run.prompt;
+
+      // Config badge
+      const badge = document.getElementById("config-badge");
+      const configMatch = run.id.match(/(with_skill|without_skill|new_skill|old_skill)/);
+      if (configMatch) {
+        const config = configMatch[1];
+        const isBaseline = config === "without_skill" || config === "old_skill";
+        badge.textContent = config.replace(/_/g, " ");
+        badge.className = "config-badge " + (isBaseline ? "config-baseline" : "config-primary");
+        badge.style.display = "inline-block";
+      } else {
+        badge.style.display = "none";
+      }
+
+      // Outputs
+      renderOutputs(run);
+
+      // Previous outputs
+      renderPrevOutputs(run);
+
+      // Grades
+      renderGrades(run);
+
+      // Previous feedback
+      const prevFb = (EMBEDDED_DATA.previous_feedback || {})[run.id];
+      const prevEl = document.getElementById("prev-feedback");
+      if (prevFb) {
+        document.getElementById("prev-feedback-text").textContent = prevFb;
+        prevEl.style.display = "block";
+      } else {
+        prevEl.style.display = "none";
+      }
+
+      // Feedback
+      document.getElementById("feedback").value = feedbackMap[run.id] || "";
+      document.getElementById("feedback-status").textContent = "";
+
+      updateNavButtons();
+
+      // Track visited runs and promote done button when all visited
+      visitedRuns.add(index);
+      const doneBtn = document.getElementById("done-btn");
+      if (visitedRuns.size >= EMBEDDED_DATA.runs.length) {
+        doneBtn.classList.add("ready");
+      }
+
+      // Scroll main content to top
+      document.querySelector(".main").scrollTop = 0;
+    }
+
+    // ---- Render outputs ----
+    function renderOutputs(run) {
+      const container = document.getElementById("outputs-body");
+      container.innerHTML = "";
+
+      const outputs = run.outputs || [];
+      if (outputs.length === 0) {
+        container.innerHTML = '<div class="empty-state">No output files</div>';
+        return;
+      }
+
+      for (const file of outputs) {
+        const fileDiv = document.createElement("div");
+        fileDiv.className = "output-file";
+
+        // Always show file header with download link
+        const header = document.createElement("div");
+        header.className = "output-file-header";
+        const nameSpan = document.createElement("span");
+        nameSpan.textContent = file.name;
+        header.appendChild(nameSpan);
+        const dlBtn = document.createElement("a");
+        dlBtn.className = "dl-btn";
+        dlBtn.textContent = "Download";
+        dlBtn.download = file.name;
+        dlBtn.href = getDownloadUri(file);
+        header.appendChild(dlBtn);
+        fileDiv.appendChild(header);
+
+        const content = document.createElement("div");
+        content.className = "output-file-content";
+
+        if (file.type === "text") {
+          const pre = document.createElement("pre");
+          pre.textContent = file.content;
+          content.appendChild(pre);
+        } else if (file.type === "image") {
+          const img = document.createElement("img");
+          img.src = file.data_uri;
+          img.alt = file.name;
+          content.appendChild(img);
+        } else if (file.type === "pdf") {
+          const iframe = document.createElement("iframe");
+          iframe.src = file.data_uri;
+          content.appendChild(iframe);
+        } else if (file.type === "xlsx") {
+          renderXlsx(content, file.data_b64);
+        } else if (file.type === "binary") {
+          const a = document.createElement("a");
+          a.className = "download-link";
+          a.href = file.data_uri;
+          a.download = file.name;
+          a.textContent = "Download " + file.name;
+          content.appendChild(a);
+        } else if (file.type === "error") {
+          const pre = document.createElement("pre");
+          pre.textContent = file.content;
+          pre.style.color = "var(--red)";
+          content.appendChild(pre);
+        }
+
+        fileDiv.appendChild(content);
+        container.appendChild(fileDiv);
+      }
+    }
+
+    // ---- XLSX rendering via SheetJS ----
+    function renderXlsx(container, b64Data) {
+      try {
+        const raw = Uint8Array.from(atob(b64Data), c => c.charCodeAt(0));
+        const wb = XLSX.read(raw, { type: "array" });
+
+        for (let i = 0; i < wb.SheetNames.length; i++) {
+          const sheetName = wb.SheetNames[i];
+          const ws = wb.Sheets[sheetName];
+
+          if (wb.SheetNames.length > 1) {
+            const sheetLabel = document.createElement("div");
+            sheetLabel.style.cssText =
+              "font-weight:600; font-size:0.8rem; color:#b0aea5; margin-top:0.5rem; margin-bottom:0.25rem;";
+            sheetLabel.textContent = "Sheet: " + sheetName;
+            container.appendChild(sheetLabel);
+          }
+
+          const htmlStr = XLSX.utils.sheet_to_html(ws, { editable: false });
+          const wrapper = document.createElement("div");
+          wrapper.innerHTML = htmlStr;
+          container.appendChild(wrapper);
+        }
+      } catch (err) {
+        container.textContent = "Error rendering spreadsheet: " + err.message;
+      }
+    }
+
+    // ---- Grades ----
+    function renderGrades(run) {
+      const section = document.getElementById("grades-section");
+      const content = document.getElementById("grades-content");
+
+      if (!run.grading) {
+        section.style.display = "none";
+        return;
+      }
+
+      const grading = run.grading;
+      section.style.display = "block";
+      // Reset to collapsed
+      content.classList.remove("open");
+      document.getElementById("grades-arrow").classList.remove("open");
+
+      const summary = grading.summary || {};
+      const expectations = grading.expectations || [];
+
+      let html = '<div style="padding: 1rem;">';
+
+      // Summary line
+      const passRate = summary.pass_rate != null
+        ? Math.round(summary.pass_rate * 100) + "%"
+        : "?";
+      const badgeClass = summary.pass_rate >= 0.8 ? "grade-pass" : summary.pass_rate >= 0.5 ? "" : "grade-fail";
+      html += '<div class="grades-summary">';
+      html += '<span class="grade-badge ' + badgeClass + '">' + passRate + '</span>';
+      html += '<span>' + (summary.passed || 0) + ' passed, ' + (summary.failed || 0) + ' failed of ' + (summary.total || 0) + '</span>';
+      html += '</div>';
+
+      // Assertions list
+      html += '<ul class="assertion-list">';
+      for (const exp of expectations) {
+        const statusClass = exp.passed ? "pass" : "fail";
+        const statusIcon = exp.passed ? "\u2713" : "\u2717";
+        html += '<li class="assertion-item">';
+        html += '<span class="assertion-status ' + statusClass + '">' + statusIcon + '</span>';
+        html += '<span>' + escapeHtml(exp.text) + '</span>';
+        if (exp.evidence) {
+          html += '<div class="assertion-evidence">' + escapeHtml(exp.evidence) + '</div>';
+        }
+        html += '</li>';
+      }
+      html += '</ul>';
+
+      html += '</div>';
+      content.innerHTML = html;
+    }
+
+    function toggleGrades() {
+      const content = document.getElementById("grades-content");
+      const arrow = document.getElementById("grades-arrow");
+      content.classList.toggle("open");
+      arrow.classList.toggle("open");
+    }
+
+    // ---- Previous outputs (collapsible) ----
+    function renderPrevOutputs(run) {
+      const section = document.getElementById("prev-outputs-section");
+      const content = document.getElementById("prev-outputs-content");
+      const prevOutputs = (EMBEDDED_DATA.previous_outputs || {})[run.id];
+
+      if (!prevOutputs || prevOutputs.length === 0) {
+        section.style.display = "none";
+        return;
+      }
+
+      section.style.display = "block";
+      // Reset to collapsed
+      content.classList.remove("open");
+      document.getElementById("prev-outputs-arrow").classList.remove("open");
+
+      // Render the files into the content area
+      content.innerHTML = "";
+      const wrapper = document.createElement("div");
+      wrapper.style.padding = "1rem";
+
+      for (const file of prevOutputs) {
+        const fileDiv = document.createElement("div");
+        fileDiv.className = "output-file";
+
+        const header = document.createElement("div");
+        header.className = "output-file-header";
+        const nameSpan = document.createElement("span");
+        nameSpan.textContent = file.name;
+        header.appendChild(nameSpan);
+        const dlBtn = document.createElement("a");
+        dlBtn.className = "dl-btn";
+        dlBtn.textContent = "Download";
+        dlBtn.download = file.name;
+        dlBtn.href = getDownloadUri(file);
+        header.appendChild(dlBtn);
+        fileDiv.appendChild(header);
+
+        const fc = document.createElement("div");
+        fc.className = "output-file-content";
+
+        if (file.type === "text") {
+          const pre = document.createElement("pre");
+          pre.textContent = file.content;
+          fc.appendChild(pre);
+        } else if (file.type === "image") {
+          const img = document.createElement("img");
+          img.src = file.data_uri;
+          img.alt = file.name;
+          fc.appendChild(img);
+        } else if (file.type === "pdf") {
+          const iframe = document.createElement("iframe");
+          iframe.src = file.data_uri;
+          fc.appendChild(iframe);
+        } else if (file.type === "xlsx") {
+          renderXlsx(fc, file.data_b64);
+        } else if (file.type === "binary") {
+          const a = document.createElement("a");
+          a.className = "download-link";
+          a.href = file.data_uri;
+          a.download = file.name;
+          a.textContent = "Download " + file.name;
+          fc.appendChild(a);
+        }
+
+        fileDiv.appendChild(fc);
+        wrapper.appendChild(fileDiv);
+      }
+
+      content.appendChild(wrapper);
+    }
+
+    function togglePrevOutputs() {
+      const content = document.getElementById("prev-outputs-content");
+      const arrow = document.getElementById("prev-outputs-arrow");
+      content.classList.toggle("open");
+      arrow.classList.toggle("open");
+    }
+
+    // ---- Feedback (saved to server -> feedback.json) ----
+    function saveCurrentFeedback() {
+      const run = EMBEDDED_DATA.runs[currentIndex];
+      const text = document.getElementById("feedback").value;
+
+      if (text.trim() === "") {
+        delete feedbackMap[run.id];
+      } else {
+        feedbackMap[run.id] = text;
+      }
+
+      // Build reviews array from map
+      const reviews = [];
+      for (const [run_id, feedback] of Object.entries(feedbackMap)) {
+        if (feedback.trim()) {
+          reviews.push({ run_id, feedback, timestamp: new Date().toISOString() });
+        }
+      }
+
+      fetch("/api/feedback", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ reviews, status: "in_progress" }),
+      }).then(() => {
+        document.getElementById("feedback-status").textContent = "Saved";
+      }).catch(() => {
+        // Static mode or server unavailable — no-op on auto-save,
+        // feedback will be downloaded on final submit
+        document.getElementById("feedback-status").textContent = "Will download on submit";
+      });
+    }
+
+    // ---- Done ----
+    function showDoneDialog() {
+      // Save current textarea to feedbackMap (but don't POST yet)
+      const run = EMBEDDED_DATA.runs[currentIndex];
+      const text = document.getElementById("feedback").value;
+      if (text.trim() === "") {
+        delete feedbackMap[run.id];
+      } else {
+        feedbackMap[run.id] = text;
+      }
+
+      // POST once with status: complete — include ALL runs so the model
+      // can distinguish "no feedback" (looks good) from "not reviewed"
+      const reviews = [];
+      const ts = new Date().toISOString();
+      for (const r of EMBEDDED_DATA.runs) {
+        reviews.push({ run_id: r.id, feedback: feedbackMap[r.id] || "", timestamp: ts });
+      }
+      const payload = JSON.stringify({ reviews, status: "complete" }, null, 2);
+      fetch("/api/feedback", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: payload,
+      }).then(() => {
+        document.getElementById("done-overlay").classList.add("visible");
+      }).catch(() => {
+        // Server not available (static mode) — download as file
+        const blob = new Blob([payload], { type: "application/json" });
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement("a");
+        a.href = url;
+        a.download = "feedback.json";
+        a.click();
+        URL.revokeObjectURL(url);
+        document.getElementById("done-overlay").classList.add("visible");
+      });
+    }
+
+    function closeDoneDialog() {
+      // Reset status back to in_progress
+      saveCurrentFeedback();
+      document.getElementById("done-overlay").classList.remove("visible");
+    }
+
+    // ---- Toast ----
+    function showToast(message) {
+      const toast = document.getElementById("toast");
+      toast.textContent = message;
+      toast.classList.add("visible");
+      setTimeout(() => toast.classList.remove("visible"), 2000);
+    }
+
+    // ---- Keyboard nav ----
+    document.addEventListener("keydown", (e) => {
+      // Don't capture when typing in textarea
+      if (e.target.tagName === "TEXTAREA") return;
+
+      if (e.key === "ArrowLeft" || e.key === "ArrowUp") {
+        e.preventDefault();
+        navigate(-1);
+      } else if (e.key === "ArrowRight" || e.key === "ArrowDown") {
+        e.preventDefault();
+        navigate(1);
+      }
+    });
+
+    // ---- Util ----
+    function getDownloadUri(file) {
+      if (file.data_uri) return file.data_uri;
+      if (file.data_b64) return "data:application/octet-stream;base64," + file.data_b64;
+      if (file.type === "text") return "data:text/plain;charset=utf-8," + encodeURIComponent(file.content);
+      return "#";
+    }
+
+    function escapeHtml(text) {
+      const div = document.createElement("div");
+      div.textContent = text;
+      return div.innerHTML;
+    }
+
+    // ---- View switching ----
+    function switchView(view) {
+      document.querySelectorAll(".view-tab").forEach(t => t.classList.remove("active"));
+      document.querySelectorAll(".view-panel").forEach(p => p.classList.remove("active"));
+      document.querySelector(`[onclick="switchView('${view}')"]`).classList.add("active");
+      document.getElementById("panel-" + view).classList.add("active");
+    }
+
+    // ---- Benchmark rendering ----
+    function renderBenchmark() {
+      const data = EMBEDDED_DATA.benchmark;
+      if (!data) return;
+
+      // Show the tabs
+      document.getElementById("view-tabs").style.display = "flex";
+
+      const container = document.getElementById("benchmark-content");
+      const summary = data.run_summary || {};
+      const metadata = data.metadata || {};
+      const notes = data.notes || [];
+
+      let html = "";
+
+      // Header
+      html += "<h2 style='font-family: Poppins, sans-serif; margin-bottom: 0.5rem;'>Benchmark Results</h2>";
+      html += "<p style='color: var(--text-muted); font-size: 0.875rem; margin-bottom: 1.25rem;'>";
+      if (metadata.skill_name) html += "<strong>" + escapeHtml(metadata.skill_name) + "</strong> &mdash; ";
+      if (metadata.timestamp) html += metadata.timestamp + " &mdash; ";
+      if (metadata.evals_run) html += "Evals: " + metadata.evals_run.join(", ") + " &mdash; ";
+      html += (metadata.runs_per_configuration || "?") + " runs per configuration";
+      html += "</p>";
+
+      // Summary table
+      html += '<table class="benchmark-table">';
+
+      function fmtStat(stat, pct) {
+        if (!stat) return "—";
+        const suffix = pct ? "%" : "";
+        const m = pct ? (stat.mean * 100).toFixed(0) : stat.mean.toFixed(1);
+        const s = pct ? (stat.stddev * 100).toFixed(0) : stat.stddev.toFixed(1);
+        return m + suffix + " ± " + s + suffix;
+      }
+
+      function deltaClass(val) {
+        if (!val) return "";
+        const n = parseFloat(val);
+        if (n > 0) return "benchmark-delta-positive";
+        if (n < 0) return "benchmark-delta-negative";
+        return "";
+      }
+
+      // Discover config names dynamically (everything except "delta")
+      const configs = Object.keys(summary).filter(k => k !== "delta");
+      const configA = configs[0] || "config_a";
+      const configB = configs[1] || "config_b";
+      const labelA = configA.replace(/_/g, " ").replace(/\b\w/g, c => c.toUpperCase());
+      const labelB = configB.replace(/_/g, " ").replace(/\b\w/g, c => c.toUpperCase());
+      const a = summary[configA] || {};
+      const b = summary[configB] || {};
+      const delta = summary.delta || {};
+
+      html += "<thead><tr><th>Metric</th><th>" + escapeHtml(labelA) + "</th><th>" + escapeHtml(labelB) + "</th><th>Delta</th></tr></thead>";
+      html += "<tbody>";
+
+      html += "<tr><td><strong>Pass Rate</strong></td>";
+      html += "<td>" + fmtStat(a.pass_rate, true) + "</td>";
+      html += "<td>" + fmtStat(b.pass_rate, true) + "</td>";
+      html += '<td class="' + deltaClass(delta.pass_rate) + '">' + (delta.pass_rate || "—") + "</td></tr>";
+
+      // Time (only show row if data exists)
+      if (a.time_seconds || b.time_seconds) {
+        html += "<tr><td><strong>Time (s)</strong></td>";
+        html += "<td>" + fmtStat(a.time_seconds, false) + "</td>";
+        html += "<td>" + fmtStat(b.time_seconds, false) + "</td>";
+        html += '<td class="' + deltaClass(delta.time_seconds) + '">' + (delta.time_seconds ? delta.time_seconds + "s" : "—") + "</td></tr>";
+      }
+
+      // Tokens (only show row if data exists)
+      if (a.tokens || b.tokens) {
+        html += "<tr><td><strong>Tokens</strong></td>";
+        html += "<td>" + fmtStat(a.tokens, false) + "</td>";
+        html += "<td>" + fmtStat(b.tokens, false) + "</td>";
+        html += '<td class="' + deltaClass(delta.tokens) + '">' + (delta.tokens || "—") + "</td></tr>";
+      }
+
+      html += "</tbody></table>";
+
+      // Per-eval breakdown (if runs data available)
+      const runs = data.runs || [];
+      if (runs.length > 0) {
+        const evalIds = [...new Set(runs.map(r => r.eval_id))].sort((a, b) => a - b);
+
+        html += "<h3 style='font-family: Poppins, sans-serif; margin-bottom: 0.75rem;'>Per-Eval Breakdown</h3>";
+
+        const hasTime = runs.some(r => r.result && r.result.time_seconds != null);
+        const hasErrors = runs.some(r => r.result && r.result.errors > 0);
+
+        for (const evalId of evalIds) {
+          const evalRuns = runs.filter(r => r.eval_id === evalId);
+          const evalName = evalRuns[0] && evalRuns[0].eval_name ? evalRuns[0].eval_name : "Eval " + evalId;
+
+          html += "<h4 style='font-family: Poppins, sans-serif; margin: 1rem 0 0.5rem; color: var(--text);'>" + escapeHtml(evalName) + "</h4>";
+          html += '<table class="benchmark-table">';
+          html += "<thead><tr><th>Config</th><th>Run</th><th>Pass Rate</th>";
+          if (hasTime) html += "<th>Time (s)</th>";
+          if (hasErrors) html += "<th>Crashes During Execution</th>";
+          html += "</tr></thead>";
+          html += "<tbody>";
+
+          // Group by config and render with average rows
+          const configGroups = [...new Set(evalRuns.map(r => r.configuration))];
+          for (let ci = 0; ci < configGroups.length; ci++) {
+            const config = configGroups[ci];
+            const configRuns = evalRuns.filter(r => r.configuration === config);
+            if (configRuns.length === 0) continue;
+
+            const rowClass = ci === 0 ? "benchmark-row-with" : "benchmark-row-without";
+            const configLabel = config.replace(/_/g, " ").replace(/\b\w/g, c => c.toUpperCase());
+
+            for (const run of configRuns) {
+              const r = run.result || {};
+              const prClass = r.pass_rate >= 0.8 ? "benchmark-delta-positive" : r.pass_rate < 0.5 ? "benchmark-delta-negative" : "";
+              html += '<tr class="' + rowClass + '">';
+              html += "<td>" + configLabel + "</td>";
+              html += "<td>" + run.run_number + "</td>";
+              html += '<td class="' + prClass + '">' + ((r.pass_rate || 0) * 100).toFixed(0) + "% (" + (r.passed || 0) + "/" + (r.total || 0) + ")</td>";
+              if (hasTime) html += "<td>" + (r.time_seconds != null ? r.time_seconds.toFixed(1) : "—") + "</td>";
+              if (hasErrors) html += "<td>" + (r.errors || 0) + "</td>";
+              html += "</tr>";
+            }
+
+            // Average row
+            const rates = configRuns.map(r => (r.result || {}).pass_rate || 0);
+            const avgRate = rates.reduce((a, b) => a + b, 0) / rates.length;
+            const avgPrClass = avgRate >= 0.8 ? "benchmark-delta-positive" : avgRate < 0.5 ? "benchmark-delta-negative" : "";
+            html += '<tr class="benchmark-row-avg ' + rowClass + '">';
+            html += "<td>" + configLabel + "</td>";
+            html += "<td>Avg</td>";
+            html += '<td class="' + avgPrClass + '">' + (avgRate * 100).toFixed(0) + "%</td>";
+            if (hasTime) {
+              const times = configRuns.map(r => (r.result || {}).time_seconds).filter(t => t != null);
+              html += "<td>" + (times.length ? (times.reduce((a, b) => a + b, 0) / times.length).toFixed(1) : "—") + "</td>";
+            }
+            if (hasErrors) html += "<td></td>";
+            html += "</tr>";
+          }
+          html += "</tbody></table>";
+
+          // Per-assertion detail for this eval
+          const runsWithExpectations = {};
+          for (const config of configGroups) {
+            runsWithExpectations[config] = evalRuns.filter(r => r.configuration === config && r.expectations && r.expectations.length > 0);
+          }
+          const hasAnyExpectations = Object.values(runsWithExpectations).some(runs => runs.length > 0);
+          if (hasAnyExpectations) {
+            // Collect all unique assertion texts across all configs
+            const allAssertions = [];
+            const seen = new Set();
+            for (const config of configGroups) {
+              for (const run of runsWithExpectations[config]) {
+                for (const exp of (run.expectations || [])) {
+                  if (!seen.has(exp.text)) {
+                    seen.add(exp.text);
+                    allAssertions.push(exp.text);
+                  }
+                }
+              }
+            }
+
+            html += '<table class="benchmark-table" style="margin-top: 0.5rem;">';
+            html += "<thead><tr><th>Assertion</th>";
+            for (const config of configGroups) {
+              const label = config.replace(/_/g, " ").replace(/\b\w/g, c => c.toUpperCase());
+              html += "<th>" + escapeHtml(label) + "</th>";
+            }
+            html += "</tr></thead><tbody>";
+
+            for (const assertionText of allAssertions) {
+              html += "<tr><td>" + escapeHtml(assertionText) + "</td>";
+
+              for (const config of configGroups) {
+                html += "<td>";
+                for (const run of runsWithExpectations[config]) {
+                  const exp = (run.expectations || []).find(e => e.text === assertionText);
+                  if (exp) {
+                    const cls = exp.passed ? "benchmark-delta-positive" : "benchmark-delta-negative";
+                    const icon = exp.passed ? "\u2713" : "\u2717";
+                    html += '<span class="' + cls + '" title="Run ' + run.run_number + ': ' + escapeHtml(exp.evidence || "") + '">' + icon + "</span> ";
+                  } else {
+                    html += "— ";
+                  }
+                }
+                html += "</td>";
+              }
+              html += "</tr>";
+            }
+            html += "</tbody></table>";
+          }
+        }
+      }
+
+      // Notes
+      if (notes.length > 0) {
+        html += '<div class="benchmark-notes">';
+        html += "<h3>Analysis Notes</h3>";
+        html += "<ul>";
+        for (const note of notes) {
+          html += "<li>" + escapeHtml(note) + "</li>";
+        }
+        html += "</ul></div>";
+      }
+
+      container.innerHTML = html;
+    }
+
+    // ---- Start ----
+    init();
+    renderBenchmark();
+  </script>
+</body>
+</html>

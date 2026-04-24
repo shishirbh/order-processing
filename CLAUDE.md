@@ -41,8 +41,11 @@ sub-brands` section so sub-brand lookups still work.
 
 ## 2. Source-of-truth rules
 
-- **Per-vendor folder is master.** When a vendor folder exists, its files are authoritative
-  for that vendor. The root `Vendor Information.md` is a rollup and may be out of date.
+- **Per-vendor folder is master.** Each vendor's `<Vendor>/<Vendor> - Vendor Info.md` is
+  authoritative. The root `Vendor Information.md` and `Vendor Information.jsonl` are
+  **generated rollups** — they carry a "do not edit by hand" banner and are rebuilt from
+  the per-vendor files by the `regenerate-vendor-rollup` skill. Never edit the root files
+  directly; edit the per-vendor file and regenerate.
 - **`.md` is canonical; `.docx` / `.xlsx` are archives.** Always prefer the `.md` version.
   Only open files in `_source_docx/` if no `.md` equivalent exists.
 - **Do not invent data.** If a field is blank in the source, say it's blank — don't guess.
