@@ -1,0 +1,9 @@
+# Normalize line endings so Windows and Linux users don't churn on CRLF diffs
+* text=auto eol=lf
+
+# Treat these as binary even if extension is unusual
+*.xlsx binary
+*.xls  binary
+*.docx binary
+*.pdf  binary
+*.zip  binary

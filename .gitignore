@@ -1,0 +1,21 @@
+# --- Pre-cleanup leftovers (cannot delete while Excel holds the lock) ---
+orignal files/
+
+# --- Archived Office originals (not canonical; .md in vendor folders is source of truth) ---
+_source_docx/
+
+# --- Office lockfiles / temp files ---
+~$*
+*.tmp
+.~lock.*
+
+# --- OS metadata ---
+Thumbs.db
+Desktop.ini
+.DS_Store
+
+# --- Editor / IDE ---
+.vscode/
+.idea/
+*.swp
+*.swo
