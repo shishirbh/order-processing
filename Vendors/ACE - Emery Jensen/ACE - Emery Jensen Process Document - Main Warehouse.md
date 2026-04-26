@@ -46,7 +46,7 @@ Table 2 - Master Decision Matrix
 > → Freight items  
 > → Long items (up to 96")  
 > → All in-house orders when available  
-> → Never dropship from FL02
+> → Dropship from FL02 is allowed (Updated: 2026-04-26)
 
   - > Other EJ warehouses are used only when FL02 is out of stock.
 
@@ -64,7 +64,7 @@ Table 2 - Master Decision Matrix
 
 **Always Avoid:**
 
-❌ Do NOT dropship from FL02  
+✔ Dropship from FL02 is allowed (Updated: 2026-04-26)  
 ❌ Do NOT process ESCPO items  
 ❌ Do NOT request quotes from EJ  
 ❌ Do NOT ignore seasonal/OFS notes  
@@ -565,8 +565,8 @@ Table 2 - Emery Jensen (Main Warehouse) Decision Matrix
 <td>Any</td>
 <td>Any</td>
 <td>Any</td>
-<td>NOT ALLOWED</td>
-<td>Hard rule</td>
+<td>Allowed (Updated: 2026-04-26)</td>
+<td>Florida warehouse dropship is permitted</td>
 </tr>
 <tr class="even">
 <td>Quotes requested</td>

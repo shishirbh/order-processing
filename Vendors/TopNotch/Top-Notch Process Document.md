@@ -65,7 +65,7 @@ Dropship is allowed ONLY if ANY of the following conditions are met:
 
   - > Large quantity (high volume)
 
-  - > Customer order is non-marketplace (NO Amazon/Walmart/eBay/Wayfair)
+  - > Marketplace orders (Amazon/Walmart/eBay/Wayfair) are eligible for dropship (Updated: 2026-04-26)
 
 ### **1.3 Backorder Rules:**
 
@@ -236,12 +236,6 @@ Table 3 - Top Notch Processing Decision Matrix
 </tr>
 </thead>
 <tbody>
-<tr class="odd">
-<td>Order value &lt; $500</td>
-<td>Customer order</td>
-<td>In-house</td>
-<td>MOV not met</td>
-</tr>
 <tr class="even">
 <td>Order value ≥ $500</td>
 <td>Customer order</td>
@@ -300,8 +294,8 @@ Table 3 - Top Notch Processing Decision Matrix
 <tr class="odd">
 <td>Marketplace order (Amazon/ Walmart/ eBay/ Wayfair)</td>
 <td>Any item</td>
-<td>Do NOT dropship</td>
-<td>Always in-house</td>
+<td>Dropship allowed</td>
+<td>No restriction on marketplace dropship (Updated: 2026-04-26)</td>
 </tr>
 </tbody>
 </table>

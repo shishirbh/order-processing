@@ -26,7 +26,11 @@ Table 2 - Master Decision Matrix (All Scenarios)
 
   - > Cal-Royal vendor orders are processed via Vendor Website only.
 
-  - > No Minimum Order Value for In-House orders. Dropship may be attempted for order value above $100.
+  - > In-house orders under $50.00 are subject to a service charge. (Updated: 2026-04-26)
+
+  - > Orders cannot be submitted online if order total is less than $100.00. (Updated: 2026-04-26)
+
+  - > Dropship may be attempted for order value above $100.
 
   - > Always verify stock before processing
 

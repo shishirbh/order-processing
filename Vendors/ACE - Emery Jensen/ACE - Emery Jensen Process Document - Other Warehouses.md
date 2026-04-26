@@ -54,14 +54,14 @@ Table 1 - Master Decision Matrix
 > → Freight items  
 > → Long items (up to 96")  
 > → All in-house orders when available  
-> → Never dropship from FL02
+> → Dropship from FL02 is allowed (Updated: 2026-04-26)
 
   - > Items are moved to EJ Other Warehousing when:
 
 > → Not available in FL02, and  
 > → Not available through alternate vendors.
 
-  - > Dropship is allowed ONLY from other (non-FL02) warehouses.
+  - > Dropship is allowed from FL02 and other warehouses. (Updated: 2026-04-26)
 
   - > Dropship is supported only under conditions outlined in Section 1.2.
 

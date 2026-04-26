@@ -68,9 +68,9 @@ Table 2 - Master Decision Matrix (All Scenarios)
 **Avoid trap:  
 ** → Do NOT assume cutting is free. Always calculate and include.
 
-### **1.3 PRICE FLUCTUATION RULE (CRITICAL)**
+### **1.3 PRICING CONFIRMATION RULE (CRITICAL)**
 
-Lavi pricing changes frequently. Mandatory Pricing Workflow:
+Lavi pricing does not change frequently, but always wait for price confirmation before proceeding. (Updated: 2026-04-26) Mandatory Pricing Workflow:
 
   - > Submit the PO via email to Xavier.
 
@@ -80,9 +80,7 @@ Lavi pricing changes frequently. Mandatory Pricing Workflow:
 
   - > Email the revised PO back to Xavier.
 
-Elina - We have different price set for coming in house and for dropship
-
-our backoffice shows coming in house pricing
+DK has separate pricing for in-house and dropship orders. The Backoffice shows in-house pricing. Use the correct price set based on order type when submitting the initial PO to Xavier. (Updated: 2026-04-26)
 
 → **If revised PO is NOT sent back → Lavi WILL NOT ship.**
 
@@ -129,15 +127,9 @@ If customer wants the full length, no cuts:
 
   - ### Steps:
 
-**2.2.1 Step 1 —** Check freight rates from vendor location:  
-27810 Avenue Hopkins, Valencia, CA, 91355
+**2.2.1 Step 1 —** Check freight rates from vendor location. Note: Lavi is relocating to Texas — confirm current address with Xavier before calculating freight. Previous CA address (27810 Avenue Hopkins, Valencia, CA 91355) is no longer valid. (Updated: 2026-04-26)
 
-**Vendor address Step 1 — Check freight rates from vendor location:**
-
-**27810 Avenue Hopkins, Valencia, CA, 91355**
-
-**IS incorrect, they are moving to TX in January  
-2.2.2 Step 2 —** Send freight details to **Marina** for approval.  
+**2.2.2 Step 2 —** Send freight details to **Marina** for approval.  
 **2.2.3 Step 3 —** Once approved → send the vendor a *draft* note that BOL will be provided.  
 **2.2.4 Step 4 —** Vendor prepares order → Xavier shares pickup details.  
 **2.2.5 Step 5 —** Share pickup details with Marina → she generates BOL.  

@@ -39,7 +39,7 @@ Table 2 - Master Decision Matrix (All Scenarios)
 
 ### **1.1 Vendor Rules**
 
-→ Hardware Resources vendor orders are processed **only by email** using Backoffice (BO).
+→ Hardware Resources in-house orders are processed via the vendor website. Dropship orders are processed by email using Backoffice (BO). (Updated: 2026-04-26)
 
 → Hardware Resources orders are processed using **two vendor accounts**, determined by:
 
@@ -239,13 +239,13 @@ Purchasing Team
 
   - ### Change vendor order status to: Submit
 
-### **3.1.4 Step 4 — Send Email**
+### **3.1.4 Step 4 — Submit via Website (Updated: 2026-04-26)**
 
-  - ### Click By Email.
+  - ### In-house (Account 1) orders are placed on the vendor website, not by email. (Updated: 2026-04-26)
 
 <!-- end list -->
 
-  - ### Use Account 1 template.
+  - ### Log in to Hardware Resources vendor website and place the order with the adjusted quantities.
 
 ### **3.1.5 Step 5 — Record Vendor Response**
 

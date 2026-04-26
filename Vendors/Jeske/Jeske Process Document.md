@@ -58,13 +58,17 @@ Table 2 - Master Decision Matrix (All Scenarios)
 
   - > Standard Items → $350
 
-  - > Oversized / Freight Items (≥48” OR ≥25 lbs) → $1,500
+  - > Oversized Items (up to 95”) → Dropship preferred to keep in-house order flowing (Updated: 2026-04-26)
+
+  - > Exception: If vendor has a minimum order qty and customer ordered less than that minimum → order in-house (Updated: 2026-04-26)
 
 **⚠️ Important Clarification**
 
   - > Any item 48 inches or longer OR weighing 25 lbs or more is treated as Oversized, even if it ships via FedEx/UPS.
 
-  - > Oversized non-freight items follow the SAME MOV rules as freight.
+  - > Oversized non-freight items follow the SAME process as freight for dropship decisions.
+
+  - > Shipping cost is displayed at checkout — review before confirming dropship. (Updated: 2026-04-26)
 
 # **ALWAYS AVOID:**
 
@@ -88,15 +92,11 @@ Table 2 - Master Decision Matrix (All Scenarios)
 
   - > Standard items: Dropship allowed at $350+
 
-  - > Oversized / Freight items: Dropship allowed at $1,500+
+  - > Oversized items (up to 95"): Dropship preferred — keeps in-house order flowing at lower in-house MOV of $350 (Updated: 2026-04-26)
 
-  - > MOV not met:
-    
-      - > Jeske will charge shipping, OR
-    
-      - > Processor must inform customer, OR
-    
-      - > Move to in-house vendor order if total in-house order reaches $1,500
+  - > Exception: If vendor has a minimum order qty and customer ordered less → process in-house (Updated: 2026-04-26)
+
+  - > Check shipping cost displayed at checkout and decide accordingly (Updated: 2026-04-26)
 
 **1.3 Restricted & Discontinued Items**
 
@@ -181,31 +181,21 @@ Table 1
 
 **2.3 FREIGHT DROPSHIP**
 
-**2.3.1 Step 1 —** Allowed only if MOV ≥ $1,500
+**2.3.1 Step 1 —** Select Freight $0 shipping (Updated: 2026-04-26)
 
-**2.3.2 Step 2 —** Select Freight $0 shipping
+**2.3.2 Step 2 —** Add customer address in notes with “PLEASE BLIND SHIP”
 
-**2.3.3 Step 3 —** Add customer address in notes with “PLEASE BLIND SHIP”
+# **2.4 NON-FREIGHT OVERSIZED ITEM (UP TO 95”)**
 
-# **2.4 NON-FREIGHT OVERSIZED ITEM**
+**Preferred: Dropship to keep in-house order flowing.** (Updated: 2026-04-26)
 
-**2.4.1 Step 1 — Same steps and rules as freight items**
+**2.4.1 Step 1 —** Check if vendor has a minimum order qty. If customer ordered less than min qty → process in-house. (Updated: 2026-04-26)
 
-**2.4.2 Step 2 — If MOV met ($1,500):**
+**2.4.2 Step 2 —** Add items to cart; review shipping cost shown at checkout. (Updated: 2026-04-26)
 
-  - > Select $0 shipping
+**2.4.3 Step 3 —** If shipping cost is acceptable → Dropship. Add customer address in notes with “PLEASE BLIND SHIP”. (Updated: 2026-04-26)
 
-**OR**
-
-**2.4.2 Step 2 — If MOV NOT met:**
-
-  - > Jeske charges shipping
-
-  - > Options:
-    
-      - > Inform customer of added cost
-    
-      - > Move to in-house vendor order if total reaches $1,500
+**2.4.4 Step 4 —** If shipping cost is too high → decide whether to move to in-house order. (Updated: 2026-04-26)
 
 **SECTION 3 — DECISION MATRIX**
 
@@ -215,8 +205,7 @@ Table 2 - Jeske Company Inc. Processing Decision Matrix
 | ------------------- | ------------ | ----------------- | --------------- | ----------------------------------- |
 | Standard item       | Yes          | Standard          | ≥ $350          | Dropship                            |
 | Standard item       | Yes          | Standard          | \< $350         | Inform customer or move to in-house |
-| Oversized / Freight | Yes          | Oversized/Freight | ≥ $1,500        | Dropship                            |
-| Oversized / Freight | Yes          | Oversized/Freight | \< $1,500       | Charge shipping or move to in-house |
+| Oversized (up to 95") | Yes        | Oversized/Freight | Any             | Dropship preferred — check shipping cost at checkout; if vendor min qty not met, order in-house (Updated: 2026-04-26) |
 | Any item            | No           | Any               | Any             | Do not dropship                     |
 | Restricted item     | Any          | Allegion          | Any             | Do not sell                         |
 | Discontinued item   | N/A          | Any               | Any             | Inform customer + alternatives      |

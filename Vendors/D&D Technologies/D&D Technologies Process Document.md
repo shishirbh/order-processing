@@ -75,15 +75,11 @@ Use In-House processing when:
 
   - > Shipping method = Standard Ground only
 
-**1.2.2 Dropship – Standard Ground**
+**1.2.2 Standard Ground — Process In-House (Updated: 2026-04-26)**
 
-Use when:
+For non-expedited standard ground orders, process In-House. Most D&D items have case minimums that yield better pricing when ordered in-house. (Updated: 2026-04-26)
 
-  - > Customer selected normal shipping
-
-  - > No expedited service requested
-
-  - > No special instructions
+Reserve dropship for expedited orders only.
 
 **1.2.3 Dropship – Expedited (1–2 Business Day)**
 
@@ -314,7 +310,7 @@ Table 1 - D\&D Technologies Processing Decision Matrix
 | Scenario                         | Shipping Type   | Processing Method | Template to Use     | Approval Needed?      | Notes                                        |
 | -------------------------------- | --------------- | ----------------- | ------------------- | --------------------- | -------------------------------------------- |
 | Vendor Order – In-House          | Standard Ground | In-House          | Standard Template   | No                    | Stock replenishment / DK warehouse receiving |
-| Customer Order – Standard Ground | Standard Ground | Dropship          | Dropship Standard   | No                    | Ship direct to customer                      |
+| Customer Order – Standard Ground | Standard Ground | In-House          | Standard Template   | No                    | Order in-house for case min / better pricing (Updated: 2026-04-26) |
 | Customer Order – Second Day      | Expedited       | Dropship          | Second Day Template | Yes (Elina)           | “PLEASE SHIP SECOND DAY” must appear twice   |
 | Customer Order – Next Day        | Expedited       | Dropship          | Next Day Template   | Yes (Elina)           | “PLEASE SHIP NEXT DAY” must appear twice     |
 | Order below MOV                  | Any             | —                 | —                   | Escalate              | Add item or supervisor review                |

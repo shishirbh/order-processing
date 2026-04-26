@@ -50,7 +50,7 @@ Table 2 - Master Decision Matrix (All Scenarios)
 
   - > If vendor shows “Ships from Manufacturer” / “Contact Us” / “Special Item” → Vendor Quote always required.
 
-  - > Customization → Vendor Quote + Signed Customer Quote Required.
+  - > Customization → Vendor Quote required. Signed Customer Quote is only required for special/modified items or large quantity/high-value orders — not for routine customizations. (Updated: 2026-04-26)
 
   - > Sales must forward email trail to Purchasing.
 
@@ -80,24 +80,28 @@ From Sales:
 
   - > PDF Quote
 
-  - > Customer signed quote (if customization)
+  - > Customer signed quote (only if special/modified item or large qty/high-value order) (Updated: 2026-04-26)
 
-### **1.3 Strict Stock Quantity Rule**
+### **1.3 Stock Quantity Rule**
 
-MSC & ORS show stock-based pricing.
+MSC & ORS show stock-based pricing. Apply this rule based on the item type: (Updated: 2026-04-26)
 
-### **You must:**
+**When price is listed for available stock only (stock-limited pricing):**
 
 **✔** Check vendor stock every time  
-**✔** Never exceed available quantity  
-**✔** Take quote if customer wants more  
+**✔** Do NOT exceed the available quantity shown — the price applies only to that qty  
+**✔** Take a vendor quote if customer needs more than the listed stock  
 **✔** Add internal note: “Vendor qty limited — quote required above X qty”
+
+**When item is a regular item (standard pricing):** (Updated: 2026-04-26)
+
+**✔** You may order more than the displayed stock — vendor will place remaining units on backorder  
+**✔** Backorders are allowed for regular items
 
 ### **Do NOT:**
 
-❌ Order more than shown  
-❌ Ignore stock warnings  
-❌ Assume vendor honors low price for higher qty
+❌ Ignore stock-limited pricing warnings  
+❌ Assume vendor honors stock-limited price for a higher quantity
 
 This is a critical violation area.
 
@@ -119,7 +123,7 @@ Check vendor item on MSC Direct website:
 
   - > Price
 
-  - > Stock quantity (strict rule: NEVER exceed)
+  - > Stock quantity — apply stock-limited rule only when pricing is for available qty; regular items allow backorder (Updated: 2026-04-26)
 
 **Cross-verify on DKHardware.com:**
 
@@ -376,7 +380,7 @@ Table 2 - MSC Direct Processing Decision Matrix
 | Dropship Vendor Order      | Cart ≥ $250                             | Proceed                        | Orders \>$250 get free shipping |
 | Dropship Vendor Order      | Cart \< $250                            | Cannot place                   | Hold                            |
 | Vendor Item Note (any)     | Ships from Manuf / Special / Contact Us | Take Vendor Quote              | No exceptions                   |
-| Customization              | Any                                     | Vendor Quote + Signed CX Quote | Required                        |
+| Customization              | Any                                     | Vendor Quote required; Signed CX Quote only for special/modified items or large qty/value (Updated: 2026-04-26) | Per item type |
 | Vendor Stock \< Qty Needed | Any                                     | Take Quote                     | Do not exceed                   |
 | Customer Order In-House    | Local stock available                   | Assign local                   | Normal                          |
 | Customer Order In-House    | Local not available                     | Assign MSC                     | Status = Coming In-House        |
