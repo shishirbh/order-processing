@@ -10,42 +10,47 @@ Read this file before answering any question from this folder.
 ```
 order_processing/
 ├── CLAUDE.md                    ← this file (read first)
-├── Vendor Information.md        ← master table of all 80 vendors (contacts, shipping, dropship, lead times)
+├── Vendor Information.md        ← master table of all ~103 vendors (contacts, shipping, dropship, lead times)
 ├── Vendor Information.jsonl     ← same data, one vendor per line, machine-friendly
 ├── Issue resolution.md          ← cross-vendor issue/claims playbook
 ├── Order processing prompt.md   ← SOP-generation prompt template
 │
-├── <Vendor Name>/               ← one folder per vendor (currently 4 of ~80 exist)
-│   ├── <Vendor> - Vendor Info.md
-│   ├── <Vendor> - Issue Resolution Notes.md
-│   └── <Vendor> Process Document.md
+├── Vendors/                     ← parent folder containing every per-vendor folder
+│   └── <Vendor Name>/           ← one folder per vendor (~103 total)
+│       ├── <Vendor> - Vendor Info.md
+│       ├── <Vendor> - Issue Resolution Notes.md
+│       └── <Vendor> Process Document.md
 │
 ├── _shared_sops/                ← cross-vendor Sales & Order SOPs (was "Sales/")
+├── _skill_evals/                ← side-by-side eval HTML for each plugin skill
+├── plugin/                      ← Cowork plugin source + built .plugin artifact
 └── _source_docx/                ← archived .docx / .xlsx originals. DO NOT read these
                                    when a .md version exists; the .md is canonical.
 ```
 
-All ~103 vendors from `Vendor Information.jsonl` have folders. 4 are hand-curated
-(`Deltana/`, `IML/`, `STRUCTURE GLASS SOLUTIONS/`, `TopNotch/`); the rest were
+All ~103 vendors from `Vendor Information.jsonl` have folders inside `Vendors/`.
+4 are hand-curated (`Vendors/Deltana/`, `Vendors/IML/`,
+`Vendors/STRUCTURE GLASS SOLUTIONS/`, `Vendors/TopNotch/`); the rest were
 auto-scaffolded on 2026-04-24 — their `Vendor Info.md` is populated from the jsonl
 row, and their `Process Document.md` / `Issue Resolution Notes.md` are stubs marked
 `_(to be filled)_`. When a stub is the only source, fall back to the root
 `Vendor Information.md` and `Issue resolution.md`.
 
 Slashed vendor names like `Assa Abloy/Pemco/Rockwood` became folders with slashes
-replaced by ` - ` (Windows doesn't allow `/` in folder names): `Assa Abloy - Pemco
-- Rockwood/`. The original name stays in the file content and in the `Aliases /
-sub-brands` section so sub-brand lookups still work.
+replaced by ` - ` (Windows doesn't allow `/` in folder names):
+`Vendors/Assa Abloy - Pemco - Rockwood/`. The original name stays in the file
+content and in the `Aliases / sub-brands` section so sub-brand lookups still work.
 
 ---
 
 ## 2. Source-of-truth rules
 
-- **Per-vendor folder is master.** Each vendor's `<Vendor>/<Vendor> - Vendor Info.md` is
-  authoritative. The root `Vendor Information.md` and `Vendor Information.jsonl` are
-  **generated rollups** — they carry a "do not edit by hand" banner and are rebuilt from
-  the per-vendor files by the `regenerate-vendor-rollup` skill. Never edit the root files
-  directly; edit the per-vendor file and regenerate.
+- **Per-vendor folder is master.** Each vendor's
+  `Vendors/<Vendor>/<Vendor> - Vendor Info.md` is authoritative. The root
+  `Vendor Information.md` and `Vendor Information.jsonl` are **generated rollups** —
+  they carry a "do not edit by hand" banner and are rebuilt from the per-vendor files
+  by the `regenerate-vendor-rollup` skill. Never edit the root files directly; edit
+  the per-vendor file and regenerate.
 - **`.md` is canonical; `.docx` / `.xlsx` are archives.** Always prefer the `.md` version.
   Only open files in `_source_docx/` if no `.md` equivalent exists.
 - **Do not invent data.** If a field is blank in the source, say it's blank — don't guess.
@@ -57,9 +62,9 @@ sub-brands` section so sub-brand lookups still work.
 ### Step 1 — Resolve the vendor
 
 1. Check the user's message for a vendor name.
-2. Try exact match against existing folder names (case-insensitive).
-3. If no folder match, scan `Vendor Information.md` — the master table contains all 80
-   vendor names, including combined/slashed names like
+2. Try exact match against folders inside `Vendors/` (case-insensitive).
+3. If no folder match, scan `Vendor Information.md` — the master table contains all
+   ~103 vendor names, including combined/slashed names like
    `Assa Abloy/Pemco/Rockwood`, `ACE / Emery Jensen`, `Home Depot/US lock/HD Supply`.
 4. If the query uses a sub-brand (e.g. "Pemco", "Rockwood", "US lock", "HD Supply",
    "Emery Jensen"), match it to its parent row in the master table.
@@ -70,11 +75,11 @@ sub-brands` section so sub-brand lookups still work.
 
 | Question type | Where to look |
 |---|---|
-| Vendor contact / email / phone | `<Vendor>/<Vendor> - Vendor Info.md` → fallback `Vendor Information.md` |
+| Vendor contact / email / phone | `Vendors/<Vendor>/<Vendor> - Vendor Info.md` → fallback `Vendor Information.md` |
 | Can we dropship? Ship under our account? Expedited? | same as above |
 | PO submission day / receipt day | same as above |
-| "How do I place an order with X?" / process | `<Vendor>/<Vendor> Process Document.md` |
-| Damage / missing / wrong item / return / claim | `<Vendor>/<Vendor> - Issue Resolution Notes.md` → fallback root `Issue resolution.md` |
+| "How do I place an order with X?" / process | `Vendors/<Vendor>/<Vendor> Process Document.md` |
+| Damage / missing / wrong item / return / claim | `Vendors/<Vendor>/<Vendor> - Issue Resolution Notes.md` → fallback root `Issue resolution.md` |
 | Cross-vendor sales / quote / NET 30 / problem-order / chat SOP | `_shared_sops/` |
 | Post-order status / vendor-order check | `_shared_sops/SOP for Post Order status inquires and follow ups.md`, `_shared_sops/SOP to check Vendor Order.md` |
 | Core items, fees, pricing policy | `_shared_sops/Sales - Core Item & Fees SOP.md` |
@@ -86,7 +91,7 @@ from. Use relative paths from this folder, e.g.:
 
 ```
 Sources:
-- Deltana/Deltana - Vendor Info.md
+- Vendors/Deltana/Deltana - Vendor Info.md
 - Vendor Information.md (row: Deltana)
 ```
 
@@ -107,10 +112,10 @@ Cite the master table with the specific row name when you used the rollup.
 
 ---
 
-## 5. Known gaps (as of 2026-04-24)
+## 5. Known gaps (as of 2026-04-26)
 
-- Folders exist for all ~103 vendors, but most Process Documents and Issue
-  Resolution Notes are stubs marked `_(to be filled)_`. For those vendors,
+- Folders exist for all ~103 vendors inside `Vendors/`, but most Process Documents
+  and Issue Resolution Notes are stubs marked `_(to be filled)_`. For those vendors,
   routing shipping/contact questions to the per-folder `Vendor Info.md` is
   reliable; process and claims questions should fall back to `_shared_sops/`
   and the root `Issue resolution.md`.
@@ -119,7 +124,7 @@ Cite the master table with the specific row name when you used the rollup.
   it; the canonical archive is `_source_docx/`.
 - No `INDEX.md` or alias table yet. Use the master `Vendor Information.md` and
   the `Aliases / sub-brands` section of each vendor's `Vendor Info.md` for
-  sub-brand → parent lookups (e.g. "Pemco" → `Assa Abloy - Pemco - Rockwood/`).
+  sub-brand → parent lookups (e.g. "Pemco" → `Vendors/Assa Abloy - Pemco - Rockwood/`).
 
 ---
 

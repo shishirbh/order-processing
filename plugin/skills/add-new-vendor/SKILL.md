@@ -5,7 +5,7 @@ description: Scaffolds a new vendor folder in the order_processing knowledge bas
 
 # add-new-vendor
 
-Create a new vendor folder in the `order_processing/` knowledge base with the 3 standard files, pre-populated from whatever the user has given you.
+Create a new vendor folder inside `order_processing/Vendors/` with the 3 standard files, pre-populated from whatever the user has given you.
 
 ## What this skill is for
 
@@ -50,25 +50,26 @@ Keep the original slashed name in the file content and in the `Aliases / sub-bra
 
 Before creating the folder:
 
-1. Check if a folder with the sanitized name already exists in `order_processing/`.
+1. Check if a folder with the sanitized name already exists inside `order_processing/Vendors/`.
 2. Check if the name or any alias appears in `order_processing/Vendor Information.md` (master table).
-3. Check if the vendor might be a sub-brand of an existing combined folder (e.g. "Pemco" would already be covered by `Assa Abloy - Pemco - Rockwood/`).
+3. Check if the vendor might be a sub-brand of an existing combined folder (e.g. "Pemco" would already be covered by `Vendors/Assa Abloy - Pemco - Rockwood/`).
 
 If any of the above, **stop and ask the user how to proceed**. Options: (a) update the existing folder instead, (b) add the new name as an alias to the existing folder, (c) create as a separate folder anyway (rare). Do not silently overwrite existing vendor folders — they may contain hand-curated content.
 
 ### Step 4 — Create the folder and three files
 
-**Create the folder first, then write the three files INSIDE that folder.** The end result must look like:
+**Create the folder first inside `order_processing/Vendors/`, then write the three files INSIDE that folder.** The end result must look like:
 
 ```
 order_processing/
-└── <Sanitized Folder Name>/
-    ├── <Sanitized Folder Name> - Vendor Info.md
-    ├── <Sanitized Folder Name> Process Document.md
-    └── <Sanitized Folder Name> - Issue Resolution Notes.md
+└── Vendors/
+    └── <Sanitized Folder Name>/
+        ├── <Sanitized Folder Name> - Vendor Info.md
+        ├── <Sanitized Folder Name> Process Document.md
+        └── <Sanitized Folder Name> - Issue Resolution Notes.md
 ```
 
-Do NOT place the three files at the same level as the other vendor folders — they must be inside their own vendor folder. The existing Deltana/, IML/, STRUCTURE GLASS SOLUTIONS/, TopNotch/ layout is the pattern to match exactly.
+Do NOT place the new vendor folder at the root of `order_processing/` — every per-vendor folder lives inside `Vendors/`. Do NOT place the three files at the same level as the other vendor folders — they must be inside their own vendor folder. The existing `Vendors/Deltana/`, `Vendors/IML/`, `Vendors/STRUCTURE GLASS SOLUTIONS/`, `Vendors/TopNotch/` layout is the pattern to match exactly.
 
 Use the templates below. Fill in today's date as the "Last updated" value. Every field the user didn't provide becomes `_(to be filled)_`.
 
@@ -164,7 +165,7 @@ _(to be filled)_
 
 The per-vendor folder is the source of truth for that vendor, but the root `order_processing/Vendor Information.md` and `Vendor Information.jsonl` are cross-vendor rollups used by other workflows. After creating the folder, tell the user:
 
-> Created `<Folder>/` with the 3 standard files. To finish onboarding, also add a row to `Vendor Information.md` and a record to `Vendor Information.jsonl` with the fields you have — the per-vendor folder is canonical, but the root rollup is used for bulk lookups.
+> Created `Vendors/<Folder>/` with the 3 standard files. To finish onboarding, also add a row to `Vendor Information.md` and a record to `Vendor Information.jsonl` with the fields you have — the per-vendor folder is canonical, but the root rollup is used for bulk lookups.
 
 Offer to do that update if they want — you can write the row yourself once they confirm.
 
@@ -183,12 +184,12 @@ Give a concise summary:
 
 User: "Add a new vendor: Bulldog Fasteners."
 
-1. No alias. Folder name = `Bulldog Fasteners`.
+1. No alias. Folder name = `Bulldog Fasteners`, created at `Vendors/Bulldog Fasteners/`.
 2. No existing collision.
 3. Create folder with 3 files. All fields in Vendor Info are `_(to be filled)_` except vendor name.
 4. Report:
 
-> Created `Bulldog Fasteners/` with:
+> Created `Vendors/Bulldog Fasteners/` with:
 > - Bulldog Fasteners - Vendor Info.md (stub — only name is populated)
 > - Bulldog Fasteners Process Document.md (stub)
 > - Bulldog Fasteners - Issue Resolution Notes.md (stub)
@@ -199,7 +200,7 @@ User: "Add a new vendor: Bulldog Fasteners."
 
 User: "New supplier — Acme Hardware, rep is Sarah Kim at sarah@acmehw.com, phone 555-123-4567. They let us dropship under their account."
 
-1. Folder name = `Acme Hardware`.
+1. Folder name = `Acme Hardware`, created at `Vendors/Acme Hardware/`.
 2. Populate Vendor Info with: primary contact = Sarah Kim, email = sarah@acmehw.com, phone = 555-123-4567, ships under our account = "No — under vendor account" (or similar, based on how the user phrased it), dropship = Yes.
 3. Other fields stay as stubs.
 4. Report.
@@ -208,7 +209,7 @@ User: "New supplier — Acme Hardware, rep is Sarah Kim at sarah@acmehw.com, pho
 
 User: "Let's onboard Monroe/Stellar/Blue Ribbon — they're one company with three brands."
 
-1. Folder name sanitized: `Monroe - Stellar - Blue Ribbon`.
+1. Folder name sanitized: `Vendors/Monroe - Stellar - Blue Ribbon/`.
 2. Vendor Info has `Aliases / sub-brands` section listing Monroe, Stellar, Blue Ribbon.
 3. Canonical name inside the file body is `Monroe/Stellar/Blue Ribbon` (with slashes).
 
@@ -216,10 +217,10 @@ User: "Let's onboard Monroe/Stellar/Blue Ribbon — they're one company with thr
 
 User: "Add Pemco as a new vendor."
 
-1. "Pemco" is a sub-brand of the existing `Assa Abloy - Pemco - Rockwood/` folder.
+1. "Pemco" is a sub-brand of the existing `Vendors/Assa Abloy - Pemco - Rockwood/` folder.
 2. Don't create. Ask:
 
-> `Pemco` is already captured under the `Assa Abloy - Pemco - Rockwood/` folder (Assa Abloy is the parent company). Do you want to: (a) update the existing folder, (b) add Pemco as a separate entry (only if you're sure it's a distinct supplier relationship), or (c) something else?
+> `Pemco` is already captured under the `Vendors/Assa Abloy - Pemco - Rockwood/` folder (Assa Abloy is the parent company). Do you want to: (a) update the existing folder, (b) add Pemco as a separate entry (only if you're sure it's a distinct supplier relationship), or (c) something else?
 
 ## Anti-patterns to avoid
 

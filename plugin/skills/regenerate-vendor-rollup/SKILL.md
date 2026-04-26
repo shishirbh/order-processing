@@ -17,12 +17,11 @@ Both rollup files carry a do-not-edit-by-hand banner. This skill writes the bann
 
 ### Step 1 — Enumerate vendor folders
 
-Walk `order_processing/` and find every directory that:
+Walk `order_processing/Vendors/` and find every directory inside it that contains a `* - Vendor Info.md` file. Every per-vendor folder lives under `Vendors/`; do NOT walk the root of `order_processing/` looking for vendors — root-level entries like `_shared_sops/`, `_skill_evals/`, `plugin/`, `bulk_changes/`, `.git/`, `.claude-plugin/` are not vendor folders and should not appear in the rollup.
 
-- Is NOT a top-level special folder (`_shared_sops/`, `_source_docx/`, `_skill_evals/`, `plugin/`, `.git/`, `.claude-plugin/`, etc. — anything starting with `_` or `.` should be skipped).
-- Contains a `* - Vendor Info.md` file inside.
+If a folder somehow shows up at the root of `order_processing/` that looks like a vendor (e.g. has a `* - Vendor Info.md` inside), warn the user — it should be moved into `Vendors/` before being included.
 
-For each, read that Vendor Info file.
+For each vendor folder under `Vendors/`, read that Vendor Info file.
 
 ### Step 2 — Extract the canonical fields from each file
 
@@ -61,7 +60,7 @@ Overwrite the existing file with:
   ⚠️  GENERATED FILE — DO NOT EDIT BY HAND.
 
   Source of truth for each vendor's data is in
-  <Vendor Folder>/<Vendor Folder> - Vendor Info.md
+  Vendors/<Vendor Folder>/<Vendor Folder> - Vendor Info.md
 
   This rollup is rebuilt from those files by the `regenerate-vendor-rollup`
   skill (part of the order-processing Cowork plugin). If you edit this file
@@ -87,7 +86,7 @@ Preserve the exact column order shown above — other tools read this file by co
 One vendor per line. First line is the banner record:
 
 ```json
-{"_comment": "GENERATED FILE — DO NOT EDIT BY HAND. Regenerated from each <Vendor>/<Vendor> - Vendor Info.md by the regenerate-vendor-rollup skill. To update a vendor, edit its per-vendor file and run regenerate-vendor-rollup. This first line is a banner record; programmatic readers should skip records where '_comment' is present."}
+{"_comment": "GENERATED FILE — DO NOT EDIT BY HAND. Regenerated from each Vendors/<Vendor>/<Vendor> - Vendor Info.md by the regenerate-vendor-rollup skill. To update a vendor, edit its per-vendor file and run regenerate-vendor-rollup. This first line is a banner record; programmatic readers should skip records where '_comment' is present."}
 ```
 
 Each subsequent line is a single-line JSON object with the exact key names from the column table above. Use `null` for blank values, not empty strings.
@@ -107,10 +106,11 @@ If nothing changed, say so — "the rollup was already in sync; rewrote the file
 
 Flag anything that suggests broken source files:
 
-- A vendor folder with no `* - Vendor Info.md` inside — report it, don't add a row.
+- A vendor folder under `Vendors/` with no `* - Vendor Info.md` inside — report it, don't add a row.
 - A Vendor Info file missing the title line — use the folder name as fallback, but warn.
 - A Vendor Info file where multiple fields are stubs — fine, just captured as blanks.
-- Two vendor folders whose canonical names collide (e.g. someone accidentally created both `Pemco/` and `Assa Abloy - Pemco - Rockwood/` — the alias should be in the combined folder, not a separate one).
+- Two vendor folders whose canonical names collide (e.g. someone accidentally created both `Vendors/Pemco/` and `Vendors/Assa Abloy - Pemco - Rockwood/` — the alias should be in the combined folder, not a separate one).
+- A vendor-shaped folder sitting at the root of `order_processing/` instead of inside `Vendors/` — warn and ask the user to move it.
 
 ## Examples
 
@@ -157,7 +157,7 @@ Output:
 > Regenerated from 104 vendor folders.
 >
 > ⚠️ **Potential alias collision:**
-> - A new folder `Pemco/` has appeared. The existing `Assa Abloy - Pemco - Rockwood/` folder already lists "Pemco" as a sub-brand. Do you want me to merge Pemco/ into the Assa Abloy folder (and delete the duplicate), or is this a genuinely separate supplier relationship?
+> - A new folder `Vendors/Pemco/` has appeared. The existing `Vendors/Assa Abloy - Pemco - Rockwood/` folder already lists "Pemco" as a sub-brand. Do you want me to merge `Vendors/Pemco/` into the Assa Abloy folder (and delete the duplicate), or is this a genuinely separate supplier relationship?
 >
 > Rollup rewritten regardless; please resolve the collision before the next regeneration so the data stays clean.
 

@@ -111,16 +111,21 @@ def get_vendor_name(folder_name):
     return vendor_name
 
 def main():
-    base_dir = r"C:\Users\shish\Desktop\order_processing"
+    base_dir = r"C:\Users\shish\Desktop\order-processing"
+    vendors_dir = os.path.join(base_dir, "Vendors")
 
     vendors = []
 
-    # Scan all folders
-    for item in sorted(os.listdir(base_dir)):
-        item_path = os.path.join(base_dir, item)
+    if not os.path.isdir(vendors_dir):
+        print(f"ERROR: Vendors/ folder not found at {vendors_dir}")
+        return False
 
-        # Skip non-directories and special dirs
-        if not os.path.isdir(item_path) or item.startswith('_') or item == "plugin" or item == "orignal files":
+    # Scan per-vendor folders inside Vendors/
+    for item in sorted(os.listdir(vendors_dir)):
+        item_path = os.path.join(vendors_dir, item)
+
+        # Skip non-directories and any defensive meta entries.
+        if not os.path.isdir(item_path) or item.startswith('_') or item.startswith('.'):
             continue
 
         print(f"Checking {item}...")
@@ -149,7 +154,7 @@ def main():
         "  ⚠️  GENERATED FILE — DO NOT EDIT BY HAND.",
         "",
         "  Source of truth for each vendor's data is in",
-        "  <Vendor Folder>/<Vendor Folder> - Vendor Info.md",
+        "  Vendors/<Vendor Folder>/<Vendor Folder> - Vendor Info.md",
         "",
         "  This rollup is rebuilt from those files by the `regenerate-vendor-rollup`",
         "  skill (part of the order-processing Cowork plugin). If you edit this file",
@@ -179,7 +184,7 @@ def main():
     # Generate JSONL
     jsonl_lines = [
         json.dumps({
-            "_comment": "GENERATED FILE — DO NOT EDIT BY HAND. Regenerated from each <Vendor>/<Vendor> - Vendor Info.md by the regenerate-vendor-rollup skill. To update a vendor, edit its per-vendor file and run regenerate-vendor-rollup. This first line is a banner record; programmatic readers should skip records where '_comment' is present."
+            "_comment": "GENERATED FILE — DO NOT EDIT BY HAND. Regenerated from each Vendors/<Vendor>/<Vendor> - Vendor Info.md by the regenerate-vendor-rollup skill. To update a vendor, edit its per-vendor file and run regenerate-vendor-rollup. This first line is a banner record; programmatic readers should skip records where '_comment' is present."
         })
     ]
 
@@ -225,8 +230,8 @@ All rows include complete column set (blanks marked as null).
 
 ## Next steps
 Copy the generated files back to:
-- /sessions/wonderful-compassionate-mccarthy/mnt/order_processing/Vendor Information.md
-- /sessions/wonderful-compassionate-mccarthy/mnt/order_processing/Vendor Information.jsonl
+- C:\\Users\\shish\\Desktop\\order-processing\\Vendor Information.md
+- C:\\Users\\shish\\Desktop\\order-processing\\Vendor Information.jsonl
 """
 
     with open(os.path.join(sandbox, "user_report.md"), 'w', encoding='utf-8') as f:

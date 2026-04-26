@@ -32,8 +32,8 @@ If the user's description spans two types (e.g., "arrived damaged and also the w
 
 ### Step 3 — Read the right files, in this order
 
-1. **`<Vendor>/<Vendor> - Issue Resolution Notes.md`** — vendor-specific procedure, if not a stub. This is authoritative; its rules override the general playbook.
-2. **`<Vendor>/<Vendor> - Vendor Info.md`** — for primary contact, email, phone, and critically the `**If not, DK point of contact:**` line. If CS cannot contact the vendor directly (`**Can CS contact vendor directly?** No`), the email must be routed through the DK internal contact (Elina for ETA, Yana for claims, Kirill for certain specialty vendors, Razel for claims — confirm from the actual file).
+1. **`Vendors/<Vendor>/<Vendor> - Issue Resolution Notes.md`** — vendor-specific procedure, if not a stub. This is authoritative; its rules override the general playbook.
+2. **`Vendors/<Vendor>/<Vendor> - Vendor Info.md`** — for primary contact, email, phone, and critically the `**If not, DK point of contact:**` line. If CS cannot contact the vendor directly (`**Can CS contact vendor directly?** No`), the email must be routed through the DK internal contact (Elina for ETA, Yana for claims, Kirill for certain specialty vendors, Razel for claims — confirm from the actual file).
 3. **Root `Issue resolution.md`** — cross-vendor fallback playbook for whatever the vendor-specific file doesn't cover (photo requirements, BOL attachments, typical turnaround expectations).
 
 ### Step 4 — Decide the routing
@@ -109,8 +109,8 @@ At the bottom of your deliverable, append a **Follow-up** note telling the CS re
 User: "The CRL shipment that came in yesterday — 2 glass panels arrived cracked. PO #DK-12883. Customer's asking for an update. Draft the claim email to CRL."
 
 Flow:
-1. Resolve: `CRL/` — exact match.
-2. Read `CRL - Issue Resolution Notes.md` and `CRL - Vendor Info.md`. CRL allows CS direct contact (`Can CS contact vendor directly? Yes`). Email: crl@crlaurence.com or askus@crlaurence.com.
+1. Resolve: `Vendors/CRL/` — exact match.
+2. Read `Vendors/CRL/CRL - Issue Resolution Notes.md` and `Vendors/CRL/CRL - Vendor Info.md`. CRL allows CS direct contact (`Can CS contact vendor directly? Yes`). Email: crl@crlaurence.com or askus@crlaurence.com.
 3. Compose:
 
 ```
@@ -156,7 +156,7 @@ DK Hardware Supply
 User: "deltana sent us a damaged door pull, customer is pissed. write the claim"
 
 Flow:
-1. Resolve: `Deltana/`.
+1. Resolve: `Vendors/Deltana/`.
 2. Read files. Deltana's `Can CS contact vendor directly? No`. The DK point of contact is `Elina` per the Vendor Info.
 3. Email goes to Elina first; she forwards or handles it with Deltana. The skill still drafts the vendor-facing text so Elina can use it.
 
@@ -200,10 +200,10 @@ Thanks,
 User: "wrong SKU from abaco - they sent us 100mm instead of 150mm. need to write them."
 
 Flow:
-1. Resolve: `Abaco Machines/`.
-2. Read. `Abaco Machines - Issue Resolution Notes.md` is a stub (`_(to be filled)_`). Fall back to root `Issue resolution.md`.
+1. Resolve: `Vendors/Abaco Machines/`.
+2. Read. `Vendors/Abaco Machines/Abaco Machines - Issue Resolution Notes.md` is a stub (`_(to be filled)_`). Fall back to root `Issue resolution.md`.
 3. Vendor Info shows `Can CS contact vendor directly? yes`, contact: Sales@abacomachines.com / csm2@abacomachines.com, phone 310-532-0366.
-4. Compose using the cross-vendor playbook format. Note in the Follow-up section that the Abaco-specific playbook is not yet written — suggest the user capture the outcome in `Abaco Machines - Issue Resolution Notes.md` once resolved, so the next wrong-SKU claim has specific guidance.
+4. Compose using the cross-vendor playbook format. Note in the Follow-up section that the Abaco-specific playbook is not yet written — suggest the user capture the outcome in `Vendors/Abaco Machines/Abaco Machines - Issue Resolution Notes.md` once resolved, so the next wrong-SKU claim has specific guidance.
 
 ## Anti-patterns to avoid
 

@@ -8,7 +8,7 @@ Internal source of truth for all vendor order-processing and sales questions at 
 - `Vendor Information.md` / `Vendor Information.jsonl` — master table across all ~103 vendors.
 - `Issue resolution.md` — cross-vendor claims/damage/returns playbook.
 - `Order processing prompt.md` — SOP-generation prompt template.
-- `<Vendor>/` — per-vendor folder. Each contains `<Vendor> - Vendor Info.md`, `<Vendor> Process Document.md`, `<Vendor> - Issue Resolution Notes.md`. The per-vendor folder is master; the root master table is a rollup.
+- `Vendors/` — parent folder containing one `<Vendor>/` subfolder per supplier. Each per-vendor folder contains `<Vendor> - Vendor Info.md`, `<Vendor> Process Document.md`, `<Vendor> - Issue Resolution Notes.md`. The per-vendor folder is master; the root master table is a rollup.
 - `_shared_sops/` — cross-vendor Sales & Order SOPs (post-order status, vendor-order check, NET 30, core items/fees, quoting, problem orders, chats).
 - `plugin/` — the Cowork plugin that turns this knowledge base into callable skills. See [`plugin/README.md`](./plugin/README.md) for install instructions (download `plugin/dist/order-processing.plugin` and drag into Cowork).
 - `_skill_evals/` — side-by-side test results for each skill in the plugin. Open the HTML files to see what each skill does with real prompts.
@@ -23,7 +23,7 @@ Internal source of truth for all vendor order-processing and sales questions at 
 
 1. Match the canonical name from `Vendor Information.md` exactly.
 2. Replace `/` with ` - ` in folder names (Windows doesn't allow slashes).
-3. Create the three standard files using `Deltana/` or `IML/` as a template.
+3. Create the new vendor folder inside `Vendors/`, then add the three standard files using `Vendors/Deltana/` or `Vendors/IML/` as a template.
 4. Add aliases / sub-brands at the top of the Vendor Info file.
 5. Update the root master table and jsonl.
 6. Keep `.docx` originals (if any) in `_source_docx/` — don't commit them.
@@ -40,7 +40,7 @@ Every teammate should install the `order-processing` plugin so Claude answers ve
 
 That's it. See [`plugin/README.md`](./plugin/README.md) for what each skill does and how to contribute changes.
 
-## Status (as of 2026-04-24)
+## Status (as of 2026-04-26)
 
-- 103 vendor folders exist. 4 are hand-curated (`Deltana`, `IML`, `STRUCTURE GLASS SOLUTIONS`, `TopNotch`); 99 were auto-scaffolded from the jsonl — their Vendor Info is populated, but Process Document and Issue Resolution Notes are stubs marked `_(to be filled)_`.
+- 103 vendor folders exist inside `Vendors/`. 4 are hand-curated (`Vendors/Deltana`, `Vendors/IML`, `Vendors/STRUCTURE GLASS SOLUTIONS`, `Vendors/TopNotch`); 99 were auto-scaffolded from the jsonl — their Vendor Info is populated, but Process Document and Issue Resolution Notes are stubs marked `_(to be filled)_`.
 - Plugin v0.3.0 shipped with six skills: `vendor-lookup`, `add-new-vendor`, `sop-refresh`, `update-vendor-info`, `draft-claim-email`, `regenerate-vendor-rollup`. Evaluated against real DK prompts — see `_skill_evals/` for details.

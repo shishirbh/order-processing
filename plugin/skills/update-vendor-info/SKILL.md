@@ -15,9 +15,9 @@ Vendor data drifts: reps change, phones update, dropship policies evolve. When s
 
 ### Step 1 — Resolve the vendor
 
-Same rules as `vendor-lookup`:
+Same rules as `vendor-lookup`. Per-vendor folders live inside `order_processing/Vendors/`:
 
-1. Exact folder match first (case-insensitive). Slashes in the canonical name become ` - ` in folder names (`Assa Abloy/Pemco/Rockwood` → `Assa Abloy - Pemco - Rockwood/`).
+1. Exact folder match first (case-insensitive) inside `Vendors/`. Slashes in the canonical name become ` - ` in folder names (`Assa Abloy/Pemco/Rockwood` → `Vendors/Assa Abloy - Pemco - Rockwood/`).
 2. Sub-brand / alias match via the `Aliases / sub-brands` section of each Vendor Info file or the master table.
 3. If ambiguous, list 2–4 candidates and ask. Do not guess which vendor the user meant — editing the wrong vendor is a silent data-corruption bug that's hard to catch later.
 
@@ -41,7 +41,7 @@ If the user's update doesn't map to any existing field cleanly, add it as a bull
 
 ### Step 3 — Make the edit
 
-Read the current `<Folder>/<Folder> - Vendor Info.md`. Change only the specific line(s) the user is updating. Append `(Updated: YYYY-MM-DD)` to each touched line using today's date. Leave every other line untouched.
+Read the current `Vendors/<Folder>/<Folder> - Vendor Info.md`. Change only the specific line(s) the user is updating. Append `(Updated: YYYY-MM-DD)` to each touched line using today's date. Leave every other line untouched.
 
 Also update the "Last updated" line at the top of the file to today's date, and append the changer's name if known:
 
@@ -53,7 +53,7 @@ Last updated: 2026-04-24 (edited by <user or "Claude update-vendor-info skill">)
 
 The root `Vendor Information.md` and `Vendor Information.jsonl` are generated from per-vendor files. Your edit invalidated them until someone runs `regenerate-vendor-rollup`. Include a one-line reminder in your user-facing report:
 
-> Updated `<Folder>/<Folder> - Vendor Info.md`. The root rollup (`Vendor Information.md` / `.jsonl`) is now stale — run `regenerate-vendor-rollup` (or ask me to) when you want bulk queries to reflect this change.
+> Updated `Vendors/<Folder>/<Folder> - Vendor Info.md`. The root rollup (`Vendor Information.md` / `.jsonl`) is now stale — run `regenerate-vendor-rollup` (or ask me to) when you want bulk queries to reflect this change.
 
 ### Step 5 — Report back
 
@@ -71,7 +71,7 @@ Show:
 User: "update hafele's phone - it's now 954-218-0294, rhandy's new direct line"
 
 Flow:
-1. Resolve: `Hafele/` — exact folder match.
+1. Resolve: `Vendors/Hafele/` — exact folder match.
 2. Identify field: phone. The existing value is `800-423-3531 - General inquiries / 954-218-0294 - Rhandy for escalations`.
 3. The user's update says the NEW phone is 954-218-0294 and notes it's Rhandy's direct line. This is actually already in the file — but they may be saying the general line is now this one, OR that 954-218-0294 is now the default. **When the field already contains similar data, ask before changing.** "The Hafele file already lists 954-218-0294 as Rhandy's escalation line. Are you saying that's now the general number too, or should I replace the general-inquiries line with something else?"
 
@@ -82,7 +82,7 @@ Don't silently change — phone fields are the exact thing that causes real down
 User: "pemco changed - they only dropship under their own account now, we can't use ours anymore"
 
 Flow:
-1. Resolve: "Pemco" → `Assa Abloy - Pemco - Rockwood/`.
+1. Resolve: "Pemco" → `Vendors/Assa Abloy - Pemco - Rockwood/`.
 2. Identify field: `**Ships under our account?**`. Current value is "No" (meaning they already ship under the vendor account).
 3. Check if the user's update actually changes anything. In this case: the existing file says "Ships under our account: No" which matches the user's claim. But they might be adding context — that dropship is only their account. That maps to `**Can we dropship?**` remaining "Yes," and a note somewhere about the account.
 4. Action: add a note under `## Notes` or append a clarification to the dropship line, e.g. `**Can we dropship?** Yes — dropships only under vendor's own account (not ours) (Updated: 2026-04-24)`.
@@ -94,7 +94,7 @@ Flow:
 User: "add 'Pemko' as another spelling for Pemco, saw it on one of their emails"
 
 Flow:
-1. Resolve: `Assa Abloy - Pemco - Rockwood/`.
+1. Resolve: `Vendors/Assa Abloy - Pemco - Rockwood/`.
 2. Open the `## Aliases / sub-brands` section.
 3. Add `- Pemko` as a bullet, tagged `(Updated: 2026-04-24)`.
 4. This alias will be picked up by `vendor-lookup` the next time someone asks about "Pemko." No rollup regeneration strictly needed for aliases, but mention it for consistency.
@@ -104,7 +104,7 @@ Flow:
 User: "update cal-royal's fedex account info"
 
 Flow:
-1. Resolve: `Cal-Royal/` folder exists — match is clean.
+1. Resolve: `Vendors/Cal-Royal/` folder exists — match is clean.
 2. But the instruction "update FedEx account info" doesn't map to a specific field, and the existing file may not have explicit FedEx account info (it has `**Ships under our account?**` which is where FedEx accounts effectively live).
 3. Ask: "The Cal-Royal file doesn't have a dedicated FedEx-account line. Do you want me to update `Ships under our account?` (currently 'No'), add a new `Notes` section with the FedEx account info, or both?"
 

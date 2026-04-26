@@ -42,7 +42,7 @@ Fires on problem reports — "CRL shipment came in with 2 cracked panels, draft 
 
 ### `regenerate-vendor-rollup`
 
-Fires when you want the root `Vendor Information.md` + `.jsonl` rebuilt from the per-vendor files — "rebuild the master table," "sync the rollup," or after a batch of vendor edits. Walks every vendor folder, regenerates both files with the do-not-edit-by-hand banner, reports which rows were added / changed / removed.
+Fires when you want the root `Vendor Information.md` + `.jsonl` rebuilt from the per-vendor files — "rebuild the master table," "sync the rollup," or after a batch of vendor edits. Walks every vendor folder under `Vendors/`, regenerates both files with the do-not-edit-by-hand banner, reports which rows were added / changed / removed.
 
 ## Benchmark
 
@@ -109,10 +109,6 @@ Then bump the version in `.claude-plugin/plugin.json` (e.g. `0.2.0` → `0.3.0`)
 
 ## Versioning
 
-- **0.3.0** (April 2026) — added `update-vendor-info`, `draft-claim-email`, `regenerate-vendor-rollup`
-- **0.2.0** (April 2026) — added `sop-refresh`
-- **0.1.0** (April 2026) — initial release with `vendor-lookup` and `add-new-vendor`
-
-## Source of truth
-
-The `SKILL.md` files in this folder are authoritative. The `.plugin` file in `dist/` is a built artifact — do not edit it directly. If it gets out of sync with the source, rebuild it.
+- **0.6.0** (April 2026) — `sop-refresh` Mode B now also appends a run-level summary to a single global changelog at the root (`SOP-Refresh-Changelog.md`), in addition to the per-CSV detail file
+- **0.5.0** (April 2026) — added Mode B (bulk CSV) to `sop-refresh`: picks the newest CSV in `bulk_changes/`, applies each row to the matching vendor's Process Document, and writes a per-CSV changelog (`bulk_changes/<csv_basename>.changelog.md`) that accumulates across runs
+- **0.4.0** (April 2026) — restructured the knowledge base so every per-vendor folder lives under `Vendors/`; updated all six skills' path references ac

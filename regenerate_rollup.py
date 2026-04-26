@@ -8,7 +8,8 @@ import re
 from pathlib import Path
 from datetime import datetime
 
-ROOT_DIR = Path("C:/Users/shish/Desktop/order_processing")
+ROOT_DIR = Path("C:/Users/shish/Desktop/order-processing")
+VENDORS_DIR = ROOT_DIR / "Vendors"
 
 # Hardcoded table columns (from the master table)
 COLUMNS = [
@@ -34,7 +35,7 @@ def clean_value(val):
     return val.strip() if isinstance(val, str) else val
 
 def extract_vendor_info(vendor_path):
-    """Extract vendor info from <Vendor>/<Vendor> - Vendor Info.md"""
+    """Extract vendor info from Vendors/<Vendor>/<Vendor> - Vendor Info.md"""
     # Try exact match first
     info_file = vendor_path / f"{vendor_path.name} - Vendor Info.md"
 
@@ -181,13 +182,16 @@ def get_all_vendors():
     """Scan all vendor folders and extract their info."""
     vendors = []
 
-    # Only check directories that exist and have a Vendor Info file
-    for vendor_dir in sorted(ROOT_DIR.iterdir()):
+    if not VENDORS_DIR.is_dir():
+        print(f"ERROR: Vendors/ folder not found at {VENDORS_DIR}")
+        return vendors
+
+    # Walk Vendors/ — every subdirectory in there is a per-vendor folder.
+    for vendor_dir in sorted(VENDORS_DIR.iterdir()):
         if not vendor_dir.is_dir():
             continue
-        if vendor_dir.name.startswith("_"):  # Skip _shared_sops, _source_docx, etc.
-            continue
-        if vendor_dir.name in ("orignal files", ".vscode"):  # Skip old folder and hidden
+        # Defensive skips in case anyone drops a meta folder in here.
+        if vendor_dir.name.startswith("_") or vendor_dir.name.startswith("."):
             continue
 
         info = extract_vendor_info(vendor_dir)
@@ -206,7 +210,7 @@ def write_md_rollup(vendors, output_path):
   ⚠️  GENERATED FILE — DO NOT EDIT BY HAND.
 
   Source of truth for each vendor's data is in
-  <Vendor Folder>/<Vendor Folder> - Vendor Info.md
+  Vendors/<Vendor Folder>/<Vendor Folder> - Vendor Info.md
 
   This rollup is rebuilt from those files by the `regenerate-vendor-rollup`
   skill (part of the order-processing Cowork plugin). If you edit this file
@@ -238,7 +242,7 @@ def write_jsonl_rollup(vendors, output_path):
     """Write Vendor Information.jsonl with one vendor per line."""
     with open(output_path, "w", encoding="utf-8") as f:
         # Banner record
-        banner = {"_comment": "GENERATED FILE — DO NOT EDIT BY HAND. Regenerated from each <Vendor>/<Vendor> - Vendor Info.md by the regenerate-vendor-rollup skill. To update a vendor, edit its per-vendor file and run regenerate-vendor-rollup. This first line is a banner record; programmatic readers should skip records where '_comment' is present."}
+        banner = {"_comment": "GENERATED FILE — DO NOT EDIT BY HAND. Regenerated from each Vendors/<Vendor>/<Vendor> - Vendor Info.md by the regenerate-vendor-rollup skill. To update a vendor, edit its per-vendor file and run regenerate-vendor-rollup. This first line is a banner record; programmatic readers should skip records where '_comment' is present."}
         f.write(json.dumps(banner) + "\n")
 
         # Vendor records
