@@ -1,0 +1,11 @@
+{
+  "version": 1,
+  "workspace": {
+    "name": "order_processing",
+    "createdAt": 1777459298194,
+    "preset": "starter"
+  },
+  "authorizedRoots": [
+    "\\\\?\\C:\\Users\\shish\\Desktop\\order_processing"
+  ]
+}

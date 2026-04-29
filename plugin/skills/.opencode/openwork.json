@@ -1,0 +1,11 @@
+{
+  "version": 1,
+  "workspace": {
+    "name": "skills",
+    "createdAt": 1777459984953,
+    "preset": "starter"
+  },
+  "authorizedRoots": [
+    "\\\\?\\C:\\Users\\shish\\Desktop\\order_processing\\plugin\\skills"
+  ]
+}
