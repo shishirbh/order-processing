@@ -18,7 +18,7 @@ import {
 const __dirname = dirname(fileURLToPath(import.meta.url));
 const REPO_DIR = resolve(__dirname, "..");            // repo root = knowledge base
 const SESSIONS_DIR = join(homedir(), ".dk-order-processing", "sessions");
-const PUBLIC_DIR = join(__dirname, "..", "public");
+const PUBLIC_DIR = join(__dirname, "public");
 const PORT = 0; // auto-assign
 
 // ── Pull latest knowledge base ─────────────────────────────────────

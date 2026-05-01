@@ -4,11 +4,11 @@
   "description": "DK Hardware Order Processing — knowledge base + browser-based chat UI with full vendor data and skills",
   "keywords": ["pi-package"],
   "bin": {
-    "dk-order-processing": "./bin/cli.mjs"
+    "dk-order-processing": "./server/cli.mjs"
   },
   "files": [
-    "bin/cli.mjs",
-    "public/index.html",
+    "server/cli.mjs",
+    "server/public/index.html",
     "setup.cmd",
     "plugin/skills/",
     "Vendors/",

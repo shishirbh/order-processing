@@ -123,8 +123,9 @@ The repo is self-contained. The code that runs the app:
 ```
 order_processing/
 ├── package.json           ← npm manifest + pi SDK dependency
-├── bin/cli.mjs            ← HTTP server + pi agent
-├── public/index.html      ← browser chat UI
+├── server/cli.mjs         ← HTTP server + pi agent
+├── server/public/         ← browser chat UI
+├── scripts/               ← Python helper scripts
 ├── setup.cmd              ← Windows one-click installer
 └── .gitignore             ← ignores node_modules, temp files, etc.
 ```

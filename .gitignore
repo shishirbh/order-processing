@@ -17,6 +17,13 @@ Desktop.ini
 # --- Node / npm ---
 node_modules/
 
+# --- Python ---
+__pycache__/
+
+# --- Local dev config ---
+opencode.jsonc
+.opencode/
+
 # --- Editor / IDE ---
 .vscode/
 .idea/
