@@ -30,6 +30,9 @@ opencode.jsonc
 *.swp
 *.swo
 
+# --- Thinking session exports ---
+thoughts/
+
 # --- Skill eval artifacts ---
 # The review HTML pages are committed so the team can see how each skill was tested.
 # Regenerated artifacts (feedback.json downloads, scratch files) should stay local:
