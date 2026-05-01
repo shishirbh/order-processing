@@ -25,3 +25,6 @@ Desktop.ini
 # Regenerated artifacts (feedback.json downloads, scratch files) should stay local:
 _skill_evals/feedback*.json
 _skill_evals/*.tmp
+
+# --- Node dependencies ---
+node_modules/
