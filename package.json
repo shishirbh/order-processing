@@ -1,0 +1,25 @@
+{
+  "name": "dkhardware-order-processing",
+  "version": "1.0.0",
+  "description": "DK Hardware Order Processing — knowledge base + browser-based chat UI with full vendor data and skills",
+  "keywords": ["pi-package"],
+  "bin": {
+    "dk-order-processing": "./bin/cli.mjs"
+  },
+  "files": [
+    "bin/cli.mjs",
+    "public/index.html",
+    "setup.cmd",
+    "plugin/skills/",
+    "Vendors/",
+    "CLAUDE.md",
+    "_shared_sops/"
+  ],
+  "dependencies": {
+    "@mariozechner/pi-coding-agent": "*"
+  },
+  "engines": {
+    "node": ">=18"
+  },
+  "license": "UNLICENSED"
+}
