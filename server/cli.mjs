@@ -1,7 +1,7 @@
 #!/usr/bin/env node
 
 import { execSync } from "node:child_process";
-import { existsSync, readFileSync, writeFileSync, mkdirSync, readdirSync, unlinkSync } from "node:fs";
+import { existsSync, readFileSync, writeFileSync, mkdirSync, readdirSync, unlinkSync, statSync } from "node:fs";
 import { homedir } from "node:os";
 import { join, dirname, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
@@ -153,6 +153,9 @@ const server = createServer(async (req, res) => {
 
   // Static
   if (req.method === "GET" && path === "/") return serveStatic(res, join(PUBLIC_DIR, "index.html"));
+  if (req.method === "GET" && /^\/[\w.\-]+\.(svg|png|jpg|jpeg|gif|ico|css|js|webp)$/i.test(path)) {
+    return serveStatic(res, join(PUBLIC_DIR, path.slice(1)));
+  }
 
   // List sessions
   if (req.method === "GET" && path === "/api/sessions") return json(res, listSessionFiles());
@@ -235,6 +238,58 @@ const server = createServer(async (req, res) => {
     }
     res.end();
     return;
+  }
+
+  // ── File browser ──────────────────────────────────────────────────
+  const EXCLUDE_ROOT = new Set([
+    "node_modules", "_source_docx", "orignal files", "server",
+    "package.json", "package-lock.json", ".git", ".gitignore",
+  ]);
+
+  // List directory
+  if (req.method === "GET" && path === "/api/files") {
+    const dir = url.searchParams.get("path") || "";
+    const fullPath = join(REPO_DIR, dir);
+    if (!fullPath.startsWith(REPO_DIR)) return json(res, { error: "Invalid path" }, 403);
+    if (!existsSync(fullPath)) return json(res, { error: "Not found" }, 404);
+    try {
+      const entries = readdirSync(fullPath, { withFileTypes: true });
+      const result = entries
+        .filter(e => {
+          if (e.name.startsWith(".")) return false;
+          if (dir === "" && EXCLUDE_ROOT.has(e.name)) return false;
+          return true;
+        })
+        .map(e => ({
+          name: e.name,
+          type: e.isDirectory() ? "dir" : "file",
+          path: dir ? `${dir}/${e.name}` : e.name,
+        }))
+        .sort((a, b) => {
+          if (a.type !== b.type) return a.type === "dir" ? -1 : 1;
+          return a.name.localeCompare(b.name);
+        });
+      return json(res, result);
+    } catch (e) {
+      return json(res, { error: e.message }, 500);
+    }
+  }
+
+  // Read file
+  if (req.method === "GET" && path === "/api/file") {
+    const filePath = url.searchParams.get("path") || "";
+    const fullPath = join(REPO_DIR, filePath);
+    if (!fullPath.startsWith(REPO_DIR)) return json(res, { error: "Invalid path" }, 403);
+    if (!existsSync(fullPath)) return json(res, { error: "Not found" }, 404);
+    const st = statSync(fullPath);
+    if (st.isDirectory()) return json(res, { error: "Path is a directory" }, 400);
+    try {
+      const content = readFileSync(fullPath, "utf-8");
+      const ext = filePath.split(".").pop().toLowerCase();
+      return json(res, { path: filePath, content, type: ext });
+    } catch (e) {
+      return json(res, { error: e.message }, 500);
+    }
   }
 
   res.writeHead(404);
