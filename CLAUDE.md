@@ -62,12 +62,11 @@ content and in the `Aliases / sub-brands` section so sub-brand lookups still wor
 ### Step 1 — Resolve the vendor
 
 1. Check the user's message for a vendor name.
-2. Try exact match against folders inside `Vendors/` (case-insensitive).
-3. If no folder match, scan `Vendor Information.md` — the master table contains all
-   ~103 vendor names, including combined/slashed names like
-   `Assa Abloy/Pemco/Rockwood`, `ACE / Emery Jensen`, `Home Depot/US lock/HD Supply`.
-4. If the query uses a sub-brand (e.g. "Pemco", "Rockwood", "US lock", "HD Supply",
-   "Emery Jensen"), match it to its parent row in the master table.
+2. Look it up in **[INDEX.md](INDEX.md)** (case-insensitive) — this maps every
+   vendor name, sub-brand alias, and common variant to the correct `Vendors/` folder.
+   Matching order: aliases > canonical names > variants.
+3. If not found in INDEX.md, try exact match against folder names inside `Vendors/`.
+4. Fallback: scan `Vendor Information.md` — the master table contains all ~100+ vendors.
 5. **If still ambiguous, do NOT guess.** List the 2–4 most likely candidate folders /
    vendor names and ask the user to confirm.
 
@@ -122,9 +121,10 @@ Cite the master table with the specific row name when you used the rollup.
 - `orignal files/` is a leftover from the pre-cleanup layout. Excel held a lock
   on `Vendor Information.xlsx` so the folder could not be fully removed. Ignore
   it; the canonical archive is `_source_docx/`.
-- No `INDEX.md` or alias table yet. Use the master `Vendor Information.md` and
-  the `Aliases / sub-brands` section of each vendor's `Vendor Info.md` for
-  sub-brand → parent lookups (e.g. "Pemco" → `Vendors/Assa Abloy - Pemco - Rockwood/`).
+- `INDEX.md` now exists (added 2026-05-12). It maps every vendor name, sub-brand alias,
+  and name variant to its `Vendors/` folder. Use it as the primary lookup in Step 1.
+  If a lookup isn't covered, fall back to scanning `Vendor Information.md` and vendor
+  `Vendor Info.md` files.
 
 ---
 

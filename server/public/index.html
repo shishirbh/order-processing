@@ -250,6 +250,77 @@
   }
   .session-item:hover .delete-btn { opacity: 1; }
   .session-item .delete-btn:hover { color: var(--danger); background: rgba(240,98,110,0.1); }
+  .session-item .rename-btn {
+    opacity: 0;
+    color: var(--text-muted);
+    font-size: 12px;
+    padding: 2px 5px;
+    border-radius: 4px;
+    transition: all 0.12s;
+    line-height: 1;
+  }
+  .session-item:hover .rename-btn { opacity: 1; }
+  .session-item .rename-btn:hover { color: var(--text); background: var(--surface-hover); }
+  .session-item .name-input {
+    flex: 1;
+    background: var(--surface-elevated);
+    border: 1px solid var(--accent);
+    border-radius: 4px;
+    color: var(--text);
+    font-size: 13px;
+    padding: 3px 6px;
+    outline: none;
+    font-family: inherit;
+  }
+
+  /* ── Session search ──────────────────── */
+  .session-search {
+    position: relative;
+    margin: 8px 12px 4px;
+  }
+  .session-search input {
+    width: 100%;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    color: var(--text);
+    font-size: 12.5px;
+    padding: 7px 28px 7px 30px;
+    outline: none;
+    font-family: inherit;
+    transition: border-color 0.15s var(--ease);
+  }
+  .session-search input:focus {
+    border-color: var(--accent);
+    box-shadow: 0 0 0 2px var(--accent-glow);
+  }
+  .session-search::before {
+    content: '🔍';
+    position: absolute;
+    left: 9px;
+    top: 50%;
+    transform: translateY(-50%);
+    font-size: 11px;
+    opacity: 0.5;
+    pointer-events: none;
+  }
+  .session-search .clear-search {
+    position: absolute;
+    right: 6px;
+    top: 50%;
+    transform: translateY(-50%);
+    background: none;
+    border: none;
+    color: var(--text-muted);
+    cursor: pointer;
+    font-size: 14px;
+    line-height: 1;
+    padding: 2px 5px;
+    border-radius: 4px;
+    display: none;
+  }
+  .session-search .clear-search:hover { color: var(--text); background: var(--surface-hover); }
+  .session-search input:not(:placeholder-shown) ~ .clear-search { display: block; }
 
   .sidebar-footer {
     padding: 12px 16px;
@@ -537,6 +608,25 @@
   .msg-content p { margin: 6px 0; }
   .msg-content a { color: var(--accent); text-decoration: none; }
   .msg-content a:hover { text-decoration: underline; }
+  .msg-content a.source-link {
+    color: var(--accent);
+    background: var(--accent-glow);
+    border: 1px solid rgba(123, 156, 255, 0.25);
+    padding: 1px 7px;
+    border-radius: 6px;
+    font-family: 'JetBrains Mono', 'Fira Code', 'Cascadia Code', monospace;
+    font-size: 12.5px;
+    cursor: pointer;
+    transition: all 0.12s var(--ease);
+    text-decoration: none;
+    white-space: nowrap;
+  }
+  .msg-content a.source-link::before { content: '📄 '; opacity: 0.7; }
+  .msg-content a.source-link:hover {
+    background: var(--accent-glow-strong);
+    border-color: var(--accent);
+    text-decoration: none;
+  }
   .msg-content strong { font-weight: 600; color: var(--text); }
   .msg-content em { font-style: italic; color: var(--text); }
   .msg-content ul, .msg-content ol { padding-left: 22px; margin: 8px 0; }
@@ -615,6 +705,149 @@
     letter-spacing: 0.2px;
   }
 
+  /* ── Tool activity section ─────────── */
+  .tools-section {
+    margin-bottom: 10px;
+    border: 1px solid var(--border);
+    border-radius: var(--radius-sm);
+    overflow: hidden;
+    background: var(--surface);
+  }
+  .tools-section summary {
+    padding: 8px 14px;
+    font-size: 12px;
+    font-weight: 600;
+    color: var(--text-muted);
+    cursor: pointer;
+    user-select: none;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    transition: color 0.15s;
+    list-style: none;
+  }
+  .tools-section summary::-webkit-details-marker { display: none; }
+  .tools-section summary:hover { color: var(--text-secondary); }
+  .tools-section summary::before {
+    content: '▸';
+    font-size: 10px;
+    color: var(--text-muted);
+    transition: transform 0.18s var(--ease);
+    display: inline-block;
+    width: 8px;
+  }
+  .tools-section[open] summary::before { transform: rotate(90deg); }
+  .tools-section .tools-label { flex: 1; display: flex; align-items: center; gap: 6px; }
+  .tools-section .tools-meta { font-weight: 500; color: var(--text-muted); opacity: 0.7; font-size: 11px; }
+  .tools-section.streaming {
+    border-color: rgba(77, 212, 160, 0.3);
+    background: rgba(77, 212, 160, 0.06);
+  }
+  .tools-section.streaming summary { color: var(--accent2); }
+  .tools-list {
+    padding: 8px 14px;
+    border-top: 1px solid var(--border);
+    max-height: 300px;
+    overflow-y: auto;
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+  }
+  .tools-item {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 12.5px;
+    color: var(--text-secondary);
+    font-family: 'JetBrains Mono', 'Fira Code', 'Cascadia Code', monospace;
+    padding: 3px 0;
+  }
+  .tools-item .tool-name {
+    background: rgba(77, 212, 160, 0.12);
+    color: var(--accent2);
+    padding: 1px 8px;
+    border-radius: 10px;
+    font-size: 11px;
+    font-weight: 600;
+    flex-shrink: 0;
+    border: 1px solid rgba(77, 212, 160, 0.2);
+  }
+  .tools-item .tool-arg {
+    color: var(--text-muted);
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+  .tools-item.error .tool-name {
+    background: rgba(240, 98, 110, 0.12);
+    color: var(--danger);
+    border-color: rgba(240, 98, 110, 0.25);
+  }
+
+  /* ── Thinking / reasoning section ──── */
+  .thinking-section {
+    margin-bottom: 10px;
+    border: 1px solid var(--border);
+    border-radius: var(--radius-sm);
+    overflow: hidden;
+    background: var(--surface);
+  }
+  .thinking-section summary {
+    padding: 8px 14px;
+    font-size: 12px;
+    font-weight: 600;
+    color: var(--text-muted);
+    cursor: pointer;
+    user-select: none;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    transition: color 0.15s;
+    list-style: none;
+  }
+  .thinking-section summary::-webkit-details-marker { display: none; }
+  .thinking-section summary:hover { color: var(--text-secondary); }
+  .thinking-section summary::before {
+    content: '▸';
+    font-size: 10px;
+    color: var(--text-muted);
+    transition: transform 0.18s var(--ease);
+    display: inline-block;
+    width: 8px;
+  }
+  .thinking-section[open] summary::before {
+    transform: rotate(90deg);
+  }
+  .thinking-section summary .thinking-label {
+    flex: 1;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+  }
+  .thinking-section summary .thinking-meta {
+    font-weight: 500;
+    color: var(--text-muted);
+    opacity: 0.7;
+    font-size: 11px;
+  }
+  .thinking-section .thinking-content {
+    padding: 10px 14px;
+    font-size: 12.5px;
+    line-height: 1.6;
+    color: var(--text-muted);
+    border-top: 1px solid var(--border);
+    font-style: italic;
+    max-height: 300px;
+    overflow-y: auto;
+  }
+  .thinking-section.streaming {
+    border-color: rgba(123, 156, 255, 0.3);
+    background: var(--accent-glow);
+  }
+  .thinking-section.streaming summary {
+    color: var(--accent);
+  }
+
   /* ── Message actions ───────────────── */
   .msg-actions {
     opacity: 0;
@@ -636,6 +869,98 @@
   }
   .msg-action:hover { background: var(--surface-hover); color: var(--text); }
   .msg-action.copied { color: var(--success); }
+  .msg-action.fb-up.active { color: var(--success); background: rgba(77, 212, 160, 0.12); }
+  .msg-action.fb-down.active { color: var(--danger); background: rgba(240, 98, 110, 0.12); }
+  .msg-action.fb-saved { color: var(--success); }
+
+  /* ── Feedback popover ───────────────── */
+  .feedback-popover {
+    margin-top: 6px;
+    background: var(--surface-elevated);
+    border: 1px solid var(--border-strong);
+    border-radius: var(--radius-sm);
+    padding: 10px;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    box-shadow: var(--shadow);
+    animation: fadeIn 0.18s var(--ease);
+  }
+  .feedback-popover textarea {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    color: var(--text);
+    font-size: 12.5px;
+    padding: 6px 8px;
+    resize: vertical;
+    min-height: 50px;
+    max-height: 140px;
+    outline: none;
+    font-family: inherit;
+  }
+  .feedback-popover textarea:focus { border-color: var(--accent); }
+  .feedback-popover .fb-actions { display: flex; gap: 6px; justify-content: flex-end; }
+  .feedback-popover button {
+    padding: 5px 12px;
+    border-radius: 6px;
+    font-size: 12px;
+    cursor: pointer;
+    border: 1px solid var(--border);
+    background: var(--surface);
+    color: var(--text);
+    font-family: inherit;
+    font-weight: 500;
+    transition: all 0.12s;
+  }
+  .feedback-popover button:hover { background: var(--surface-hover); }
+  .feedback-popover button.primary {
+    background: var(--accent);
+    color: #fff;
+    border-color: transparent;
+  }
+  .feedback-popover button.primary:hover { background: var(--accent-hover); }
+
+  /* Topbar export menu */
+  .topbar-action {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 5px 11px;
+    font-size: 12px;
+    cursor: pointer;
+    color: var(--text-secondary);
+    font-family: inherit;
+    font-weight: 500;
+    transition: all 0.12s;
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+  }
+  .topbar-action:hover { background: var(--surface-hover); color: var(--text); border-color: var(--border-strong); }
+  .topbar-action:disabled { opacity: 0.4; cursor: not-allowed; }
+
+  /* Sidebar bulk export */
+  .sidebar-export {
+    padding: 8px 12px;
+    border-top: 1px solid var(--border);
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+  }
+  .sidebar-export button {
+    background: transparent;
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    color: var(--text-secondary);
+    font-size: 11.5px;
+    padding: 6px 10px;
+    cursor: pointer;
+    font-family: inherit;
+    text-align: left;
+    transition: all 0.12s;
+  }
+  .sidebar-export button:hover { background: var(--surface-hover); color: var(--text); border-color: var(--border-strong); }
 
   /* ── Typing indicator ──────────────── */
   .typing-indicator {
@@ -733,6 +1058,57 @@
     text-align: center;
     letter-spacing: 0.1px;
   }
+
+  /* ── @vendor autocomplete ───────────── */
+  .vendor-autocomplete {
+    position: absolute;
+    bottom: 100%;
+    left: 0;
+    right: 0;
+    margin: 0 24px 6px;
+    max-width: 800px;
+    margin-left: auto;
+    margin-right: auto;
+    background: var(--surface-elevated);
+    border: 1px solid var(--border-strong);
+    border-radius: var(--radius);
+    box-shadow: var(--shadow-lg);
+    max-height: 240px;
+    overflow-y: auto;
+    z-index: 50;
+    display: none;
+  }
+  .vendor-autocomplete.open { display: block; }
+  .vendor-autocomplete .vendor-item {
+    padding: 8px 14px;
+    cursor: pointer;
+    font-size: 13px;
+    color: var(--text);
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    transition: background 0.1s;
+  }
+  .vendor-autocomplete .vendor-item:hover,
+  .vendor-autocomplete .vendor-item.active {
+    background: var(--accent-glow);
+  }
+  .vendor-autocomplete .vendor-item .icon {
+    font-size: 12px;
+    opacity: 0.6;
+    flex-shrink: 0;
+  }
+  .vendor-autocomplete .vendor-item .match {
+    color: var(--accent);
+    font-weight: 600;
+  }
+  .vendor-autocomplete .empty {
+    padding: 14px;
+    color: var(--text-muted);
+    font-size: 12px;
+    text-align: center;
+  }
+  .input-area { position: relative; }
   .input-hint kbd {
     background: var(--surface);
     border: 1px solid var(--border);
@@ -950,12 +1326,20 @@
   </div>
   <div class="sidebar-body" id="sidebar-chats">
     <button class="btn btn-primary" onclick="newSession()">+ New Chat</button>
+    <div class="session-search">
+      <input type="text" id="sessionSearch" placeholder="Search conversations…" oninput="filterSessions()" autocomplete="off" />
+      <button class="clear-search" onclick="clearSessionSearch()" title="Clear search">×</button>
+    </div>
   </div>
   <div class="session-list" id="sessionList"></div>
   <div class="file-tree" id="sidebar-files" style="display:none">
     <div class="file-tree-inner" id="fileTree">
       <div class="file-tree-empty">Loading...</div>
     </div>
+  </div>
+  <div class="sidebar-export">
+    <button onclick="exportAllChats('md')" title="Bundle every conversation into one Markdown file for review">📦 Export all chats (.md)</button>
+    <button onclick="exportAllChats('json')" title="Export all conversations as JSON for programmatic review">📦 Export all chats (.json)</button>
   </div>
   <div class="sidebar-footer">
     <span class="dot"></span> 103 vendors loaded
@@ -968,6 +1352,7 @@
     <span class="toggle-sidebar" onclick="toggleSidebar()" title="Toggle sidebar">☰</span>
     <span class="session-title" id="currentTitle">DK Order Processing</span>
     <div class="stats">
+      <button class="topbar-action" id="exportChatBtn" onclick="exportCurrentChat()" title="Export this chat as Markdown" disabled>⬇ Export</button>
       <span class="stat-badge"><span class="stat-num">103</span> vendors</span>
       <span class="stat-badge"><span class="stat-num">6</span> skills</span>
       <div class="theme-toggle" role="group" aria-label="Theme">
@@ -999,11 +1384,12 @@
     <div class="file-viewer-content" id="fileViewerContent"></div>
   </div>
   <div class="input-area">
+    <div class="vendor-autocomplete" id="vendorAutocomplete"></div>
     <div class="input-wrapper">
-      <textarea id="promptInput" placeholder="Ask about a vendor, order process, or claim..." rows="1"></textarea>
+      <textarea id="promptInput" placeholder="Ask about a vendor, order process, or claim... (type @ for vendor lookup)" rows="1"></textarea>
       <button id="sendBtn" onclick="sendMessage()" title="Send (Enter)">Send</button>
     </div>
-    <div class="input-hint"><kbd>Enter</kbd> to send · <kbd>Shift</kbd>+<kbd>Enter</kbd> for new line · <kbd>Ctrl</kbd>+<kbd>Enter</kbd> from anywhere</div>
+    <div class="input-hint"><kbd>Enter</kbd> to send · <kbd>Shift</kbd>+<kbd>Enter</kbd> for new line · <kbd>@</kbd> for vendor lookup</div>
   </div>
 </div>
 
@@ -1078,19 +1464,86 @@ async function injectLogos() {
 injectLogos();
 
 // ── Session Management ────────────────────────────────────────────
+let _allSessions = [];
+
 async function loadSessions() {
-  const list = await fetchJSON(`${API}/sessions`);
+  _allSessions = await fetchJSON(`${API}/sessions`);
+  renderSessions();
+}
+
+function renderSessions() {
   const el = document.getElementById("sessionList");
-  el.innerHTML = list.map(s => {
+  const q = (document.getElementById("sessionSearch")?.value || "").trim().toLowerCase();
+  const filtered = q
+    ? _allSessions.filter(s => ((s.name || s.id || "").toLowerCase()).includes(q))
+    : _allSessions;
+  if (filtered.length === 0) {
+    const msg = q ? `No matches for "${esc(q)}"` : "No conversations yet";
+    el.innerHTML = `<div style="padding:14px;color:var(--text-muted);font-size:13px">${msg}</div>`;
+    return;
+  }
+  el.innerHTML = filtered.map(s => {
     const id = s.path || s.id;
-    const name = s.name || "Untitled";
     const escapedId = id.replace(/'/g,"\\'");
+    const displayName = (s.name || id).replace(/_/g, ' ').slice(0, 40);
     return `<div class="session-item${id === activeSessionId ? ' active' : ''}"
-        onclick="switchSession('${escapedId}')">
-      <span class="name">${esc(name)}</span>
-      <span class="delete-btn" onclick="event.stopPropagation();deleteSession('${escapedId}')">×</span>
+        onclick="switchSession('${escapedId}')" data-id="${esc(id)}">
+      <span class="name" ondblclick="event.stopPropagation();startRename('${escapedId}',this)">${esc(displayName)}</span>
+      <span class="rename-btn" onclick="event.stopPropagation();startRename('${escapedId}',this.parentNode.querySelector('.name'))" title="Rename">✎</span>
+      <span class="delete-btn" onclick="event.stopPropagation();deleteSession('${escapedId}')" title="Delete">×</span>
     </div>`;
-  }).join("") || '<div style="padding:14px;color:var(--text-muted);font-size:13px">No conversations yet</div>';
+  }).join("");
+}
+
+function filterSessions() {
+  renderSessions();
+}
+
+function clearSessionSearch() {
+  const input = document.getElementById("sessionSearch");
+  input.value = "";
+  renderSessions();
+  input.focus();
+}
+
+function startRename(id, nameEl) {
+  if (!nameEl) return;
+  const current = nameEl.textContent;
+  const input = document.createElement("input");
+  input.type = "text";
+  input.className = "name-input";
+  input.value = current;
+  input.maxLength = 80;
+  const finish = async (commit) => {
+    if (input.parentNode !== nameEl.parentNode) return;
+    const newName = input.value.trim();
+    nameEl.parentNode.replaceChild(nameEl, input);
+    if (commit && newName && newName !== current) {
+      try {
+        await fetchJSON(`${API}/sessions/${encodeURIComponent(id)}`, {
+          method: "PATCH",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ name: newName }),
+        });
+        if (id === activeSessionId) {
+          document.getElementById("currentTitle").textContent = newName.slice(0, 40);
+        }
+        await loadSessions();
+      } catch (e) {
+        showToast("Rename failed");
+      }
+    }
+  };
+  nameEl.parentNode.replaceChild(input, nameEl);
+  input.focus();
+  input.select();
+  input.addEventListener("keydown", (e) => {
+    e.stopPropagation();
+    if (e.key === "Enter") { e.preventDefault(); finish(true); }
+    else if (e.key === "Escape") { e.preventDefault(); finish(false); }
+  });
+  input.addEventListener("blur", () => finish(true));
+  input.addEventListener("click", (e) => e.stopPropagation());
 }
 
 function esc(s) {
@@ -1103,6 +1556,7 @@ async function newSession() {
   document.getElementById("messages").innerHTML = "";
   document.getElementById("currentTitle").textContent = "New conversation";
   await loadSessions();
+  updateExportBtn();
   document.getElementById("promptInput").focus();
 }
 
@@ -1111,15 +1565,17 @@ async function switchSession(id) {
   document.getElementById("currentTitle").textContent = "Loading…";
   document.getElementById("messages").innerHTML = '<div class="empty-state"><p style="color:var(--text-muted);font-size:13px">Loading conversation…</p></div>';
   try {
-    const msgs = await fetchJSON(`${API}/sessions/${encodeURIComponent(id)}/messages`);
+    const data = await fetchJSON(`${API}/sessions/${encodeURIComponent(id)}/messages`);
+    const msgs = data.messages || data; // backward compat
     document.getElementById("messages").innerHTML = "";
     renderMessages(msgs);
-    document.getElementById("currentTitle").textContent = id.replace(/_/g, " ").slice(0, 30);
+    document.getElementById("currentTitle").textContent = (data.name || id).replace(/_/g, ' ').slice(0, 40);
   } catch {
     document.getElementById("messages").innerHTML = "";
     document.getElementById("currentTitle").textContent = "DK Order Processing";
   }
   await loadSessions();
+  updateExportBtn();
   scrollToBottom();
   document.getElementById("promptInput").focus();
 }
@@ -1132,6 +1588,7 @@ async function deleteSession(id) {
     document.getElementById("messages").innerHTML = showEmptyState();
     document.getElementById("currentTitle").textContent = "DK Order Processing";
   }
+  updateExportBtn();
   await loadSessions();
 }
 
@@ -1188,6 +1645,21 @@ function formatContent(text, isFile) {
   // Unordered lists
   html = html.replace(/^[\-\*] (.+)$/gm, '<li>$1</li>');
   html = html.replace(/(<li>.*<\/li>\n?)+/g, '<ul>$&</ul>');
+  // Linkify recognizable knowledge-base file paths so they open in the file viewer.
+  // Matches: Vendors/<...>.md, _shared_sops/<...>.md, Vendor Information.md|.jsonl, Issue resolution.md
+  html = html.replace(
+    /\b(Vendors\/[^\n<>|]+?\.(?:md|jsonl)|_shared_sops\/[^\n<>|]+?\.md|Vendor Information\.(?:md|jsonl)|Issue resolution\.md)\b/g,
+    (m) => {
+      const path = m.replace(/[\s.,;:]+$/, ''); // strip trailing punctuation
+      const trail = m.slice(path.length);
+      // Decode HTML entities (& < > " ') from escaped text so openFile receives the real path
+      const rawPath = path
+        .replace(/&amp;/g, '&').replace(/&lt;/g, '<').replace(/&gt;/g, '>')
+        .replace(/&quot;/g, '"').replace(/&#39;/g, "'");
+      const safe = rawPath.replace(/'/g, "\\'");
+      return `<a class="source-link" onclick="openFile('${safe}');return false;" href="#">${path}</a>${trail}`;
+    }
+  );
   // Tables — match contiguous pipe-delimited rows
   html = html.replace(/((?:^\|.+\|$\n?)+)/gm, (tableBlock) => {
     const rows = tableBlock.trim().split('\n');
@@ -1219,17 +1691,45 @@ function formatContent(text, isFile) {
 function renderMessages(msgs) {
   const el = document.getElementById("messages");
   msgs.forEach(m => {
-    const row = createMessageRow(m.role, m.content || '');
+    const row = createMessageRow(m.role, m.content || '', false, m.thinking, m.tools, m.notes);
     el.appendChild(row);
   });
   scrollToBottom();
 }
 
-function createMessageRow(role, content, isPartial) {
+function toolItemHTML(t) {
+  const arg = t.summary ? `<span class="tool-arg">${esc(t.summary)}</span>` : '';
+  const errCls = t.isError ? ' error' : '';
+  return `<div class="tools-item${errCls}"><span class="tool-name">🔧 ${esc(t.name)}</span>${arg}</div>`;
+}
+
+function noteItemHTML(text) {
+  const trimmed = (text || '').trim();
+  if (!trimmed) return '';
+  const preview = trimmed.length > 240 ? trimmed.slice(0, 240) + '…' : trimmed;
+  return `<div class="tools-item note"><span class="tool-name" style="background:rgba(123,156,255,0.12);color:var(--accent);border-color:rgba(123,156,255,0.25)">📝 note</span><span class="tool-arg" style="white-space:normal">${esc(preview)}</span></div>`;
+}
+
+function createMessageRow(role, content, isPartial, thinking, tools, notes) {
   const row = document.createElement("div");
   row.className = `message-row ${role}`;
 
   const time = new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+
+  const thinkingHTML = (thinking && role === 'assistant')
+    ? `<details class="thinking-section"${isPartial ? ' open' : ''}>
+         <summary><span class="thinking-label">🧠 Thinking</span><span class="thinking-meta">${thinking.length.toLocaleString()} chars</span></summary>
+         <div class="thinking-content">${formatContent(thinking)}</div>
+       </details>`
+    : '';
+
+  const toolCount = (tools ? tools.length : 0) + (notes ? notes.length : 0);
+  const toolsHTML = (toolCount && role === 'assistant')
+    ? `<details class="tools-section">
+         <summary><span class="tools-label">🔧 Activity</span><span class="tools-meta">${toolCount} ${toolCount === 1 ? 'entry' : 'entries'}</span></summary>
+         <div class="tools-list">${(tools || []).map(toolItemHTML).join('')}${(notes || []).map(noteItemHTML).join('')}</div>
+       </details>`
+    : '';
 
   row.innerHTML = `
     <div class="msg-avatar ${role}">${role === 'user' ? 'U' : 'DK'}</div>
@@ -1238,10 +1738,14 @@ function createMessageRow(role, content, isPartial) {
         <span class="msg-sender">${role === 'user' ? 'You' : 'DK Assistant'}</span>
         <span class="msg-time">${time}</span>
       </div>
-      <div class="msg-content">${isPartial ? formatContent(content) : formatContent(content)}</div>
+      ${thinkingHTML}
+      ${toolsHTML}
+      <div class="msg-content">${formatContent(content)}</div>
       ${role === 'assistant' && !isPartial ? `
         <div class="msg-actions">
           <button class="msg-action" onclick="copyMessage(this)">📋 Copy</button>
+          <button class="msg-action fb-up" onclick="submitFeedback(this,'up')" title="Good answer">👍</button>
+          <button class="msg-action fb-down" onclick="openFeedbackNote(this,'down')" title="Bad answer (add note)">👎</button>
         </div>` : ''}
     </div>
   `;
@@ -1249,12 +1753,12 @@ function createMessageRow(role, content, isPartial) {
   return row;
 }
 
-function addMessage(role, content) {
+function addMessage(role, content, thinking, tools) {
   const el = document.getElementById("messages");
   const empty = el.querySelector(".empty-state");
   if (empty) empty.remove();
 
-  const row = createMessageRow(role, content, false);
+  const row = createMessageRow(role, content, false, thinking, tools);
   el.appendChild(row);
   scrollToBottom();
   return row;
@@ -1268,6 +1772,100 @@ function copyMessage(btn) {
     btn.classList.add("copied");
     setTimeout(() => { btn.textContent = "📋 Copy"; btn.classList.remove("copied"); }, 1500);
   }).catch(() => showToast("Failed to copy"));
+}
+
+// ── Feedback ───────────────────────────────────────────────────────
+function findPriorQuestion(row) {
+  let prev = row.previousElementSibling;
+  while (prev) {
+    if (prev.classList?.contains("message-row") && prev.classList.contains("user")) {
+      return prev.querySelector(".msg-content")?.textContent.trim() || "";
+    }
+    prev = prev.previousElementSibling;
+  }
+  return "";
+}
+
+function messageIndexInDom(row) {
+  const rows = Array.from(document.querySelectorAll("#messages .message-row"));
+  return rows.indexOf(row);
+}
+
+async function postFeedback({ rating, note, row }) {
+  const answer = row.querySelector(".msg-content")?.textContent.trim() || "";
+  const question = findPriorQuestion(row);
+  const sessionName = document.getElementById("currentTitle")?.textContent || "";
+  try {
+    await fetchJSON(`${API}/feedback`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        sessionId: activeSessionId,
+        sessionName,
+        messageIndex: messageIndexInDom(row),
+        rating,
+        note: note || "",
+        question,
+        answer,
+      }),
+    });
+    return true;
+  } catch (e) {
+    showToast("Feedback failed: " + e.message);
+    return false;
+  }
+}
+
+async function submitFeedback(btn, rating) {
+  const row = btn.closest(".message-row");
+  const ok = await postFeedback({ rating, note: "", row });
+  if (!ok) return;
+  const actions = btn.parentNode;
+  actions.querySelectorAll(".fb-up, .fb-down").forEach(b => b.classList.remove("active"));
+  btn.classList.add("active");
+  showToast(rating === "up" ? "Thanks for the feedback 👍" : "Feedback recorded 👎");
+}
+
+function openFeedbackNote(btn, rating) {
+  const row = btn.closest(".message-row");
+  const body = row.querySelector(".msg-body");
+  // Close any existing popover on this row
+  const existing = body.querySelector(".feedback-popover");
+  if (existing) { existing.remove(); return; }
+  const pop = document.createElement("div");
+  pop.className = "feedback-popover";
+  pop.innerHTML = `
+    <textarea placeholder="What was wrong? (optional — e.g. 'phone number is stale', 'didn't quote the right vendor')"></textarea>
+    <div class="fb-actions">
+      <button class="cancel">Cancel</button>
+      <button class="primary submit">Submit 👎</button>
+    </div>
+  `;
+  body.appendChild(pop);
+  const ta = pop.querySelector("textarea");
+  ta.focus();
+  pop.querySelector(".cancel").onclick = () => pop.remove();
+  pop.querySelector(".submit").onclick = async () => {
+    const note = ta.value.trim();
+    const ok = await postFeedback({ rating, note, row });
+    pop.remove();
+    if (ok) {
+      const actions = row.querySelector(".msg-actions");
+      if (actions) {
+        actions.querySelectorAll(".fb-up, .fb-down").forEach(b => b.classList.remove("active"));
+        btn.classList.add("active");
+      }
+      showToast("Thanks — recorded with your note");
+    }
+  };
+  ta.addEventListener("keydown", (e) => {
+    if (e.key === "Enter" && (e.ctrlKey || e.metaKey)) {
+      e.preventDefault();
+      pop.querySelector(".submit").click();
+    } else if (e.key === "Escape") {
+      pop.remove();
+    }
+  });
 }
 
 // ── Typing indicator ──────────────────────────────────────────────
@@ -1339,13 +1937,29 @@ async function sendMessage() {
     });
 
     hideTyping();
-    const assistantRow = addMessage("assistant", "");
+    const assistantRow = addMessage("assistant", "", "");
+    const msgBody = assistantRow.querySelector(".msg-body");
     const contentEl = assistantRow.querySelector(".msg-content");
     // Remove copy button during streaming
     const actionsEl = assistantRow.querySelector(".msg-actions");
     if (actionsEl) actionsEl.remove();
 
-    let buffer = "";
+    let textBuffer = "";
+    let thinkingBuffer = "";
+    let thinkingEl = null;
+    let toolsEl = null;
+    let toolsListEl = null;
+    let toolsCount = 0;
+    const toolItemsByName = new Map();
+
+    function ensureToolsEl() {
+      if (toolsEl) return;
+      toolsEl = document.createElement("details");
+      toolsEl.className = "tools-section streaming";
+      toolsEl.innerHTML = `<summary><span class="tools-label">🔧 Activity</span><span class="tools-meta">0 calls</span></summary><div class="tools-list"></div>`;
+      toolsListEl = toolsEl.querySelector(".tools-list");
+      msgBody.insertBefore(toolsEl, contentEl);
+    }
     const reader = res.body.getReader();
     const decoder = new TextDecoder();
     let leftover = "";
@@ -1362,14 +1976,57 @@ async function sendMessage() {
         if (!line.startsWith("data: ")) continue;
         try {
           const data = JSON.parse(line.slice(6));
-          if (data.type === "text") {
-            buffer += data.delta;
-            contentEl.innerHTML = formatContent(buffer);
+          if (data.type === "thinking") {
+            thinkingBuffer += data.delta;
+            if (!thinkingEl) {
+              thinkingEl = document.createElement("details");
+              thinkingEl.className = "thinking-section streaming";
+              thinkingEl.open = true;
+              thinkingEl.innerHTML = `<summary><span class="thinking-label">🧠 Thinking…</span><span class="thinking-meta">0 chars</span></summary><div class="thinking-content"></div>`;
+              msgBody.insertBefore(thinkingEl, contentEl);
+            }
+            thinkingEl.querySelector(".thinking-content").innerHTML = formatContent(thinkingBuffer);
+            thinkingEl.querySelector(".thinking-meta").textContent = `${thinkingBuffer.length.toLocaleString()} chars`;
+          } else if (data.type === "thinking_done") {
+            if (thinkingEl) {
+              thinkingEl.open = false;
+              thinkingEl.classList.remove("streaming");
+              const label = thinkingEl.querySelector(".thinking-label");
+              if (label) label.textContent = "🧠 Thinking";
+            }
+          } else if (data.type === "text") {
+            textBuffer += data.delta;
+            contentEl.innerHTML = formatContent(textBuffer);
           } else if (data.type === "tool_start") {
-            const badge = document.createElement("span");
-            badge.className = "tool-badge";
-            badge.textContent = `🔧 ${data.tool}`;
-            contentEl.appendChild(badge);
+            // If text was streaming before this tool call, it's intermediate
+            // narration — move it into Activity as a note and clear the answer pane.
+            if (textBuffer.trim()) {
+              ensureToolsEl();
+              const note = document.createElement("div");
+              note.className = "tools-item note";
+              note.innerHTML = `<span class="tool-name" style="background:rgba(123,156,255,0.12);color:var(--accent);border-color:rgba(123,156,255,0.25)">📝 note</span><span class="tool-arg" style="white-space:normal">${esc(textBuffer.trim().slice(0, 240))}${textBuffer.trim().length > 240 ? '…' : ''}</span>`;
+              toolsListEl.appendChild(note);
+              textBuffer = "";
+              contentEl.innerHTML = "";
+            }
+            ensureToolsEl();
+            toolsCount++;
+            const item = document.createElement("div");
+            item.className = "tools-item pending";
+            item.innerHTML = `<span class="tool-name">🔧 ${esc(data.tool || '')}</span>${data.summary ? `<span class="tool-arg">${esc(data.summary)}</span>` : ''}`;
+            toolsListEl.appendChild(item);
+            toolsEl.querySelector(".tools-meta").textContent = `${toolsCount} ${toolsCount === 1 ? 'call' : 'calls'}`;
+            // Keep a reference to mark errors on tool_end (best-effort: by tool name)
+            const key = `${data.tool}`;
+            const arr = toolItemsByName.get(key) || [];
+            arr.push(item);
+            toolItemsByName.set(key, arr);
+          } else if (data.type === "tool_end") {
+            if (data.isError) {
+              const arr = toolItemsByName.get(`${data.tool}`) || [];
+              const item = arr.shift();
+              if (item) item.classList.add("error");
+            }
           } else if (data.type === "error") {
             contentEl.innerHTML += `<p style="color:var(--danger);margin-top:8px">❌ ${esc(data.error)}</p>`;
           }
@@ -1377,13 +2034,20 @@ async function sendMessage() {
       }
       scrollToBottom();
     }
-    contentEl.innerHTML = formatContent(buffer);
+    contentEl.innerHTML = formatContent(textBuffer);
 
-    // Add copy button after completion
+    // Settle tool section out of "streaming" state
+    if (toolsEl) toolsEl.classList.remove("streaming");
+
+    // Add copy + feedback buttons after completion
     const actionsDiv = document.createElement("div");
     actionsDiv.className = "msg-actions";
     actionsDiv.style.opacity = "1";
-    actionsDiv.innerHTML = `<button class="msg-action" onclick="copyMessage(this)">📋 Copy</button>`;
+    actionsDiv.innerHTML = `
+      <button class="msg-action" onclick="copyMessage(this)">📋 Copy</button>
+      <button class="msg-action fb-up" onclick="submitFeedback(this,'up')" title="Good answer">👍</button>
+      <button class="msg-action fb-down" onclick="openFeedbackNote(this,'down')" title="Bad answer (add note)">👎</button>
+    `;
     assistantRow.querySelector(".msg-body").appendChild(actionsDiv);
 
   } catch (e) {
@@ -1447,6 +2111,160 @@ document.addEventListener("keydown", function(e) {
 
 // Highlight current session title
 document.getElementById("currentTitle").textContent = "DK Order Processing";
+
+// ── Export ────────────────────────────────────────────────────────
+function triggerDownload(href) {
+  const a = document.createElement("a");
+  a.href = href;
+  a.rel = "noopener";
+  document.body.appendChild(a);
+  a.click();
+  setTimeout(() => a.remove(), 100);
+}
+
+function exportCurrentChat() {
+  if (!activeSessionId) return showToast("No chat selected");
+  triggerDownload(`${API}/sessions/${encodeURIComponent(activeSessionId)}/export`);
+}
+
+function exportAllChats(format) {
+  triggerDownload(`${API}/sessions/export/all?format=${encodeURIComponent(format)}`);
+}
+
+function updateExportBtn() {
+  const btn = document.getElementById("exportChatBtn");
+  if (btn) btn.disabled = !activeSessionId;
+}
+
+// ── @vendor autocomplete ──────────────────────────────────────────
+let _vendors = [];
+let _acActive = -1;
+let _acMatches = [];
+let _acTriggerStart = -1;
+
+async function loadVendors() {
+  try {
+    _vendors = await fetchJSON(`${API}/vendors`);
+  } catch { _vendors = []; }
+}
+loadVendors();
+
+function findTrigger(text, caret) {
+  // Walk back from caret looking for a standalone '@' (start-of-line or after whitespace)
+  for (let i = caret - 1; i >= 0; i--) {
+    const ch = text[i];
+    if (ch === "@") {
+      if (i === 0 || /\s/.test(text[i - 1])) return i;
+      return -1;
+    }
+    if (/\s/.test(ch)) return -1;
+  }
+  return -1;
+}
+
+function closeAutocomplete() {
+  const ac = document.getElementById("vendorAutocomplete");
+  ac.classList.remove("open");
+  ac.innerHTML = "";
+  _acActive = -1;
+  _acMatches = [];
+  _acTriggerStart = -1;
+}
+
+function renderAutocomplete(query) {
+  const ac = document.getElementById("vendorAutocomplete");
+  const q = query.toLowerCase();
+  _acMatches = _vendors
+    .map(name => {
+      const idx = name.toLowerCase().indexOf(q);
+      return idx >= 0 ? { name, idx } : null;
+    })
+    .filter(Boolean)
+    .sort((a, b) => a.idx - b.idx || a.name.localeCompare(b.name))
+    .slice(0, 8);
+  if (_acMatches.length === 0) {
+    ac.innerHTML = `<div class="empty">No vendor matches "${esc(query)}"</div>`;
+    ac.classList.add("open");
+    _acActive = -1;
+    return;
+  }
+  _acActive = 0;
+  ac.innerHTML = _acMatches.map((m, i) => {
+    const before = esc(m.name.slice(0, m.idx));
+    const match = esc(m.name.slice(m.idx, m.idx + q.length));
+    const after = esc(m.name.slice(m.idx + q.length));
+    return `<div class="vendor-item${i === 0 ? ' active' : ''}" data-index="${i}" onmouseenter="setAcActive(${i})" onclick="pickAcMatch(${i})">
+      <span class="icon">🏷️</span><span>${before}<span class="match">${match}</span>${after}</span>
+    </div>`;
+  }).join("");
+  ac.classList.add("open");
+}
+
+function setAcActive(i) {
+  _acActive = i;
+  document.querySelectorAll(".vendor-autocomplete .vendor-item").forEach((el, idx) => {
+    el.classList.toggle("active", idx === i);
+  });
+}
+
+function pickAcMatch(i) {
+  const m = _acMatches[i];
+  if (!m) return;
+  const ta = document.getElementById("promptInput");
+  const before = ta.value.slice(0, _acTriggerStart);
+  const after = ta.value.slice(ta.selectionStart);
+  const insert = m.name + " ";
+  ta.value = before + insert + after;
+  const newCaret = (before + insert).length;
+  ta.setSelectionRange(newCaret, newCaret);
+  ta.focus();
+  closeAutocomplete();
+  // Trigger height resize
+  ta.style.height = "auto";
+  ta.style.height = Math.min(ta.scrollHeight, 180) + "px";
+}
+
+textarea.addEventListener("input", () => {
+  const caret = textarea.selectionStart;
+  const trigger = findTrigger(textarea.value, caret);
+  if (trigger < 0) { closeAutocomplete(); return; }
+  _acTriggerStart = trigger;
+  const query = textarea.value.slice(trigger + 1, caret);
+  if (query.length === 0) {
+    // Show top-N vendors when only "@" is typed
+    _acMatches = _vendors.slice(0, 8).map(name => ({ name, idx: 0 }));
+    const ac = document.getElementById("vendorAutocomplete");
+    _acActive = _acMatches.length ? 0 : -1;
+    ac.innerHTML = _acMatches.map((m, i) => `<div class="vendor-item${i === 0 ? ' active' : ''}" data-index="${i}" onmouseenter="setAcActive(${i})" onclick="pickAcMatch(${i})"><span class="icon">🏷️</span><span>${esc(m.name)}</span></div>`).join("");
+    ac.classList.add("open");
+    return;
+  }
+  renderAutocomplete(query);
+});
+
+textarea.addEventListener("keydown", (e) => {
+  const ac = document.getElementById("vendorAutocomplete");
+  if (!ac.classList.contains("open") || _acMatches.length === 0) return;
+  if (e.key === "ArrowDown") {
+    e.preventDefault();
+    setAcActive((_acActive + 1) % _acMatches.length);
+  } else if (e.key === "ArrowUp") {
+    e.preventDefault();
+    setAcActive((_acActive - 1 + _acMatches.length) % _acMatches.length);
+  } else if (e.key === "Tab" || (e.key === "Enter" && _acActive >= 0)) {
+    e.preventDefault();
+    e.stopPropagation();
+    pickAcMatch(_acActive);
+  } else if (e.key === "Escape") {
+    e.preventDefault();
+    closeAutocomplete();
+  }
+}, true);
+
+document.addEventListener("click", (e) => {
+  const ac = document.getElementById("vendorAutocomplete");
+  if (!ac.contains(e.target) && e.target !== textarea) closeAutocomplete();
+});
 
 // ── File browser ───────────────────────────────────────────────────
 let fileTreeCache = {};
