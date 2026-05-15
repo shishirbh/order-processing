@@ -1,6 +1,6 @@
 # Hafele — Vendor Info
 
-Last updated: 2026-04-24 (auto-generated from Vendor Information.jsonl — verify and edit)
+Last updated: 2026-05-15 (edited by Claude update-vendor-info skill)
 
 ## Contacts
 - **Primary contact:** Rhandy Diaz
@@ -20,6 +20,9 @@ Last updated: 2026-04-24 (auto-generated from Vendor Information.jsonl — verif
 ## Timing
 - **When is a PO submitted?** _(blank in source)_
 - **When do we receive coming-in-house shipments?** _(blank in source)_
+
+## Notes
+- **Minimum order value:** $10 (Updated: 2026-05-15)
 
 ---
 Source: `Vendor Information.jsonl` (row: "Hafele")
