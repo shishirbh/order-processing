@@ -1,7 +1,7 @@
 #!/usr/bin/env node
 
 import { execSync } from "node:child_process";
-import { existsSync, readFileSync, writeFileSync, mkdirSync, readdirSync, unlinkSync, statSync, appendFileSync } from "node:fs";
+import { existsSync, readFileSync, writeFileSync, mkdirSync, readdirSync, unlinkSync, statSync, appendFileSync, rmSync } from "node:fs";
 import { homedir } from "node:os";
 import { join, dirname, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
@@ -18,6 +18,7 @@ import {
 const __dirname = dirname(fileURLToPath(import.meta.url));
 const REPO_DIR = resolve(__dirname, "..");            // repo root = knowledge base
 const SESSIONS_DIR = join(homedir(), ".dk-order-processing", "sessions");
+const PI_SESSIONS_ROOT = join(homedir(), ".dk-order-processing", "pi-sessions");
 const FEEDBACK_FILE = join(homedir(), ".dk-order-processing", "feedback.jsonl");
 const PUBLIC_DIR = join(__dirname, "public");
 const PORT = 0; // auto-assign
@@ -248,8 +249,19 @@ function serveStatic(res, path) {
 }
 
 // ── Session file I/O ────────────────────────────────────────────────
+function safeId(id) {
+  return id.replace(/[<>:"/\\|?*]/g, "_");
+}
+
 function sessionFile(id) {
-  return join(SESSIONS_DIR, `${id.replace(/[<>:"/\\|?*]/g, "_")}.json`);
+  return join(SESSIONS_DIR, `${safeId(id)}.json`);
+}
+
+// Each chat gets its own dir of pi JSONL files. pi's continueRecent() opens the
+// most recent file in the dir, so a chat resumed after server restart still has
+// the agent's full message history — not just our display-layer collapse.
+function piSessionDir(id) {
+  return join(PI_SESSIONS_ROOT, safeId(id));
 }
 
 function saveSession(id, messages, name) {
@@ -280,6 +292,10 @@ function loadSessionName(id) {
 function deleteSessionFile(id) {
   const f = sessionFile(id);
   if (existsSync(f)) unlinkSync(f);
+  const piDir = piSessionDir(id);
+  if (existsSync(piDir)) {
+    try { rmSync(piDir, { recursive: true, force: true }); } catch {}
+  }
 }
 
 function listSessionFiles() {
@@ -328,9 +344,12 @@ function loadSkillsFromDir() {
 }
 
 // ── Create agent session ────────────────────────────────────────────
+// Map<chatId, { session }> — one pi agent per chat, kept alive across turns
+// so the agent retains its message history. Previously this was recreated on
+// every /prompt request with SessionManager.inMemory(), which wiped context.
 const activeSessions = new Map();
 
-async function createAgent() {
+async function createAgent(chatId) {
   const customSkills = loadSkillsFromDir();
 
   const loader = new DefaultResourceLoader({
@@ -343,13 +362,33 @@ async function createAgent() {
   });
   await loader.reload();
 
+  // pi's continueRecent() opens the most recent JSONL in the chat's dedicated
+  // dir, or starts a new pi session if none exists. This is what gives us
+  // restart-durable agent context: after a server restart, the next prompt on
+  // an existing chat resumes the same pi session and the agent still knows
+  // what was said before.
+  const sessionManager = SessionManager.continueRecent(REPO_DIR, piSessionDir(chatId));
+
   const { session } = await createAgentSession({
     cwd: REPO_DIR,
-    sessionManager: SessionManager.inMemory(),
+    sessionManager,
     resourceLoader: loader,
-    // Read-only Q&A bot — no bash/edit/write.
-    tools: ["read", "grep", "find", "ls"],
+    // Full file-editing toolset so bulk-change skills (sop-refresh,
+    // update-vendor-info, add-new-vendor, regenerate-vendor-rollup) can
+    // actually apply edits, not just plan them. Git tracks every change so
+    // anything wrong is recoverable. pi's real tool names are read/edit/
+    // write/bash — "grep"/"find"/"ls" aren't valid pi tools and were being
+    // silently dropped, which is why the agent was de-facto read-only.
+    tools: ["read", "edit", "write", "bash"],
   });
+  return session;
+}
+
+async function getOrCreateAgent(chatId) {
+  const cached = activeSessions.get(chatId);
+  if (cached) return cached.session;
+  const session = await createAgent(chatId);
+  activeSessions.set(chatId, { session });
   return session;
 }
 
@@ -523,8 +562,7 @@ const server = createServer(async (req, res) => {
     });
 
     try {
-      const session = await createAgent();
-      activeSessions.set(sessionId, { session });
+      const session = await getOrCreateAgent(sessionId);
 
       let thinkingDone = false;
       const unsub = session.subscribe((event) => {

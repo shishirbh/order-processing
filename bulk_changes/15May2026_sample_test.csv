@@ -1,0 +1,8 @@
+S No,Vendor,Changes Requested By,Changes Requested,Completed
+1,Deltana,Tester,"Minimum dropship order is $75, not $50 as currently documented. Please update the dropship MOV reference.",Pending
+2,Amerock,Tester,"Dropship orders do not require a minimum order value — the only requirement is that the unit price must be above $50.00. Confirm this matches what's already in the doc; no edit needed if so.",Pending
+3,Cal-Royal,Tester,"Add a note that PO confirmations from Cal-Royal usually arrive within 24 business hours. If no confirmation in 48 hours, escalate via phone.",Pending
+4,Aria Vetri,Tester,"The whole document is incorrect. Please rewrite from scratch after discussing with the processing team.",Pending
+5,D&D Technologies,Tester,"Standard ground orders should always be processed in-house — most items have case minimums for better pricing. Only use dropship for expedited orders.",Yes
+6,FakeVendorThatDoesNotExist,Tester,"Update minimum order to $200.",Pending
+7,Hafele,Tester,,Pending
