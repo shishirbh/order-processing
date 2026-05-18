@@ -1327,6 +1327,122 @@
     margin: 10px 0; color: var(--text-secondary);
     background: var(--surface); border-radius: 0 var(--radius-sm) var(--radius-sm) 0;
   }
+
+  /* ── Changelog ticker (right panel) ─── */
+  .changelog-panel {
+    width: 300px;
+    background: var(--sidebar-bg);
+    border-left: 1px solid var(--border);
+    display: flex;
+    flex-direction: column;
+    flex-shrink: 0;
+    z-index: 5;
+    transition: width 0.25s var(--ease), opacity 0.25s var(--ease);
+  }
+  .changelog-panel.collapsed {
+    width: 0;
+    border-left: none;
+    opacity: 0;
+    overflow: hidden;
+  }
+  .changelog-header {
+    padding: 14px 16px;
+    border-bottom: 1px solid var(--border);
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    flex-shrink: 0;
+  }
+  .changelog-header h3 {
+    font-size: 11.5px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    color: var(--text);
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+  .changelog-header h3 .pulse {
+    width: 7px;
+    height: 7px;
+    border-radius: 50%;
+    background: var(--success, #3dcc91);
+    box-shadow: 0 0 6px rgba(61, 204, 145, 0.6);
+    animation: changelog-pulse 1.6s ease infinite;
+  }
+  @keyframes changelog-pulse {
+    0%, 100% { opacity: 1; transform: scale(1); }
+    50% { opacity: 0.4; transform: scale(0.7); }
+  }
+  .changelog-viewport {
+    flex: 1;
+    overflow: hidden;
+    position: relative;
+    -webkit-mask-image: linear-gradient(180deg, transparent 0, #000 24px, #000 calc(100% - 24px), transparent 100%);
+    mask-image: linear-gradient(180deg, transparent 0, #000 24px, #000 calc(100% - 24px), transparent 100%);
+  }
+  .changelog-track {
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    padding: 16px;
+    animation: changelog-scroll var(--scroll-duration, 60s) linear infinite;
+    will-change: transform;
+  }
+  .changelog-viewport:hover .changelog-track { animation-play-state: paused; }
+  @keyframes changelog-scroll {
+    0% { transform: translateY(0); }
+    100% { transform: translateY(-50%); }
+  }
+  .changelog-entry {
+    font-size: 12px;
+    line-height: 1.55;
+    color: var(--text-secondary);
+    margin-bottom: 18px;
+    padding-bottom: 16px;
+    border-bottom: 1px dashed var(--border);
+  }
+  .changelog-entry:last-child { border-bottom: none; }
+  .changelog-entry h4 {
+    font-size: 12.5px;
+    font-weight: 700;
+    color: var(--text);
+    margin: 4px 0 6px;
+    word-wrap: break-word;
+  }
+  .changelog-entry .mode-tag {
+    display: inline-block;
+    font-size: 9.5px;
+    font-weight: 700;
+    padding: 2px 7px;
+    border-radius: 4px;
+    letter-spacing: 0.4px;
+    text-transform: uppercase;
+  }
+  .changelog-entry .mode-tag.a { background: rgba(109, 140, 240, 0.18); color: var(--accent); }
+  .changelog-entry .mode-tag.b { background: rgba(61, 204, 145, 0.18); color: var(--success); }
+  .changelog-entry .entry-body { font-size: 11.5px; }
+  .changelog-entry .entry-body strong { color: var(--text); font-weight: 600; }
+  .changelog-entry .entry-body ul { padding-left: 16px; margin: 4px 0; }
+  .changelog-entry .entry-body li { margin: 2px 0; }
+  .changelog-entry .entry-body code {
+    font-size: 10.5px;
+    background: var(--code-bg);
+    padding: 1px 4px;
+    border-radius: 3px;
+    border: 1px solid var(--border);
+  }
+  .changelog-empty {
+    color: var(--text-muted);
+    font-size: 12px;
+    text-align: center;
+    padding: 24px 12px;
+  }
+  @media (max-width: 900px) {
+    .changelog-panel { display: none; }
+  }
 </style>
 <script>
   // Apply saved theme before paint to avoid flash
@@ -1386,6 +1502,7 @@
       <button class="mode-tab" data-mode="general" onclick="setMode('general')" title="General order-processing flow">General</button>
     </div>
     <div class="stats">
+      <button class="topbar-action" id="changelogToggleBtn" onclick="toggleChangelogPanel()" title="Toggle SOP Changelog ticker">📜 Changelog</button>
       <button class="topbar-action" id="exportChatBtn" onclick="exportCurrentChat()" title="Export this chat as Markdown" disabled>⬇ Export</button>
       <span class="stat-badge" id="modeStat"><span class="stat-num">103</span> vendors</span>
       <span class="stat-badge"><span class="stat-num">6</span> skills</span>
@@ -1426,6 +1543,19 @@
     <div class="input-hint"><kbd>Enter</kbd> to send · <kbd>Shift</kbd>+<kbd>Enter</kbd> for new line · <kbd>@</kbd> for vendor lookup</div>
   </div>
 </div>
+
+<!-- ── Changelog ticker (right) ────────── -->
+<aside class="changelog-panel" id="changelogPanel">
+  <div class="changelog-header">
+    <h3><span class="pulse"></span> SOP Changelog</h3>
+    <button class="btn-icon" id="changelogRefresh" title="Refresh now" onclick="loadChangelog()" aria-label="Refresh changelog">↻</button>
+  </div>
+  <div class="changelog-viewport" id="changelogViewport">
+    <div class="changelog-track" id="changelogTrack">
+      <div class="changelog-empty">Loading…</div>
+    </div>
+  </div>
+</aside>
 
 <!-- ── Toast ────────────────────────────── -->
 <div class="toast" id="toast" style="display:none"></div>
@@ -2155,8 +2285,88 @@ function stopGeneration() {
   }
 }
 
+// ── Changelog ticker (right panel) ────────────────────────────────
+const CHANGELOG_PATH = "SOP-Refresh-Changelog.md";
+const CHANGELOG_REFRESH_MS = 30000;
+let changelogTimer = null;
+
+function parseChangelogEntries(md) {
+  if (!md) return [];
+  // Split into blocks at each "## " section heading. Intro (# title + paragraph)
+  // is filtered out automatically since its blocks don't start with "## ".
+  return md.split(/(?=^## )/m)
+    .filter(b => b.trim().startsWith("## "))
+    .map(b => {
+      const lines = b.split("\n");
+      const heading = lines[0].replace(/^##\s*/, "").trim();
+      const rest = lines.slice(1).join("\n").replace(/\n---+\s*$/, "").trim();
+      const modeMatch = heading.match(/Mode\s*(A|B)/i);
+      const mode = modeMatch ? modeMatch[1].toUpperCase() : "B"; // legacy entries default to B
+      return { heading, body: rest, mode };
+    });
+}
+
+function renderChangelogEntry(e) {
+  return `<div class="changelog-entry">
+    <span class="mode-tag ${e.mode.toLowerCase()}">Mode ${e.mode}</span>
+    <h4>${esc(e.heading)}</h4>
+    <div class="entry-body">${formatContent(e.body)}</div>
+  </div>`;
+}
+
+async function loadChangelog() {
+  const track = document.getElementById("changelogTrack");
+  if (!track) return;
+  try {
+    const data = await fetchJSON(`${API}/file?path=${encodeURIComponent(CHANGELOG_PATH)}`);
+    const entries = parseChangelogEntries(data.content || "");
+    if (!entries.length) {
+      track.innerHTML = '<div class="changelog-empty">No SOP changes logged yet.</div>';
+      track.style.animation = "none";
+      return;
+    }
+    const html = entries.map(renderChangelogEntry).join("");
+    // Render twice for a seamless translateY(0) → translateY(-50%) loop.
+    track.innerHTML = html + html;
+    track.style.animation = "";
+    // Auto-tune speed: ~25px/sec is a comfortable read pace.
+    requestAnimationFrame(() => {
+      const halfHeight = track.scrollHeight / 2;
+      const pixelsPerSec = 25;
+      const duration = Math.max(20, halfHeight / pixelsPerSec);
+      track.style.setProperty("--scroll-duration", `${duration}s`);
+    });
+  } catch (e) {
+    track.innerHTML = `<div class="changelog-empty" style="color:var(--danger)">Failed to load: ${esc(e.message)}</div>`;
+    track.style.animation = "none";
+  }
+}
+
+function startChangelogPolling() {
+  loadChangelog();
+  if (changelogTimer) clearInterval(changelogTimer);
+  changelogTimer = setInterval(loadChangelog, CHANGELOG_REFRESH_MS);
+}
+
+function toggleChangelogPanel() {
+  const panel = document.getElementById("changelogPanel");
+  panel.classList.toggle("collapsed");
+  try {
+    localStorage.setItem("changelogPanel", panel.classList.contains("collapsed") ? "0" : "1");
+  } catch {}
+}
+
+function initChangelogPanel() {
+  let visible = true;
+  try { visible = localStorage.getItem("changelogPanel") !== "0"; } catch {}
+  const panel = document.getElementById("changelogPanel");
+  if (panel && !visible) panel.classList.add("collapsed");
+  startChangelogPolling();
+}
+
 // ── Init ──────────────────────────────────────────────────────────
 loadSessions();
+initChangelogPanel();
 document.getElementById("promptInput").focus();
 
 // Auto-resize textarea
