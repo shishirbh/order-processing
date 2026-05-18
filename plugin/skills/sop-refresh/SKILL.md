@@ -57,6 +57,32 @@ One row per meaningful change. "Area" is the section or topic (e.g. "Approval fl
 
 The full clean SOP with changes merged in. See "Rules" below.
 
+### Step A-final — Log the run to the global changelog
+
+After producing the two-section output above, append a summary entry to
+`order-processing/SOP-Refresh-Changelog.md` so every single-SOP run builds the
+same audit trail Mode B does. Append at the top of the file, directly under
+the header divider — newest first. This is a side effect, not part of the
+user-visible output; the two-section contract above is unchanged.
+
+Entry format:
+
+```markdown
+## <YYYY-MM-DD> — Mode A — <vendor or SOP topic>
+
+- **Source:** <baseline file path, or "pasted SOP" if the user passed text inline>
+- **Vendor:** <inferred from path, else "N/A">
+- **Requested by:** <user name if known, else "user">
+- **Changes:** <1–3 bullet summary distilled from the Difference Summary Table>
+- **Status:** drafted (revised SOP delivered in chat — not auto-written to disk)
+```
+
+If you actually wrote the revised SOP to a file during this run (e.g. the user
+asked you to update `Vendors/<Vendor>/<Vendor> Process Document.md` directly),
+flip Status to `applied to <relative path>` so the log reflects reality. If
+the file doesn't exist yet, create it using the header from Step B5 below
+(updated to mention both modes).
+
 ---
 
 ## Rules for the merge

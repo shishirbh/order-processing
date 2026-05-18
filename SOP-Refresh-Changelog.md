@@ -1,7 +1,9 @@
 # SOP Refresh — Global Changelog
 
-This file accumulates one entry per `sop-refresh` (Mode B) run. Each entry is a
-summary; per-row detail lives in the corresponding `bulk_changes/<csv>.changelog.md`.
+This file accumulates one entry per `sop-refresh` run — both **Mode A**
+(single SOP, drafted in chat) and **Mode B** (bulk CSV applied to vendor
+Process Documents). For Mode B, per-row detail lives in the corresponding
+`bulk_changes/<csv>.changelog.md`. Mode A entries are run-summary only.
 Newest entries go at the top. Do not edit by hand — the `sop-refresh` skill
 appends here automatically.
 

@@ -109,6 +109,7 @@ Then bump the version in `.claude-plugin/plugin.json` (e.g. `0.2.0` → `0.3.0`)
 
 ## Versioning
 
+- **0.7.0** (May 2026) — `sop-refresh` Mode A (single SOP) now also appends a per-run summary to `SOP-Refresh-Changelog.md`, mirroring Mode B's Step B5. Single-SOP drafts now build the same audit trail as bulk CSV runs.
 - **0.6.0** (April 2026) — `sop-refresh` Mode B now also appends a run-level summary to a single global changelog at the root (`SOP-Refresh-Changelog.md`), in addition to the per-CSV detail file
 - **0.5.0** (April 2026) — added Mode B (bulk CSV) to `sop-refresh`: picks the newest CSV in `bulk_changes/`, applies each row to the matching vendor's Process Document, and writes a per-CSV changelog (`bulk_changes/<csv_basename>.changelog.md`) that accumulates across runs
 - **0.4.0** (April 2026) — restructured the knowledge base so every per-vendor folder lives under `Vendors/`; updated all six skills' path references ac
