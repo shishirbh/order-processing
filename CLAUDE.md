@@ -14,6 +14,9 @@ order_processing/
 ├── Vendor Information.jsonl     ← same data, one vendor per line, machine-friendly
 ├── Issue resolution.md          ← cross-vendor issue/claims playbook
 ├── Order processing prompt.md   ← SOP-generation prompt template
+├── general_flow.md              ← non-vendor-specific "General Flow" knowledge.
+│                                  Used ONLY when the browser UI sends [Mode: General Flow].
+│                                  Otherwise ignore it; the vendor knowledge base is canonical.
 │
 ├── Vendors/                     ← parent folder containing every per-vendor folder
 │   └── <Vendor Name>/           ← one folder per vendor (~103 total)

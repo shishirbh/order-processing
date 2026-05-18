@@ -23,13 +23,23 @@ const FEEDBACK_FILE = join(homedir(), ".dk-order-processing", "feedback.jsonl");
 const PUBLIC_DIR = join(__dirname, "public");
 const PORT = 0; // auto-assign
 
+// CLI flags. --dev (or -d) skips the git sync so uncommitted local work is
+// preserved across launches — use it when iterating on cli.mjs / index.html /
+// CLAUDE.md so the auto-sync doesn't blow away your edits.
+const ARGS = process.argv.slice(2);
+const DEV_MODE = ARGS.includes("--dev") || ARGS.includes("-d");
+
 // ── Pull latest knowledge base ─────────────────────────────────────
-console.log("\n🔄 Pulling latest knowledge base...");
-try {
-  execSync("git pull --rebase", { cwd: REPO_DIR, stdio: "inherit" });
-  console.log("   (up to date)\n");
-} catch {
-  console.log("   (pull skipped — offline or no remote)\n");
+if (DEV_MODE) {
+  console.log("\n🛠  [DEV MODE] Skipping git sync — local changes preserved.\n");
+} else {
+  console.log("\n🔄 Pulling latest knowledge base...");
+  try {
+    execSync("git pull --rebase", { cwd: REPO_DIR, stdio: "inherit" });
+    console.log("   (up to date)\n");
+  } catch {
+    console.log("   (pull skipped — offline or no remote)\n");
+  }
 }
 
 console.log(`   Knowledge base: ${REPO_DIR}`);
@@ -550,9 +560,19 @@ const server = createServer(async (req, res) => {
 
     let body = "";
     for await (const chunk of req) body += chunk;
-    let prompt;
-    try { prompt = JSON.parse(body).prompt; } catch { return json(res, { error: "Invalid JSON" }, 400); }
+    let prompt, mode;
+    try {
+      const parsed = JSON.parse(body);
+      prompt = parsed.prompt;
+      mode = parsed.mode === "general" ? "general" : "vendors";
+    } catch { return json(res, { error: "Invalid JSON" }, 400); }
     if (!prompt) return json(res, { error: "Missing prompt" }, 400);
+
+    // Scope the agent to the right knowledge base based on which tab the UI is on.
+    // Vendors mode → CLAUDE.md routing (default). General mode → general_flow.md only.
+    const scopedPrompt = mode === "general"
+      ? `[Mode: General Flow]\nThe user is on the General tab. Answer using ONLY the file general_flow.md at the repo root. Do NOT consult Vendors/, Vendor Information.md, Issue resolution.md, INDEX.md, or _shared_sops/. If general_flow.md does not cover the question, say so explicitly and suggest switching to the Vendors tab.\n\nUser question: ${prompt}`
+      : `[Mode: Vendors]\nThe user is on the Vendors tab. Answer using the vendor knowledge base as described in CLAUDE.md. Do NOT use general_flow.md.\n\nUser question: ${prompt}`;
 
     res.writeHead(200, {
       "Content-Type": "text/event-stream",
@@ -598,7 +618,7 @@ const server = createServer(async (req, res) => {
         }
       });
 
-      await session.prompt(prompt);
+      await session.prompt(scopedPrompt);
       unsub();
     } catch (e) {
       console.error("Prompt error:", e.message);
