@@ -2,18 +2,18 @@
 
 # **Contents:**
 
-**SECTION 1 — OVERVIEW & DEFINITIONS**  
+**SECTION 1 - OVERVIEW & DEFINITIONS**
 1.1 Vendor Overview
 
-1.2 ETA  
-1.3 Vendor Accounts & Submission Schedule  
+1.2 ETA
+1.3 Vendor Accounts & Submission Schedule
 1.4 Shipping Methods and Accounts
 
-**SECTION 2 — PROCESSING ORDERS**
+**SECTION 2 - PROCESSING ORDERS**
 
-2.1 Processing a Vendor Order — In-House
+2.1 Processing a Vendor Order - In-House
 
-**SECTION 4 — DECISION MATRIX**
+**SECTION 4 - DECISION MATRIX**
 
 4.1 Master Decision Matrix (All Scenarios)
 
@@ -25,10 +25,10 @@ Table 2 - Vendor Accounts & Submission Schedule
 
 Table 3 - Master Decision Matrix (All Scenarios)
 
-#   
-  
+#
 
-# **SECTION 1 — OVERVIEW & DEFINITIONS**
+
+# **SECTION 1 - OVERVIEW & DEFINITIONS**
 
 ### **1.1 Vendor Overview**
 
@@ -41,8 +41,6 @@ Table 3 - Master Decision Matrix (All Scenarios)
   - > Partial fulfillment is NOT permitted
 
   - > Minimum Order Value (MOV) Rules: $950
-
-  - > Out-of-Stock Handling requires mandatory separation
 
   - > Alternate Vendors (if FH cannot fulfill):
 
@@ -62,15 +60,12 @@ Table 3 - Master Decision Matrix (All Scenarios)
 
 #### **Always Avoid:**
 
-❌ Splitting quantities between stock and ETA  
-❌ Ordering FE items on Thursday  
-❌ Submitting any order on Wednesday  
-❌ Submitting Out-of-Stock orders on Thursday  
-❌ Attempting dropship “just this once”
+❌ Splitting quantities between stock and ETA
+❌ Ordering FE items on Thursday
+❌ Submitting any order on Wednesday
+❌ Attempting dropship "just this once"
 
 #### **Caution:**
-
-  - > Even one out-of-stock unit invalidates the entire line
 
   - > Incorrect account usage = delayed fulfillment
 
@@ -106,47 +101,27 @@ Table 2 - Vendor Accounts
 
 > ❌ **DO NOT order FE (Freight Items)**
 
-### **1.3.3 Out-of-Stock Orders**
-
-  - > Must be submitted ONLY on Tuesday
-
-  - > Never submit Out-of-Stock orders on:
-    
-      - > Thursday
-    
-      - > Any other day
-
-#### **1.3.4 Submission Blackout**
+#### **1.3.3 Submission Blackout**
 
 > ❌ No order submissions on Wednesday
 
-**SECTION 2 — PROCESSING ORDERS**
+**SECTION 2 - PROCESSING ORDERS**
 
-# **2.1 PROCESSING A VENDOR ORDER — IN-HOUSE**
+# **2.1 PROCESSING A VENDOR ORDER - IN-HOUSE**
 
-### **2.1.1 Step 1 — Access Vendor Website**
+### **2.1.1 Step 1 - Access Vendor Website**
 
   - > All orders **must** be placed via the Florida Hardware vendor portal.
 
   - > No emails, no phone orders, no exceptions.
 
-### **2.1.2 Step 2 — Stock Availability Check (Zero Backorder Rule)**
+### **2.1.2 Step 2 — Stock Availability Check**
 
-  - > If ANY quantity is out of stock → entire line goes to Out-of-Stock order
+  - > All items (in-stock and out-of-stock) are ordered together on the same order
 
-  - > Partial stock is treated as out-of-stock
+  - > Do NOT create separate orders for out-of-stock items
 
-**Example:**
-
-  - > Customer orders 10 units
-
-  - > Vendor has 5 in stock + ETA for 5
-
-  - > ✅ Move all 10 units to Out-of-Stock order
-
-  - > ❌ Do NOT split quantities
-
-### **2.1.3 Step 3 — Item Verification (Before Adding to Cart)**
+### **2.1.3 Step 3 - Item Verification (Before Adding to Cart)**
 
 For every item, verify:
 
@@ -156,12 +131,12 @@ For every item, verify:
 
   - > Correct Price
 
-### **2.1.4 Step 4 — Discontinued Item Check**
+### **2.1.4 Step 4 - Discontinued Item Check**
 
   - > If the item page:
-    
+
       - > Opens blank
-    
+
       - > Shows no product data
 
   - > → Item is DISCONTINUED
@@ -170,31 +145,27 @@ Action:
 
   - > Do NOT order
 
-  - > Move item to Out-of-Stock order
+  - > Note "Discontinued on FH" internally
 
-  - > Note “Discontinued on FH” internally
-
-### **2.1.5 Step 5 — Cart Review – Out-of-Stock Detection**
+### **2.1.5 Step 5 — Cart Review – Out-of-Stock Awareness**
 
   - > Out-of-stock items appear in RED in the cart
 
-  - > Immediately remove any red-flagged item
+  - > Red-flagged items stay on the order; proceed as normal
 
-⚠️ Never proceed hoping stock will update later.
-
-**2.1.6 Step 6** **— Shipping Verification (Heavy / Oversized Items)**
+**2.1.6 Step 6** **- Shipping Verification (Heavy / Oversized Items)**
 
   - > Confirm correct shipping charges are applied
 
   - > Pay special attention to:
-    
+
       - > Heavy items
-    
+
       - > Oversized items
 
   - > If shipping looks incorrect → **STOP and verify**
 
-**2.1.7 Step 7** **— Final Cart Validation**
+**2.1.7 Step 7** **- Final Cart Validation**
 
 Before submission:
 
@@ -204,12 +175,12 @@ Before submission:
 
   - > Larger discrepancies → investigate before proceeding
 
-**2.1.8 Step 8** **— Order Submission**
+**2.1.8 Step 8** **- Order Submission**
 
   - > Verify:
-    
+
       - > Billing Address
-    
+
       - > Shipping Address
 
   - > Enter correct PO Number
@@ -217,21 +188,19 @@ Before submission:
   - > Click Submit Order
 
   - > Record:
-    
+
       - > Order Confirmation Number
-    
+
       - > Update Vendor Order Sheet immediately
 
-**SECTION 4 — DECISION MATRIX**
+**SECTION 4 - DECISION MATRIX**
 
 Table 2 - Florida Hardware (Main Warehouse) Processing Decision Matrix
 
 | **Scenario**              | **Condition**       | **Action**                  | **Notes**            |
 | ------------------------- | ------------------- | --------------------------- | -------------------- |
 | Order total \< $950       | Cart below MOV      | Do not submit               | Add items or reroute |
-| Any item partially OOS    | Even 1 unit missing | Move entire quantity to OOS | No partials          |
-| Item page blank           | No details          | Treat as discontinued       | Move to OOS          |
-| OOS item in cart          | Item shows red      | Remove immediately          | Mandatory            |
+| Item page blank           | No details          | Treat as discontinued       | Do NOT order         |
 | Thursday order            | Using Account 2     | Do NOT include FE items     | Hard rule            |
 | Attempt submission        | Wednesday           | Do not submit               | No exceptions        |
 | Heavy item shipping off   | Cost mismatch       | Stop & verify               | Prevent errors       |
