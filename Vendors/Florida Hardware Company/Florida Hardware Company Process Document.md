@@ -59,7 +59,7 @@ Table 3 - Master Decision Matrix (All Scenarios)
 ❌ Splitting quantities between stock and ETA
 ❌ Placing separate out-of-stock orders (Updated: 2026-05-19)
 ❌ Ordering FE items on Thursday
-❌ Submitting any order on Wednesday
+
 ❌ Attempting dropship "just this once"
 
 #### **Caution:**
@@ -79,7 +79,7 @@ Table 1
 
 #### **1.3.1 Official Submission Days (Critical)**
 
-  - > Orders are processed daily except Wednesday.
+  - > Orders are processed daily.
 
   - > Orders are submitted using different accounts based on the day.
 
@@ -100,7 +100,7 @@ Table 2 - Vendor Accounts
 
 #### **1.3.3 Submission Blackout**
 
-> ❌ No order submissions on Wednesday
+> _(Removed — orders are now processed on Wednesday as well, effective 2026-05-19)_
 
 **SECTION 2 - PROCESSING ORDERS**
 
@@ -200,7 +200,7 @@ Table 2 - Florida Hardware (Main Warehouse) Processing Decision Matrix
 | Order total \< $950       | Cart below MOV      | Do not submit               | Add items or reroute |
 | Item page blank           | No details          | Treat as discontinued       | Do NOT order         |
 | Thursday order            | Using Account 2     | Do NOT include FE items     | Hard rule            |
-| Attempt submission        | Wednesday           | Do not submit               | No exceptions        |
+
 | Heavy item shipping off   | Cost mismatch       | Stop & verify               | Prevent errors       |
 | Cart vs checkout mismatch | \> few cents        | Investigate                 | Do not submit        |
 | Out-of-stock item in cart  | RED flagged         | Keep in order (backordered) | Do NOT place separate OOS order |
