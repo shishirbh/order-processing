@@ -1,6 +1,6 @@
 # Strybuc — Vendor Info
 
-Last updated: 2026-04-24 (auto-generated from Vendor Information.jsonl — verify and edit)
+Last updated: 2026-05-19 (edited by Claude update-vendor-info skill)
 
 ## Contacts
 - **Primary contact:** Alex Gonzalez
@@ -18,7 +18,7 @@ Last updated: 2026-04-24 (auto-generated from Vendor Information.jsonl — verif
 - **Ships expedited?** Yes
 
 ## Timing
-- **When is a PO submitted?** _(blank in source)_
+- **When is a PO submitted?** Submit in the evening every day before leaving work — no morning submissions (Updated: 2026-05-19)
 - **When do we receive coming-in-house shipments?** Monday/Wednesday/Friday
 
 ---
