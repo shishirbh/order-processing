@@ -38,7 +38,7 @@ Table 3 - Master Decision Matrix (All Scenarios)
 
   - > Backorders are NOT Allowed.
 
-  - > Out-of-Stock items are NOT ordered.
+  - > Out-of-Stock items are NOT ordered — do not place separate OOS orders. (Updated: 2026-05-19)
 
   - > Partial fulfillment is NOT permitted
 
@@ -120,9 +120,10 @@ Table 2 - Vendor Accounts
 
 ### **2.1.2 Step 2 — Stock Availability Check**
 
-  - > All **in-stock** items are ordered together on the same order
+  - > **All items are ordered together on the same order — do not split orders.**
+    Exception: Thursday Account 2 submission — FE items are excluded (see Section 1.3.2). (Updated: 2026-05-19)
 
-  - > Out-of-stock items are **NOT** ordered — remove them from the cart
+  - > Out-of-stock items are **NOT** ordered — remove them from the cart (Updated: 2026-05-19)
 
 ### **2.1.3 Step 3 - Item Verification (Before Adding to Cart)**
 
