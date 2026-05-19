@@ -1,6 +1,6 @@
 # Orgill — Vendor Info
 
-Last updated: 2026-04-24 (auto-generated from Vendor Information.jsonl — verify and edit)
+Last updated: 2026-05-19 (edited by Claude update-vendor-info skill)
 
 ## Contacts
 - **Primary contact:** Customer Service
@@ -20,6 +20,9 @@ Last updated: 2026-04-24 (auto-generated from Vendor Information.jsonl — verif
 ## Timing
 - **When is a PO submitted?** _(blank in source)_
 - **When do we receive coming-in-house shipments?** Monday & Wednesday
+
+## Notes
+- **Milwaukee restriction:** We are not allowed to purchase Milwaukee items from Orgill. If Milwaukee items appear, check other vendors. (Updated: 2026-05-19)
 
 ---
 Source: `Vendor Information.jsonl` (row: "Orgill")
