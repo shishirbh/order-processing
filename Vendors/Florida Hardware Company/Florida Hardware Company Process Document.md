@@ -36,11 +36,9 @@ Table 3 - Master Decision Matrix (All Scenarios)
 
   - > Order Type is In-House ONLY **- Dropship strictly prohibited.**
 
-  - > Backorders are NOT Allowed.
+  - > Backorders are allowed — out-of-stock items are ordered together with in-stock items on the same order. (Updated: 2026-05-19)
 
-  - > Out-of-Stock items are NOT ordered — do not place separate OOS orders. (Updated: 2026-05-19)
-
-  - > Partial fulfillment is NOT permitted
+  - > Do not place separate OOS orders; out-of-stock items are included on the same order as in-stock items and will be backordered. (Updated: 2026-05-19)
 
   - > Minimum Order Value (MOV) Rules: $950
 
@@ -56,14 +54,10 @@ Table 3 - Master Decision Matrix (All Scenarios)
 
   - > Do It Best
 
-**⚠️ Important Clarification**
-
-  - > Florida Hardware is an all-or-nothing fulfillment vendor.
-
 #### **Always Avoid:**
 
 ❌ Splitting quantities between stock and ETA
-❌ Ordering out-of-stock items
+❌ Placing separate out-of-stock orders (Updated: 2026-05-19)
 ❌ Ordering FE items on Thursday
 ❌ Submitting any order on Wednesday
 ❌ Attempting dropship "just this once"
@@ -123,7 +117,7 @@ Table 2 - Vendor Accounts
   - > **All items are ordered together on the same order — do not split orders.**
     Exception: Thursday Account 2 submission — FE items are excluded (see Section 1.3.2). (Updated: 2026-05-19)
 
-  - > Out-of-stock items are **NOT** ordered — remove them from the cart (Updated: 2026-05-19)
+  - > Out-of-stock items are ordered together with in-stock items on the same order — do not place separate OOS orders. (Updated: 2026-05-19)
 
 ### **2.1.3 Step 3 - Item Verification (Before Adding to Cart)**
 
@@ -155,7 +149,7 @@ Action:
 
   - > Out-of-stock items appear in RED in the cart
 
-  - > Red-flagged items must be **removed** from the order — do NOT submit out-of-stock items
+  - > Red-flagged items may remain in the order — they will be backordered and fulfilled when restocked. (Updated: 2026-05-19)
 
 **2.1.6 Step 6** **- Shipping Verification (Heavy / Oversized Items)**
 
@@ -209,4 +203,4 @@ Table 2 - Florida Hardware (Main Warehouse) Processing Decision Matrix
 | Attempt submission        | Wednesday           | Do not submit               | No exceptions        |
 | Heavy item shipping off   | Cost mismatch       | Stop & verify               | Prevent errors       |
 | Cart vs checkout mismatch | \> few cents        | Investigate                 | Do not submit        |
-| Out-of-stock item in cart  | RED flagged         | Remove from order           | Do NOT order         |
+| Out-of-stock item in cart  | RED flagged         | Keep in order (backordered) | Do NOT place separate OOS order |
