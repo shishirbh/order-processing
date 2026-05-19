@@ -24,6 +24,7 @@ Last updated: 2026-05-19 (edited by Claude update-vendor-info skill)
 ## Notes
 - **Minimum order value:** $10 (Updated: 2026-05-15)
 - **Inhouse-only exceptions:** Only processed as coming in-house when: international order, Canada, Hawaii, Alaska, Puerto Rico, or marketplace orders (all marketplace orders are processed as coming in-house) (Updated: 2026-05-19)
+- **HAWA collections:** Any orders for HAWA collections require a salesperson working with the customer and a signed quote before processing. HAWA products are sliding systems that are very expensive, require many components, and need a thorough understanding of what the customer is buying and needs. (Updated: 2026-05-19)
 
 ---
 Source: `Vendor Information.jsonl` (row: "Hafele")
