@@ -38,6 +38,8 @@ Table 3 - Master Decision Matrix (All Scenarios)
 
   - > Backorders are NOT Allowed.
 
+  - > Out-of-Stock items are NOT ordered.
+
   - > Partial fulfillment is NOT permitted
 
   - > Minimum Order Value (MOV) Rules: $950
@@ -61,6 +63,7 @@ Table 3 - Master Decision Matrix (All Scenarios)
 #### **Always Avoid:**
 
 ❌ Splitting quantities between stock and ETA
+❌ Ordering out-of-stock items
 ❌ Ordering FE items on Thursday
 ❌ Submitting any order on Wednesday
 ❌ Attempting dropship "just this once"
@@ -117,9 +120,9 @@ Table 2 - Vendor Accounts
 
 ### **2.1.2 Step 2 — Stock Availability Check**
 
-  - > All items (in-stock and out-of-stock) are ordered together on the same order
+  - > All **in-stock** items are ordered together on the same order
 
-  - > Do NOT create separate orders for out-of-stock items
+  - > Out-of-stock items are **NOT** ordered — remove them from the cart
 
 ### **2.1.3 Step 3 - Item Verification (Before Adding to Cart)**
 
@@ -151,7 +154,7 @@ Action:
 
   - > Out-of-stock items appear in RED in the cart
 
-  - > Red-flagged items stay on the order; proceed as normal
+  - > Red-flagged items must be **removed** from the order — do NOT submit out-of-stock items
 
 **2.1.6 Step 6** **- Shipping Verification (Heavy / Oversized Items)**
 
@@ -205,3 +208,4 @@ Table 2 - Florida Hardware (Main Warehouse) Processing Decision Matrix
 | Attempt submission        | Wednesday           | Do not submit               | No exceptions        |
 | Heavy item shipping off   | Cost mismatch       | Stop & verify               | Prevent errors       |
 | Cart vs checkout mismatch | \> few cents        | Investigate                 | Do not submit        |
+| Out-of-stock item in cart  | RED flagged         | Remove from order           | Do NOT order         |
