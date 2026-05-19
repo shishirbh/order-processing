@@ -69,7 +69,7 @@ Table 1 - Master Decision Matrix
 
   - ## Post Falls, ID
 
-### → **Weekly Submission — Wednesday**
+### → **Weekly Submission — Monday evening**
 
 ### **1.2.3 Out-of-Stock Orders:**
 
@@ -206,7 +206,7 @@ Table 2 - True Value Main Warehouse (04) Decision Matrix
 | **Scenario**                    | **Main WH (Tifton) Stock** | **Other Orgill WH Stock** | **Item Type** | **Action**                           | **Notes**                                    |
 | ------------------------------- | -------------------------- | ------------------------- | ------------- | ------------------------------------ | -------------------------------------------- |
 | Item available in Tifton        | Yes                        | —                         | Standard      | Order from Tifton                    | Always prioritize main warehouse             |
-| Item OOS in Tifton              | No                         | Yes                       | Standard      | Move to available Orgill warehouse   | Follow Wednesday submission schedule         |
+| Item OOS in Tifton              | No                         | Yes                       | Standard      | Move to available Orgill warehouse   | Follow Monday evening submission schedule   |
 | Item OOS in all Orgill WH       | No                         | No                        | Standard      | Check alternate vendors              | EJ, True Value, Florida Hardware, Do It Best |
 | Item unavailable everywhere     | No                         | No                        | Any           | Move to Out-of-Stock order           | Review daily                                 |
 | Received Partial → Discontinued | —                          | —                         | Any           | No reorder                           | Inform customer                              |
