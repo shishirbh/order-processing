@@ -1,6 +1,6 @@
 # ACE / Emery Jensen — Vendor Info
 
-Last updated: 2026-04-24 (auto-generated from Vendor Information.jsonl — verify and edit)
+Last updated: 2026-05-19 (edited by Claude update-vendor-info skill)
 
 ## Contacts
 - **Primary contact:** Customer Service
@@ -19,7 +19,7 @@ Last updated: 2026-04-24 (auto-generated from Vendor Information.jsonl — verif
 
 ## Timing
 - **When is a PO submitted?** _(blank in source)_
-- **When do we receive coming-in-house shipments?** Thursday/Friday
+- **When do we receive coming-in-house shipments?** Wednesday and Friday — orders/invoices must be verified either Tuesday night/Wednesday early morning (for Wednesday delivery) or Thursday night/Friday morning (for Friday delivery) (Updated: 2026-05-19)
 
 ## Aliases / sub-brands
 - ACE

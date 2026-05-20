@@ -1,6 +1,6 @@
 # ORS Nasco — Vendor Info
 
-Last updated: 2026-04-24 (auto-generated from Vendor Information.jsonl — verify and edit)
+Last updated: 2026-05-19 (edited by Claude update-vendor-info skill)
 
 ## Contacts
 - **Primary contact:** Daniel
@@ -14,7 +14,7 @@ Last updated: 2026-04-24 (auto-generated from Vendor Information.jsonl — verif
 
 ## Shipping
 - **Can we dropship?** Yes
-- **Ships under our account?** No
+- **Ships under our account?** No — do not use our FedEx account for dropship orders. ORS Nasco does not ship via FedEx regularly and requires scheduling a pickup. FedEx does not visit them daily, which can delay shipment 1–2 days. (Updated: 2026-05-19)
 - **Ships expedited?** Yes
 
 ## Timing
