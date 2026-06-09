@@ -33,7 +33,7 @@ Table 2 - Master Decision Matrix (All Scenarios)
 
   - > Banner vendor orders are processed directly on the vendor website.
 
-  - > Minimum Order Value (MOV) requirement for this vendor is $150 for all order types.
+  - > Minimum Order Value (MOV) requirement for this vendor is $200 for all order types.
 
   - > Dropship is carried through FedEx Only.
 
@@ -55,7 +55,7 @@ Table 2 - Master Decision Matrix (All Scenarios)
 
   - > Item is not dropship-only
 
-  - > Order meets $150 MOV
+  - > Order meets $200 MOV
 
 **How to Process:**
 
@@ -75,7 +75,7 @@ Table 2 - Master Decision Matrix (All Scenarios)
 
   - > Item ships directly to customer
 
-  - > Order meets $150 MOV
+  - > Order meets $200 MOV
 
   - > Item is in stock OR approved via quote
 
@@ -242,7 +242,7 @@ PLEASE BLIND SHIP
 ### **2.1.4 Step 4: Attach PO  
 **  
 **2.1.5 Step 5: Paste customer address in email body  
-** 📌 If item cost \< $150 → FedEx line is still mandatory
+** 📌 If item cost \< $200 → FedEx line is still mandatory
 
 ### **2.1.6 Step 6: Confirmation & Follow-Up**
 
@@ -278,7 +278,7 @@ Verify:
 
 Table 2 - Banner Solutions Processing Decision Matrix
 
-| **Scenario**         | **MOV ≥ $150** | **In Stock** | **Discontinued** | **ETA** | **Action**              |
+| **Scenario**         | **MOV ≥ $200** | **In Stock** | **Discontinued** | **ETA** | **Action**              |
 | -------------------- | -------------- | ------------ | ---------------- | ------- | ----------------------- |
 | In-house, available  | Yes            | Yes          | No               | N/A     | Place order             |
 | Dropship, available  | Yes            | Yes          | No               | N/A     | Dropship w/ FedEx       |
@@ -288,4 +288,4 @@ Table 2 - Banner Solutions Processing Decision Matrix
 | Special order        | Any            | Any          | No               | Any     | Send to Sales for quote |
 | Oversize fee appears | Yes            | Yes          | No               | N/A     | Get customer approval   |
 | Expedited order      | Yes            | Yes          | No               | N/A     | Verify shipping cost    |
-| MOV \< $150          | No             | Any          | Any              | Any     | Do NOT process          |
+| MOV \< $200          | No             | Any          | Any              | Any     | Do NOT process          |
