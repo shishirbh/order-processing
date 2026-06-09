@@ -33,7 +33,7 @@ Table 2 - Master Decision Matrix (All Scenarios)
 
   - > Banner vendor orders are processed directly on the vendor website.
 
-  - > Minimum Order Value (MOV) requirement for this vendor is $200 for all order types.
+  - > Minimum Order Value (MOV) requirement for this vendor is $200. This applies to standalone dropship orders and standalone in-house Vendor Orders. If a customer order item falls below $200 MOV, the item is processed as coming in-house and added to the consolidated Vendor Order — do NOT inform the customer of the MOV.
 
   - > Dropship is carried through FedEx Only.
 
@@ -55,7 +55,7 @@ Table 2 - Master Decision Matrix (All Scenarios)
 
   - > Item is not dropship-only
 
-  - > Order meets $200 MOV
+  - > Standalone in-house Vendor Orders must meet $200 MOV; individual customer order items below MOV are still processed as coming in-house and added to the consolidated Vendor Order
 
 **How to Process:**
 
@@ -288,4 +288,4 @@ Table 2 - Banner Solutions Processing Decision Matrix
 | Special order        | Any            | Any          | No               | Any     | Send to Sales for quote |
 | Oversize fee appears | Yes            | Yes          | No               | N/A     | Get customer approval   |
 | Expedited order      | Yes            | Yes          | No               | N/A     | Verify shipping cost    |
-| MOV \< $200          | No             | Any          | Any              | Any     | Do NOT process          |
+| MOV \< $200 (standalone order) | No     | Any          | Any              | Any     | Do NOT place standalone order — process as coming in-house to consolidate into Vendor Order |
