@@ -32,7 +32,7 @@ Table 1 - Master Decision Matrix (All Scenarios)
 
   - > The Vendor Order (VO) for Central Warehouse (RDC 41) is placed every Thursday.
 
-  - > The Central order is processed only after the Main Warehouse (04) order is submitted.
+  - > The Central order is processed only after the Main Warehouse (09) order is submitted.
 
 ### **1.1.2 Warehouse Rules:**
 
@@ -141,12 +141,12 @@ Table 1 - Master Decision Matrix (All Scenarios)
 
 Table 1 - True Value RDC 41 Processing Decision Matrix
 
-| **Scenario**                | **WH 04 Stock** | **RDC 41 Stock** | **Item Type** | **Action**              | **Notes**                         |
+| **Scenario**                | **WH 09 Stock** | **RDC 41 Stock** | **Item Type** | **Action**              | **Notes**                         |
 | --------------------------- | --------------- | ---------------- | ------------- | ----------------------- | --------------------------------- |
-| Item available in 04        | Yes             | Yes/No           | Standard      | Order from 04           | Do not use RDC 41 if 04 has stock |
-| Item OOS in 04              | No              | Yes              | Standard      | Order from RDC 41       | Submit Thursday only              |
-| Item OOS in 04              | No              | Yes              | Small Parcel  | Dropship allowed        | If required & eligible            |
-| Item OOS in 04              | No              | Yes              | Hazmat        | In-House only           | Dropship not allowed              |
+| Item available in 09        | Yes             | Yes/No           | Standard      | Order from 09           | Do not use RDC 41 if 09 has stock |
+| Item OOS in 09              | No              | Yes              | Standard      | Order from RDC 41       | Submit Thursday only              |
+| Item OOS in 09              | No              | Yes              | Small Parcel  | Dropship allowed        | If required & eligible            |
+| Item OOS in 09              | No              | Yes              | Hazmat        | In-House only           | Dropship not allowed              |
 | Freight item                | Any             | Yes              | Freight       | Verify shipping         | Truck delivery ≤10 ft free        |
 | Restricted item             | Any             | Any              | Restricted    | Do NOT process          | Inform customer                   |
 | Cart shows mixed warehouses | —               | —                | Any           | Correct before checkout | RDC 41 items only                 |
