@@ -30,7 +30,7 @@ Table 1 - Master Decision Matrix (All Scenarios)
 
 ### **1.1.1 Submission Schedule:**
 
-  - > The Vendor Order (VO) for Central Warehouse (RDC 41) is placed every Thursday.
+  - > The Vendor Order (VO) for Central Warehouse (RDC 41) is placed every Monday and Thursday.
 
   - > The Central order is processed only after the Main Warehouse (09) order is submitted.
 

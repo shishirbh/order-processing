@@ -43,7 +43,7 @@ Table 2 - Master Decision Matrix
 
   - > Weekly Order Minimum (MOV) is $1,000.
 
-  - > Orders are submitted daily, vendor has the submission day on Tuesday and Thursday
+  - > Main vendor orders are submitted daily. Main, central, and other warehouse orders are specifically submitted on Monday and Thursday.
 
   - > Always copy vendor confirmation numbers.
 
