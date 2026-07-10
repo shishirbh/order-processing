@@ -1,6 +1,6 @@
 # EPCO — Vendor Info
 
-Last updated: 2026-04-24 (auto-generated from Vendor Information.jsonl — verify and edit)
+Last updated: 2026-07-11 (expedited shipping updated to UPS)
 
 ## Contacts
 - **Primary contact:** Doug Graham
@@ -14,8 +14,8 @@ Last updated: 2026-04-24 (auto-generated from Vendor Information.jsonl — verif
 
 ## Shipping
 - **Can we dropship?** Yes
-- **Ships under our account?** Yes (our Fedex)
-- **Ships expedited?** Yes
+- **Ships under our account?** Yes (our FedEx for standard; our UPS for 1/2 business day expedited orders)
+- **Ships expedited?** Yes — use UPS account for 1/2 business day expedited orders
 
 ## Timing
 - **When is a PO submitted?** _(blank in source)_
