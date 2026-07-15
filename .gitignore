@@ -21,6 +21,9 @@ node_modules/
 __pycache__/
 
 # --- Local dev config ---
+.env
+.env.*
+!.env.example
 opencode.jsonc
 .opencode/
 

@@ -40,6 +40,22 @@ Every teammate should install the `order-processing` plugin so Claude answers ve
 
 That's it. See [`plugin/README.md`](./plugin/README.md) for what each skill does and how to contribute changes.
 
+## Deploy to Railway
+
+This repository deploys as one Node.js service: the same process serves the browser UI, API, knowledge base, and pi agent.
+
+1. Create a Railway service from this repository, or run `railway up` from the repository root.
+2. Set these service variables:
+   - `ANTHROPIC_API_KEY` or `OPENAI_API_KEY`
+   - `APP_USERNAME` (defaults to `dk`)
+   - `APP_PASSWORD` (use a long, random value)
+3. For persistent chats and feedback, attach a Railway volume mounted at `/data` and set `DATA_DIR=/data`.
+4. Generate a Railway domain after the deployment succeeds.
+
+Railway supplies `PORT` automatically. `railway.json` configures Railpack, `npm start`, and the unauthenticated `/health` health check. All application routes use HTTP Basic authentication when `APP_PASSWORD` is set.
+
+Do not expose this internal knowledge base publicly without setting `APP_PASSWORD`.
+
 ## Status (as of 2026-04-26)
 
 - 103 vendor folders exist inside `Vendors/`. 4 are hand-curated (`Vendors/Deltana`, `Vendors/IML`, `Vendors/STRUCTURE GLASS SOLUTIONS`, `Vendors/TopNotch`); 99 were auto-scaffolded from the jsonl — their Vendor Info is populated, but Process Document and Issue Resolution Notes are stubs marked `_(to be filled)_`.

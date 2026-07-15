@@ -3,6 +3,9 @@
   "version": "1.0.0",
   "description": "DK Hardware Order Processing — knowledge base + browser-based chat UI with full vendor data and skills",
   "keywords": ["pi-package"],
+  "scripts": {
+    "start": "node server/cli.mjs"
+  },
   "bin": {
     "pi-order-processing": "./server/cli.mjs",
     "dk-order-processing": "./server/cli.mjs"

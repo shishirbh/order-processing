@@ -6,6 +6,7 @@ import { homedir } from "node:os";
 import { join, dirname, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
 import { createServer } from "node:http";
+import { timingSafeEqual } from "node:crypto";
 
 import {
   createAgentSession,
@@ -17,21 +18,31 @@ import {
 // ── Config ──────────────────────────────────────────────────────────
 const __dirname = dirname(fileURLToPath(import.meta.url));
 const REPO_DIR = resolve(__dirname, "..");            // repo root = knowledge base
-const SESSIONS_DIR = join(homedir(), ".dk-order-processing", "sessions");
-const PI_SESSIONS_ROOT = join(homedir(), ".dk-order-processing", "pi-sessions");
-const FEEDBACK_FILE = join(homedir(), ".dk-order-processing", "feedback.jsonl");
+const DATA_DIR = resolve(process.env.DATA_DIR || join(homedir(), ".dk-order-processing"));
+const SESSIONS_DIR = join(DATA_DIR, "sessions");
+const PI_SESSIONS_ROOT = join(DATA_DIR, "pi-sessions");
+const FEEDBACK_FILE = join(DATA_DIR, "feedback.jsonl");
 const PUBLIC_DIR = join(__dirname, "public");
-const PORT = 0; // auto-assign
+const requestedPort = Number.parseInt(process.env.PORT || "0", 10);
+const PORT = Number.isInteger(requestedPort) && requestedPort >= 0 && requestedPort <= 65535
+  ? requestedPort
+  : 0;
+const HOST = process.env.HOST || "0.0.0.0";
+const APP_USERNAME = process.env.APP_USERNAME || "dk";
+const APP_PASSWORD = process.env.APP_PASSWORD || "";
 
 // CLI flags. --dev (or -d) skips the git sync so uncommitted local work is
 // preserved across launches — use it when iterating on cli.mjs / index.html /
 // CLAUDE.md so the auto-sync doesn't blow away your edits.
 const ARGS = process.argv.slice(2);
 const DEV_MODE = ARGS.includes("--dev") || ARGS.includes("-d");
+const IS_RAILWAY = Boolean(process.env.RAILWAY_PROJECT_ID || process.env.RAILWAY_ENVIRONMENT_NAME);
+const SKIP_GIT_SYNC = DEV_MODE || IS_RAILWAY || process.env.NO_GIT_SYNC === "1";
 
 // ── Pull latest knowledge base ─────────────────────────────────────
-if (DEV_MODE) {
-  console.log("\n🛠  [DEV MODE] Skipping git sync — local changes preserved.\n");
+if (SKIP_GIT_SYNC) {
+  const reason = DEV_MODE ? "DEV MODE" : (IS_RAILWAY ? "RAILWAY" : "NO_GIT_SYNC");
+  console.log(`\n🛠  [${reason}] Skipping git sync.\n`);
 } else {
   console.log("\n🔄 Pulling latest knowledge base...");
   try {
@@ -84,6 +95,36 @@ if (!existsSync(SESSIONS_DIR)) mkdirSync(SESSIONS_DIR, { recursive: true });
 function json(res, data, status = 200) {
   res.writeHead(status, { "Content-Type": "application/json" });
   res.end(JSON.stringify(data));
+}
+
+function safeEqual(actual, expected) {
+  const actualBuffer = Buffer.from(actual);
+  const expectedBuffer = Buffer.from(expected);
+  return actualBuffer.length === expectedBuffer.length
+    && timingSafeEqual(actualBuffer, expectedBuffer);
+}
+
+function isAuthorized(req) {
+  if (!APP_PASSWORD) return true;
+  const header = req.headers.authorization || "";
+  if (!header.startsWith("Basic ")) return false;
+  try {
+    const decoded = Buffer.from(header.slice(6), "base64").toString("utf8");
+    const separator = decoded.indexOf(":");
+    if (separator < 0) return false;
+    return safeEqual(decoded.slice(0, separator), APP_USERNAME)
+      && safeEqual(decoded.slice(separator + 1), APP_PASSWORD);
+  } catch {
+    return false;
+  }
+}
+
+function requestAuthentication(res) {
+  res.writeHead(401, {
+    "Content-Type": "application/json",
+    "WWW-Authenticate": 'Basic realm="DK Order Processing", charset="UTF-8"',
+  });
+  res.end(JSON.stringify({ error: "Authentication required" }));
 }
 
 // Extract human-readable text from agent content (which may be an array of content blocks)
@@ -407,6 +448,13 @@ const server = createServer(async (req, res) => {
   const url = new URL(req.url, `http://localhost:${PORT}`);
   const path = url.pathname;
 
+  // Railway health checks must remain available without credentials.
+  if (req.method === "GET" && path === "/health") {
+    return json(res, { status: "ok" });
+  }
+
+  if (!isAuthorized(req)) return requestAuthentication(res);
+
   res.setHeader("Access-Control-Allow-Origin", "*");
   res.setHeader("Access-Control-Allow-Methods", "GET, POST, PATCH, DELETE, OPTIONS");
   res.setHeader("Access-Control-Allow-Headers", "Content-Type");
@@ -684,11 +732,14 @@ const server = createServer(async (req, res) => {
   res.end("Not found");
 });
 
-server.listen(PORT, () => {
+server.listen(PORT, HOST, () => {
   const addr = server.address();
-  const actualPort = addr.port;
+  const actualPort = typeof addr === "object" && addr ? addr.port : PORT;
   const url = `http://localhost:${actualPort}`;
   console.log(`\n🚀 DK Hardware Order Processing ready!`);
+  console.log(`   Listening on ${HOST}:${actualPort}`);
+  console.log(`   Data directory: ${DATA_DIR}`);
+  console.log(`   Authentication: ${APP_PASSWORD ? `enabled (${APP_USERNAME})` : "disabled"}`);
   console.log(`   ===> Open ${url} in your browser <===\n`);
 });
 
