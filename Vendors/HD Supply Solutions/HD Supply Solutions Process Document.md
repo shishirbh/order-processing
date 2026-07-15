@@ -48,6 +48,8 @@ Used when:
 
   - > Low-value items (\<$50)
 
+  - > Backordered items
+
   - > Vendor shipping restrictions
 
   - > Customer-level requirements (pickup, shipping-account orders)
@@ -92,6 +94,10 @@ Used when:
 
   - > Order is **"Ships from Manufacturer"** and value is ≥ $50
 
+  - > Hazmat items (unless cart blocks — see Exception Handling)
+
+  - > Freight orders — dropship directly. View shipping and handling fees in the submission cart.
+
 ⚠️ **Important Points:**
 
   - > If a 'Ships from Manufacturer' item is below $50, enter the customer address to check shipping.
@@ -103,6 +109,8 @@ Used when:
 ### **❌ DROPSHIP NOT ALLOWED WHEN:**
 
   - > Marketplace orders: Amazon, Walmart, eBay, Wayfair, Zoro
+
+    ⚠️ **High-value marketplace orders:** get confirmation from Elina before processing.
 
   - > Address is:
 
@@ -134,6 +142,12 @@ Used when:
 
   - > If the reverse occurs (OOS to warehouse, In Stock to customer) → Dropship or escalate to a supervisor.
 
+  - > **Backorders:** always order In-House. Do not dropship backordered items.
+
+  - > **Hazmat items:** dropship is allowed. If the final cart blocks the hazmat item → order In-House instead.
+
+  - > **High-value marketplace orders:** get confirmation from Elina before processing.
+
 **1.3 Dropship Stock and ETA Logic**
 
 ### **✔** If HD Supply CART = "In Stock" → Eligible
@@ -164,7 +178,7 @@ An item is **discontinued ONLY** when the HD Supply website explicitly shows:
 
   - > **RED text** saying **"OUT OF STOCK"**
 
-⚠️ **Important:** Out of Stock or missing ETA in the cart alone does **NOT** mean an item is discontinued. Those items are simply unavailable for dropship — they may come back in stock later.
+⚠️ **Important:** Out of Stock or missing ETA in the cart alone does **NOT** mean an item is discontinued. Those items are simply unavailable for dropship - they may come back in stock later.
 
 ➡ If the item shows RED Discontinued / RED OUT OF STOCK text → customer must be informed and offered an alternative.
 
@@ -393,5 +407,10 @@ Table 1 - HD Supply Processing Decision Matrix
 | Pickup order                                                                  | ❌ In-house                                | Must ship from DKH                                               |
 | Cart total ≠ Vendor Order total                                               | ❌ STOP                                    | Fix mismatch before checkout                                     |
 | Payment exceptions                                                            | Amazon, Zoro, Net 30                      | Do NOT charge payment                                            |
-| All dropship conditions met                                                   | **✔** Follow HD Supply Dropship Procedure | -                                                                |
+| Hazmat item — cart allows dropship                                            | **✔** Dropship allowed                    | If cart blocks → In-house instead                                 |
+| Hazmat item — cart blocks dropship                                            | ❌ In-house                                | Fallback when hazmat can't ship to customer                      |
+| Item on Backorder                                                             | ❌ In-house                                | Always order backordered items In-House                          |
+| Freight order (any)                                                           | **✔** Dropship directly                   | View shipping & handling fees in submission cart                  |
+| High-value marketplace order                                                  | ⚠️ Get Elina confirmation first           | Do not process until Elina approves                              |
+| All dropship conditions met                                                   | **✔** Follow HD Supply Dropship Procedure | —                                                                |
 | Dropship not allowed                                                          | **✔** In-house vendor order               | Follow HD Supply In-House steps                                  |
