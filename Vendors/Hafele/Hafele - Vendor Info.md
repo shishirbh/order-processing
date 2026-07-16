@@ -1,6 +1,6 @@
 # Hafele — Vendor Info
 
-Last updated: 2026-07-17 (SOP v1.0 refresh)
+Last updated: 2026-07-17 (edited by Claude update-vendor-info skill)
 
 ## Contacts
 - **Primary contact:** Rhandy Diaz
@@ -18,7 +18,7 @@ Last updated: 2026-07-17 (SOP v1.0 refresh)
 - **Ships expedited?** Next day and 2-day; estimate 2-day at ~70% of 1-day cost
 
 ## Timing
-- **When is a PO submitted?** _(blank in source)_
+- **When is a PO submitted?** Daily — orders must be processed at or just before 1 PM EST (Updated: 2026-07-17)
 - **When do we receive coming-in-house shipments?** 7 days (standard ETA)
 
 ## Notes
