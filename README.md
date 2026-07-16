@@ -47,14 +47,15 @@ This repository deploys as one Node.js service: the same process serves the brow
 1. Create a Railway service from this repository, or run `railway up` from the repository root.
 2. Set these service variables:
    - `ANTHROPIC_API_KEY` or `OPENAI_API_KEY`
-   - `APP_USERNAME` (defaults to `dk`)
-   - `APP_PASSWORD` (use a long, random value)
+   - `ADMIN_USERNAME` (defaults to `dk`; used only to bootstrap the first account)
+   - `ADMIN_PASSWORD` (use a long, random value)
+   - `SESSION_SECRET` (an independent random value of at least 32 bytes)
 3. For persistent chats and feedback, attach a Railway volume mounted at `/data` and set `DATA_DIR=/data`.
 4. Generate a Railway domain after the deployment succeeds.
 
-Railway supplies `PORT` automatically. `railway.json` configures Railpack, `npm start`, and the unauthenticated `/health` health check. All application routes use HTTP Basic authentication when `APP_PASSWORD` is set.
+Railway supplies `PORT` automatically. `railway.json` configures Railpack, `npm start`, and the unauthenticated `/health` health check. Employees sign in with individual accounts; Administrators manage accounts in the browser UI. Conversations are isolated by Employee under `DATA_DIR`, and Standard Users receive read-only agent tools.
 
-Do not expose this internal knowledge base publicly without setting `APP_PASSWORD`.
+`APP_USERNAME` and `APP_PASSWORD` remain accepted as legacy aliases for the initial Administrator bootstrap. Do not expose this internal knowledge base publicly without setting `ADMIN_PASSWORD` and `SESSION_SECRET`.
 
 ## Status (as of 2026-04-26)
 

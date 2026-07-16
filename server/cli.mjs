@@ -1,12 +1,12 @@
 #!/usr/bin/env node
 
 import { execSync } from "node:child_process";
-import { existsSync, readFileSync, writeFileSync, mkdirSync, readdirSync, unlinkSync, statSync, appendFileSync, rmSync } from "node:fs";
+import { existsSync, readFileSync, writeFileSync, mkdirSync, readdirSync, unlinkSync, statSync, appendFileSync, rmSync, renameSync } from "node:fs";
 import { homedir } from "node:os";
 import { join, dirname, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
 import { createServer } from "node:http";
-import { timingSafeEqual } from "node:crypto";
+import { createAuthStore } from "./auth.mjs";
 
 import {
   createAgentSession,
@@ -19,8 +19,9 @@ import {
 const __dirname = dirname(fileURLToPath(import.meta.url));
 const REPO_DIR = resolve(__dirname, "..");            // repo root = knowledge base
 const DATA_DIR = resolve(process.env.DATA_DIR || join(homedir(), ".dk-order-processing"));
-const SESSIONS_DIR = join(DATA_DIR, "sessions");
-const PI_SESSIONS_ROOT = join(DATA_DIR, "pi-sessions");
+const LEGACY_SESSIONS_DIR = join(DATA_DIR, "sessions");
+const LEGACY_PI_SESSIONS_ROOT = join(DATA_DIR, "pi-sessions");
+const USERS_DIR = join(DATA_DIR, "users");
 const FEEDBACK_FILE = join(DATA_DIR, "feedback.jsonl");
 const PUBLIC_DIR = join(__dirname, "public");
 const requestedPort = Number.parseInt(process.env.PORT || "0", 10);
@@ -28,8 +29,15 @@ const PORT = Number.isInteger(requestedPort) && requestedPort >= 0 && requestedP
   ? requestedPort
   : 0;
 const HOST = process.env.HOST || "0.0.0.0";
-const APP_USERNAME = process.env.APP_USERNAME || "dk";
-const APP_PASSWORD = process.env.APP_PASSWORD || "";
+const APP_USERNAME = process.env.ADMIN_USERNAME || process.env.APP_USERNAME || "dk";
+const APP_PASSWORD = process.env.ADMIN_PASSWORD || process.env.APP_PASSWORD || "";
+const AUTH = createAuthStore({
+  dataDir: DATA_DIR,
+  bootstrapUsername: APP_USERNAME,
+  bootstrapPassword: APP_PASSWORD,
+  sessionSecret: process.env.SESSION_SECRET,
+  secureCookies: Boolean(process.env.RAILWAY_PROJECT_ID || process.env.RAILWAY_ENVIRONMENT_NAME),
+});
 
 // CLI flags. --dev (or -d) skips the git sync so uncommitted local work is
 // preserved across launches — use it when iterating on cli.mjs / index.html /
@@ -88,8 +96,31 @@ function refreshVendorNames() {
 }
 refreshVendorNames();
 
-// Ensure sessions directory
-if (!existsSync(SESSIONS_DIR)) mkdirSync(SESSIONS_DIR, { recursive: true });
+// Assign pre-account conversations to the initial Administrator once. The move
+// preserves all existing conversation and pi-agent history.
+function migrateLegacyConversations() {
+  const admin = AUTH.initialAdministrator();
+  if (!admin) return;
+  const userRoot = join(USERS_DIR, admin.id);
+  const targetSessions = join(userRoot, "sessions");
+  const targetPiSessions = join(userRoot, "pi-sessions");
+  mkdirSync(userRoot, { recursive: true });
+  if (existsSync(LEGACY_SESSIONS_DIR) && !existsSync(targetSessions)) renameSync(LEGACY_SESSIONS_DIR, targetSessions);
+  if (existsSync(LEGACY_PI_SESSIONS_ROOT) && !existsSync(targetPiSessions)) renameSync(LEGACY_PI_SESSIONS_ROOT, targetPiSessions);
+}
+migrateLegacyConversations();
+
+function userSessionsDir(accountId) {
+  const path = join(USERS_DIR, accountId, "sessions");
+  mkdirSync(path, { recursive: true });
+  return path;
+}
+
+function userPiSessionsRoot(accountId) {
+  const path = join(USERS_DIR, accountId, "pi-sessions");
+  mkdirSync(path, { recursive: true });
+  return path;
+}
 
 // ── Helpers ─────────────────────────────────────────────────────────
 function json(res, data, status = 200) {
@@ -97,34 +128,32 @@ function json(res, data, status = 200) {
   res.end(JSON.stringify(data));
 }
 
-function safeEqual(actual, expected) {
-  const actualBuffer = Buffer.from(actual);
-  const expectedBuffer = Buffer.from(expected);
-  return actualBuffer.length === expectedBuffer.length
-    && timingSafeEqual(actualBuffer, expectedBuffer);
-}
-
-function isAuthorized(req) {
-  if (!APP_PASSWORD) return true;
-  const header = req.headers.authorization || "";
-  if (!header.startsWith("Basic ")) return false;
-  try {
-    const decoded = Buffer.from(header.slice(6), "base64").toString("utf8");
-    const separator = decoded.indexOf(":");
-    if (separator < 0) return false;
-    return safeEqual(decoded.slice(0, separator), APP_USERNAME)
-      && safeEqual(decoded.slice(separator + 1), APP_PASSWORD);
-  } catch {
-    return false;
+function requireAuthentication(req, res) {
+  const account = AUTH.accountFromRequest(req);
+  if (!account) {
+    json(res, { error: "Authentication required" }, 401);
+    return null;
   }
+  return account;
 }
 
-function requestAuthentication(res) {
-  res.writeHead(401, {
-    "Content-Type": "application/json",
-    "WWW-Authenticate": 'Basic realm="DK Order Processing", charset="UTF-8"',
-  });
-  res.end(JSON.stringify({ error: "Authentication required" }));
+function requireAdministrator(req, res) {
+  const account = requireAuthentication(req, res);
+  if (!account) return null;
+  if (account.role !== "administrator") {
+    json(res, { error: "Administrator access required" }, 403);
+    return null;
+  }
+  return account;
+}
+
+async function readJsonBody(req) {
+  let body = "";
+  for await (const chunk of req) {
+    body += chunk;
+    if (body.length > 1_000_000) throw new Error("Request body too large");
+  }
+  return JSON.parse(body || "{}");
 }
 
 // Extract human-readable text from agent content (which may be an array of content blocks)
@@ -304,23 +333,23 @@ function safeId(id) {
   return id.replace(/[<>:"/\\|?*]/g, "_");
 }
 
-function sessionFile(id) {
-  return join(SESSIONS_DIR, `${safeId(id)}.json`);
+function sessionFile(accountId, id) {
+  return join(userSessionsDir(accountId), `${safeId(id)}.json`);
 }
 
 // Each chat gets its own dir of pi JSONL files. pi's continueRecent() opens the
 // most recent file in the dir, so a chat resumed after server restart still has
 // the agent's full message history — not just our display-layer collapse.
-function piSessionDir(id) {
-  return join(PI_SESSIONS_ROOT, safeId(id));
+function piSessionDir(accountId, id) {
+  return join(userPiSessionsRoot(accountId), safeId(id));
 }
 
-function saveSession(id, messages, name) {
-  writeFileSync(sessionFile(id), JSON.stringify({ name: name || "New conversation", messages }));
+function saveSession(accountId, id, messages, name) {
+  writeFileSync(sessionFile(accountId, id), JSON.stringify({ name: name || "New conversation", messages }));
 }
 
-function loadSession(id) {
-  const f = sessionFile(id);
+function loadSession(accountId, id) {
+  const f = sessionFile(accountId, id);
   if (!existsSync(f)) return [];
   try {
     const data = JSON.parse(readFileSync(f, "utf-8"));
@@ -330,8 +359,8 @@ function loadSession(id) {
   } catch { return []; }
 }
 
-function loadSessionName(id) {
-  const f = sessionFile(id);
+function loadSessionName(accountId, id) {
+  const f = sessionFile(accountId, id);
   if (!existsSync(f)) return id.replace(/_/g, " ");
   try {
     const data = JSON.parse(readFileSync(f, "utf-8"));
@@ -340,24 +369,24 @@ function loadSessionName(id) {
   } catch { return id.replace(/_/g, " "); }
 }
 
-function deleteSessionFile(id) {
-  const f = sessionFile(id);
+function deleteSessionFile(accountId, id) {
+  const f = sessionFile(accountId, id);
   if (existsSync(f)) unlinkSync(f);
-  const piDir = piSessionDir(id);
+  const piDir = piSessionDir(accountId, id);
   if (existsSync(piDir)) {
     try { rmSync(piDir, { recursive: true, force: true }); } catch {}
   }
 }
 
-function listSessionFiles() {
+function listSessionFiles(accountId) {
   try {
-    return readdirSync(SESSIONS_DIR)
+    return readdirSync(userSessionsDir(accountId))
       .filter((f) => f.endsWith(".json"))
       .map((f) => {
         const id = f.replace(".json", "");
         return {
           id,
-          name: loadSessionName(id).slice(0, 40),
+          name: loadSessionName(accountId, id).slice(0, 40),
           path: id,
         };
       });
@@ -400,7 +429,7 @@ function loadSkillsFromDir() {
 // every /prompt request with SessionManager.inMemory(), which wiped context.
 const activeSessions = new Map();
 
-async function createAgent(chatId) {
+async function createAgent(account, chatId) {
   const customSkills = loadSkillsFromDir();
 
   const loader = new DefaultResourceLoader({
@@ -418,7 +447,7 @@ async function createAgent(chatId) {
   // restart-durable agent context: after a server restart, the next prompt on
   // an existing chat resumes the same pi session and the agent still knows
   // what was said before.
-  const sessionManager = SessionManager.continueRecent(REPO_DIR, piSessionDir(chatId));
+  const sessionManager = SessionManager.continueRecent(REPO_DIR, piSessionDir(account.id, chatId));
 
   const { session } = await createAgentSession({
     cwd: REPO_DIR,
@@ -430,16 +459,17 @@ async function createAgent(chatId) {
     // anything wrong is recoverable. pi's real tool names are read/edit/
     // write/bash — "grep"/"find"/"ls" aren't valid pi tools and were being
     // silently dropped, which is why the agent was de-facto read-only.
-    tools: ["read", "edit", "write", "bash"],
+    tools: account.role === "administrator" ? ["read", "edit", "write", "bash"] : ["read"],
   });
   return session;
 }
 
-async function getOrCreateAgent(chatId) {
-  const cached = activeSessions.get(chatId);
+async function getOrCreateAgent(account, chatId) {
+  const key = `${account.id}:${chatId}`;
+  const cached = activeSessions.get(key);
   if (cached) return cached.session;
-  const session = await createAgent(chatId);
-  activeSessions.set(chatId, { session });
+  const session = await createAgent(account, chatId);
+  activeSessions.set(key, { session });
   return session;
 }
 
@@ -453,38 +483,79 @@ const server = createServer(async (req, res) => {
     return json(res, { status: "ok" });
   }
 
-  if (!isAuthorized(req)) return requestAuthentication(res);
-
-  res.setHeader("Access-Control-Allow-Origin", "*");
   res.setHeader("Access-Control-Allow-Methods", "GET, POST, PATCH, DELETE, OPTIONS");
   res.setHeader("Access-Control-Allow-Headers", "Content-Type");
   if (req.method === "OPTIONS") { res.writeHead(204); return res.end(); }
 
-  // Static
+  // The application shell and assets are public so they can render login.
+  // Every data/API route below is authenticated.
   if (req.method === "GET" && path === "/") return serveStatic(res, join(PUBLIC_DIR, "index.html"));
   if (req.method === "GET" && /^\/[\w.\-]+\.(svg|png|jpg|jpeg|gif|ico|css|js|webp)$/i.test(path)) {
     return serveStatic(res, join(PUBLIC_DIR, path.slice(1)));
   }
 
-  // List sessions
-  if (req.method === "GET" && path === "/api/sessions") return json(res, listSessionFiles());
+  if (req.method === "POST" && path === "/api/auth/login") {
+    if (AUTH.needsBootstrap()) return json(res, { error: "No Administrator account exists. Set ADMIN_PASSWORD and restart." }, 503);
+    let payload;
+    try { payload = await readJsonBody(req); } catch { return json(res, { error: "Invalid JSON" }, 400); }
+    const authenticated = AUTH.authenticate(payload.username, payload.password);
+    if (!authenticated) return json(res, { error: "Invalid username or password" }, 401);
+    res.setHeader("Set-Cookie", AUTH.loginCookie(authenticated));
+    return json(res, { account: AUTH.publicAccount(authenticated) });
+  }
+
+  const account = requireAuthentication(req, res);
+  if (!account) return;
+
+  if (req.method === "GET" && path === "/api/auth/me") return json(res, { account: AUTH.publicAccount(account) });
+  if (req.method === "POST" && path === "/api/auth/logout") {
+    res.setHeader("Set-Cookie", AUTH.logoutCookie());
+    return json(res, { ok: true });
+  }
+
+  if (path === "/api/accounts") {
+    if (!requireAdministrator(req, res)) return;
+    if (req.method === "GET") return json(res, AUTH.list());
+    if (req.method === "POST") {
+      try { return json(res, AUTH.create(await readJsonBody(req)), 201); }
+      catch (e) { return json(res, { error: e.message }, 400); }
+    }
+  }
+  if (path.startsWith("/api/accounts/") && req.method === "PATCH") {
+    if (!requireAdministrator(req, res)) return;
+    const id = decodeURIComponent(path.slice("/api/accounts/".length));
+    try {
+      const updated = AUTH.update(id, await readJsonBody(req));
+      // A role/password/enabled change must not leave an agent with its old
+      // permissions cached in memory.
+      for (const key of activeSessions.keys()) {
+        if (key.startsWith(`${id}:`)) activeSessions.delete(key);
+      }
+      return json(res, updated);
+    } catch (e) { return json(res, { error: e.message }, e.message === "Account not found" ? 404 : 400); }
+  }
+
+  // List this Employee's conversations.
+  if (req.method === "GET" && path === "/api/sessions") return json(res, listSessionFiles(account.id));
 
   // Create session
   if (req.method === "POST" && path === "/api/sessions") {
     const id = Date.now().toString(36) + Math.random().toString(36).slice(2, 6);
-    saveSession(id, []);
+    saveSession(account.id, id, []);
     return json(res, { id, name: "New conversation" });
   }
 
   // Get messages
   if (req.method === "GET" && path.startsWith("/api/sessions/") && path.endsWith("/messages")) {
     const id = decodeURIComponent(path.split("/api/sessions/")[1].replace("/messages", ""));
-    const name = loadSessionName(id);
+    if (!existsSync(sessionFile(account.id, id))) return json(res, { error: "Not found" }, 404);
+    const name = loadSessionName(account.id, id);
     let msgs;
-    if (activeSessions.has(id)) {
-      msgs = collapseSessionMessages(activeSessions.get(id).session.messages);
+    const sessionKey = `${account.id}:${id}`;
+    if (activeSessions.has(sessionKey)) {
+      msgs = collapseSessionMessages(activeSessions.get(sessionKey).session.messages);
     } else {
-      msgs = (loadSession(id) || []).map((m) => ({
+      msgs = (loadSession(account.id, id) || []).map((m) => ({
         role: m.role,
         content: typeof m.content === "string" ? m.content : extractText(m.content),
         thinking: m.thinking || "",
@@ -498,8 +569,9 @@ const server = createServer(async (req, res) => {
   // Delete session
   if (req.method === "DELETE" && path.startsWith("/api/sessions/")) {
     const id = decodeURIComponent(path.split("/api/sessions/")[1]);
-    deleteSessionFile(id);
-    if (activeSessions.has(id)) activeSessions.delete(id);
+    if (!existsSync(sessionFile(account.id, id))) return json(res, { error: "Not found" }, 404);
+    deleteSessionFile(account.id, id);
+    activeSessions.delete(`${account.id}:${id}`);
     return json(res, { ok: true });
   }
 
@@ -511,12 +583,12 @@ const server = createServer(async (req, res) => {
     let name;
     try { name = JSON.parse(body).name; } catch { return json(res, { error: "Invalid JSON" }, 400); }
     if (typeof name !== "string" || !name.trim()) return json(res, { error: "Missing name" }, 400);
-    const f = sessionFile(id);
+    const f = sessionFile(account.id, id);
     if (!existsSync(f)) return json(res, { error: "Not found" }, 404);
     try {
       const data = JSON.parse(readFileSync(f, "utf-8"));
       const msgs = Array.isArray(data) ? data : (data.messages || []);
-      saveSession(id, msgs, name.trim().slice(0, 80));
+      saveSession(account.id, id, msgs, name.trim().slice(0, 80));
       return json(res, { ok: true, name: name.trim().slice(0, 80) });
     } catch (e) {
       return json(res, { error: e.message }, 500);
@@ -564,10 +636,10 @@ const server = createServer(async (req, res) => {
   if (req.method === "GET" && path === "/api/sessions/export/all") {
     const format = (url.searchParams.get("format") || "md").toLowerCase();
     const stamp = new Date().toISOString().slice(0, 10);
-    const sessions = listSessionFiles().map(s => ({
+    const sessions = listSessionFiles(account.id).map(s => ({
       id: s.id,
       name: s.name,
-      messages: loadSession(s.id) || [],
+      messages: loadSession(account.id, s.id) || [],
     }));
     if (format === "json") {
       res.writeHead(200, {
@@ -589,10 +661,10 @@ const server = createServer(async (req, res) => {
   // Single chat export
   if (req.method === "GET" && path.startsWith("/api/sessions/") && path.endsWith("/export")) {
     const id = decodeURIComponent(path.split("/api/sessions/")[1].replace("/export", ""));
-    const f = sessionFile(id);
+    const f = sessionFile(account.id, id);
     if (!existsSync(f)) return json(res, { error: "Not found" }, 404);
-    const name = loadSessionName(id);
-    const messages = loadSession(id) || [];
+    const name = loadSessionName(account.id, id);
+    const messages = loadSession(account.id, id) || [];
     const md = renderSessionMarkdown({ id, name, messages });
     const safeName = name.replace(/[^a-z0-9\-_ ]/gi, "_").slice(0, 60).trim() || id;
     res.writeHead(200, {
@@ -605,6 +677,7 @@ const server = createServer(async (req, res) => {
   // Send prompt (SSE stream)
   if (req.method === "POST" && path.startsWith("/api/sessions/") && path.endsWith("/prompt")) {
     const sessionId = decodeURIComponent(path.split("/api/sessions/")[1].replace("/prompt", ""));
+    if (!existsSync(sessionFile(account.id, sessionId))) return json(res, { error: "Not found" }, 404);
 
     let body = "";
     for await (const chunk of req) body += chunk;
@@ -630,7 +703,7 @@ const server = createServer(async (req, res) => {
     });
 
     try {
-      const session = await getOrCreateAgent(sessionId);
+      const session = await getOrCreateAgent(account, sessionId);
 
       let thinkingDone = false;
       const unsub = session.subscribe((event) => {
@@ -656,12 +729,12 @@ const server = createServer(async (req, res) => {
         } else if (event.type === "agent_end") {
           const msgs = collapseSessionMessages(session.messages);
           // Auto-name from first user message if not already named
-          const firstName = loadSessionName(sessionId);
+          const firstName = loadSessionName(account.id, sessionId);
           const firstUserMsg = msgs.find(m => m.role === "user");
           const autoName = (firstUserMsg && firstName === "New conversation")
             ? extractShortText(firstUserMsg.content, 45)
             : firstName;
-          saveSession(sessionId, msgs, autoName);
+          saveSession(account.id, sessionId, msgs, autoName);
           res.write(`data: ${JSON.stringify({ type: "done" })}\n\n`);
         }
       });
@@ -739,7 +812,7 @@ server.listen(PORT, HOST, () => {
   console.log(`\n🚀 DK Hardware Order Processing ready!`);
   console.log(`   Listening on ${HOST}:${actualPort}`);
   console.log(`   Data directory: ${DATA_DIR}`);
-  console.log(`   Authentication: ${APP_PASSWORD ? `enabled (${APP_USERNAME})` : "disabled"}`);
+  console.log(`   Authentication: ${AUTH.needsBootstrap() ? "SETUP REQUIRED (set ADMIN_PASSWORD)" : "enabled"}`);
   console.log(`   ===> Open ${url} in your browser <===\n`);
 });
 

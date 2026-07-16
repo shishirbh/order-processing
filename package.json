@@ -4,7 +4,8 @@
   "description": "DK Hardware Order Processing — knowledge base + browser-based chat UI with full vendor data and skills",
   "keywords": ["pi-package"],
   "scripts": {
-    "start": "node server/cli.mjs"
+    "start": "node server/cli.mjs",
+    "test": "node --test server/*.test.mjs"
   },
   "bin": {
     "pi-order-processing": "./server/cli.mjs",
@@ -12,6 +13,7 @@
   },
   "files": [
     "server/cli.mjs",
+    "server/auth.mjs",
     "server/public/index.html",
     "setup.cmd",
     "plugin/skills/",

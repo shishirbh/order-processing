@@ -1170,8 +1170,31 @@
   @keyframes toastIn { from { opacity: 0; transform: translateX(-50%) translateY(10px); } to { opacity: 1; transform: translateX(-50%) translateY(0); } }
   @keyframes toastOut { from { opacity: 1; } to { opacity: 0; } }
 
+  /* ── Authentication and accounts ───── */
+  body.auth-pending > .sidebar, body.auth-pending > .main, body.auth-pending > .changelog-panel { display: none; }
+  .auth-screen { position: fixed; inset: 0; z-index: 500; display: none; align-items: center; justify-content: center; background: var(--bg-gradient), var(--bg); padding: 20px; }
+  body.auth-pending .auth-screen { display: flex; }
+  .auth-card { width: min(380px, 100%); background: var(--surface-elevated); border: 1px solid var(--border); border-radius: var(--radius-lg); padding: 28px; box-shadow: var(--shadow-lg); }
+  .auth-card h1 { font-size: 21px; margin: 14px 0 6px; }
+  .auth-card p { color: var(--text-secondary); font-size: 13px; margin-bottom: 20px; }
+  .form-field { display: flex; flex-direction: column; gap: 6px; margin: 12px 0; }
+  .form-field label { font-size: 12px; font-weight: 600; color: var(--text-secondary); }
+  .form-field input, .form-field select { width: 100%; padding: 10px 12px; color: var(--text); background: var(--surface); border: 1px solid var(--border); border-radius: 8px; font: inherit; outline: none; }
+  .form-field input:focus, .form-field select:focus { border-color: var(--accent); }
+  .auth-error { min-height: 18px; color: var(--danger); font-size: 12px; margin: 8px 0; }
+  .user-menu { display: inline-flex; align-items: center; gap: 7px; }
+  .user-label { color: var(--text-secondary); font-size: 12px; }
+  .modal-backdrop { position: fixed; inset: 0; z-index: 400; display: none; align-items: center; justify-content: center; padding: 20px; background: rgba(0,0,0,.62); }
+  .modal-backdrop.open { display: flex; }
+  .account-modal { width: min(760px, 100%); max-height: 85vh; overflow: auto; background: var(--surface-elevated); border: 1px solid var(--border); border-radius: var(--radius-lg); padding: 22px; box-shadow: var(--shadow-lg); }
+  .modal-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px; }
+  .account-create { display: grid; grid-template-columns: 1fr 1fr 150px auto; gap: 8px; align-items: end; padding-bottom: 18px; border-bottom: 1px solid var(--border); }
+  .account-row { display: grid; grid-template-columns: 1fr 140px 90px 190px; gap: 8px; align-items: center; padding: 10px 0; border-bottom: 1px solid var(--border); font-size: 13px; }
+  .account-row .muted { color: var(--text-muted); font-size: 11px; }
+
   /* ── Responsive ────────────────────── */
   @media (max-width: 640px) {
+    .account-create, .account-row { grid-template-columns: 1fr; }
     .sidebar { position: fixed; left: 0; top: 0; bottom: 0; z-index: 100; }
     .sidebar.collapsed { left: -280px; }
     .message-row { max-width: 100%; padding: 8px 0; }
@@ -1456,7 +1479,19 @@
   })();
 </script>
 </head>
-<body>
+<body class="auth-pending">
+
+<div class="auth-screen" id="authScreen">
+  <form class="auth-card" onsubmit="login(event)">
+    <div class="brand-logo" data-logo aria-label="DK Hardware"></div>
+    <h1>Employee sign in</h1>
+    <p>Use your individual Order Processing account.</p>
+    <div class="form-field"><label for="loginUsername">Username</label><input id="loginUsername" autocomplete="username" required /></div>
+    <div class="form-field"><label for="loginPassword">Password</label><input id="loginPassword" type="password" autocomplete="current-password" required /></div>
+    <div class="auth-error" id="loginError"></div>
+    <button class="btn btn-primary" type="submit" id="loginBtn">Sign in</button>
+  </form>
+</div>
 
 <!-- ── Sidebar ──────────────────────────── -->
 <div class="sidebar" id="sidebar">
@@ -1504,8 +1539,10 @@
     <div class="stats">
       <button class="topbar-action" id="changelogToggleBtn" onclick="toggleChangelogPanel()" title="Toggle SOP Changelog ticker">📜 Changelog</button>
       <button class="topbar-action" id="exportChatBtn" onclick="exportCurrentChat()" title="Export this chat as Markdown" disabled>⬇ Export</button>
+      <button class="topbar-action" id="accountsBtn" onclick="openAccounts()" style="display:none">👥 Accounts</button>
       <span class="stat-badge" id="modeStat"><span class="stat-num">103</span> vendors</span>
       <span class="stat-badge"><span class="stat-num">6</span> skills</span>
+      <div class="user-menu"><span class="user-label" id="currentEmployee"></span><button class="topbar-action" onclick="logout()">Sign out</button></div>
       <div class="theme-toggle" role="group" aria-label="Theme">
         <button class="theme-opt" data-theme="dark" onclick="setTheme('dark')" title="Dark theme" aria-label="Dark theme">🌙</button>
         <button class="theme-opt" data-theme="light" onclick="setTheme('light')" title="Light theme" aria-label="Light theme">☀</button>
@@ -1557,6 +1594,19 @@
   </div>
 </aside>
 
+<div class="modal-backdrop" id="accountsModal" onclick="if(event.target===this)closeAccounts()">
+  <div class="account-modal">
+    <div class="modal-header"><h2>Employee accounts</h2><button class="btn-icon" onclick="closeAccounts()">×</button></div>
+    <form class="account-create" onsubmit="createAccount(event)">
+      <div class="form-field"><label>Username</label><input id="newUsername" required /></div>
+      <div class="form-field"><label>Temporary password</label><input id="newPassword" type="password" minlength="12" required /></div>
+      <div class="form-field"><label>Role</label><select id="newRole"><option value="standard">Standard User</option><option value="administrator">Administrator</option></select></div>
+      <button class="btn" type="submit">Create</button>
+    </form>
+    <div id="accountsList"></div>
+  </div>
+</div>
+
 <!-- ── Toast ────────────────────────────── -->
 <div class="toast" id="toast" style="display:none"></div>
 
@@ -1566,6 +1616,7 @@ let activeSessionId = null;
 let isStreaming = false;
 let abortController = null;
 let currentMode = "vendors"; // "vendors" | "general"
+let currentAccount = null;
 
 // ── Mode tabs ─────────────────────────────────────────────────────
 function setMode(mode) {
@@ -1594,8 +1645,97 @@ const API = window.location.origin + "/api";
 
 async function fetchJSON(url, opts) {
   const res = await fetch(url, opts);
-  if (!res.ok) throw new Error(await res.text());
+  if (res.status === 401 && !url.endsWith('/auth/login')) showLogin();
+  if (!res.ok) {
+    let message = await res.text();
+    try { message = JSON.parse(message).error || message; } catch {}
+    throw new Error(message);
+  }
   return res.json();
+}
+
+// ── Authentication and accounts ──────────────────────────────────
+function showLogin() {
+  currentAccount = null;
+  document.body.classList.add('auth-pending');
+  setTimeout(() => document.getElementById('loginUsername')?.focus(), 0);
+}
+
+async function login(event) {
+  event.preventDefault();
+  const button = document.getElementById('loginBtn');
+  const error = document.getElementById('loginError');
+  button.disabled = true;
+  error.textContent = '';
+  try {
+    const data = await fetchJSON(`${API}/auth/login`, {
+      method: 'POST', headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ username: document.getElementById('loginUsername').value, password: document.getElementById('loginPassword').value })
+    });
+    document.getElementById('loginPassword').value = '';
+    startAuthenticatedApp(data.account);
+  } catch (e) { error.textContent = e.message; }
+  finally { button.disabled = false; }
+}
+
+async function logout() {
+  try { await fetchJSON(`${API}/auth/logout`, { method: 'POST' }); } catch {}
+  activeSessionId = null;
+  _allSessions = [];
+  showLogin();
+}
+
+async function initializeApp() {
+  try {
+    const data = await fetchJSON(`${API}/auth/me`);
+    startAuthenticatedApp(data.account);
+  } catch { showLogin(); }
+}
+
+function startAuthenticatedApp(account) {
+  currentAccount = account;
+  document.body.classList.remove('auth-pending');
+  document.getElementById('currentEmployee').textContent = `${account.username} · ${account.role === 'administrator' ? 'Administrator' : 'Standard User'}`;
+  document.getElementById('accountsBtn').style.display = account.role === 'administrator' ? '' : 'none';
+  if (!activeSessionId) document.getElementById('messages').innerHTML = showEmptyState();
+  loadSessions();
+  initChangelogPanel();
+  loadVendors();
+  document.getElementById('promptInput').focus();
+}
+
+async function openAccounts() {
+  if (currentAccount?.role !== 'administrator') return;
+  document.getElementById('accountsModal').classList.add('open');
+  await loadAccounts();
+}
+function closeAccounts() { document.getElementById('accountsModal').classList.remove('open'); }
+async function loadAccounts() {
+  const accounts = await fetchJSON(`${API}/accounts`);
+  document.getElementById('accountsList').innerHTML = accounts.map(a => `<div class="account-row">
+    <div><strong>${esc(a.username)}</strong><div class="muted">Created ${esc(a.createdAt.slice(0,10))}</div></div>
+    <select onchange="updateAccount('${a.id}',{role:this.value})"><option value="standard" ${a.role==='standard'?'selected':''}>Standard User</option><option value="administrator" ${a.role==='administrator'?'selected':''}>Administrator</option></select>
+    <button class="btn btn-sm" onclick="updateAccount('${a.id}',{enabled:${!a.enabled}})">${a.enabled?'Disable':'Enable'}</button>
+    <button class="btn btn-sm" onclick="resetPassword('${a.id}')">Reset password</button>
+  </div>`).join('');
+}
+async function createAccount(event) {
+  event.preventDefault();
+  try {
+    await fetchJSON(`${API}/accounts`, { method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify({ username:document.getElementById('newUsername').value, password:document.getElementById('newPassword').value, role:document.getElementById('newRole').value }) });
+    event.target.reset(); await loadAccounts(); showToast('Account created');
+  } catch(e) { showToast(e.message); }
+}
+async function updateAccount(id, changes) {
+  try {
+    await fetchJSON(`${API}/accounts/${encodeURIComponent(id)}`, { method:'PATCH', headers:{'Content-Type':'application/json'}, body:JSON.stringify(changes) });
+    await loadAccounts(); showToast('Account updated');
+  } catch(e) { showToast(e.message); await loadAccounts(); }
+}
+async function resetPassword(id) {
+  const password = prompt('Enter a new password (at least 12 characters):');
+  if (password === null) return;
+  await updateAccount(id, { password });
 }
 
 // ── Toast ─────────────────────────────────────────────────────────
@@ -1796,7 +1936,7 @@ function showEmptyState() {
         "What's Deltana's minimum order?",
         "Can we dropship with Cal-Royal?",
         "Draft a claim email for IML",
-        "Update Hafele's phone number",
+        currentAccount?.role === 'administrator' ? "Update Hafele's phone number" : "How do I place an order with Deltana?",
       ];
   const chips = suggestions
     .map((s) => `<span class="suggested-prompt" onclick="usePrompt(this)">${esc(s)}</span>`)
@@ -2365,9 +2505,7 @@ function initChangelogPanel() {
 }
 
 // ── Init ──────────────────────────────────────────────────────────
-loadSessions();
-initChangelogPanel();
-document.getElementById("promptInput").focus();
+initializeApp();
 
 // Auto-resize textarea
 const textarea = document.getElementById("promptInput");
@@ -2429,7 +2567,6 @@ async function loadVendors() {
     _vendors = await fetchJSON(`${API}/vendors`);
   } catch { _vendors = []; }
 }
-loadVendors();
 
 function findTrigger(text, caret) {
   // Walk back from caret looking for a standalone '@' (start-of-line or after whitespace)

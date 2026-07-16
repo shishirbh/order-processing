@@ -13,6 +13,7 @@ Everything needed to get the order processing browser chat UI running on any com
 | **Git** | Clone the repo | `winget install Git.Git` or [git-scm.com](https://git-scm.com) |
 | **pi** | The AI coding agent | `npm install -g @mariozechner/pi-coding-agent` |
 | **LLM API key** | pi needs an LLM to answer questions | Set `ANTHROPIC_API_KEY` or `OPENAI_API_KEY` env var |
+| **Administrator password** | Bootstraps the first individual account | Set `ADMIN_PASSWORD` to at least 12 characters |
 
 ### Setting your API key
 
@@ -31,7 +32,7 @@ $env:ANTHROPIC_API_KEY="sk-ant-..."
 export ANTHROPIC_API_KEY=sk-ant-...
 ```
 
-To make it permanent, add it to your shell profile (`~/.bashrc`, `~/.zshrc`, or System Environment Variables on Windows).
+Also set `ADMIN_USERNAME` (defaults to `dk`), `ADMIN_PASSWORD`, and a random `SESSION_SECRET`. The Administrator credentials create the first account only when no `accounts.json` exists. To make variables permanent, add them to your shell profile (`~/.bashrc`, `~/.zshrc`, or System Environment Variables on Windows).
 
 ---
 
@@ -84,7 +85,7 @@ The window stays open so you can see any errors.
    - `regenerate-vendor-rollup` — rebuild the master vendor table
 3. **Auto-loads `CLAUDE.md`** as agent context — routing rules, folder map, citation contract
 4. **Starts an HTTP server** on a random port, serving the browser chat UI
-5. **Sessions saved** to `~/.dk-order-processing/sessions/` — persist across restarts
+5. **Employee data saved** under `~/.dk-order-processing/` — accounts are stored in `accounts.json`, and each Employee's private conversations are stored under `users/<account-id>/sessions/`
 
 ---
 
@@ -142,5 +143,6 @@ Everything else is the knowledge base (vendor data, SOPs, skills).
 | `Cannot find module '@mariozechner/pi-coding-agent'` | Run `npm install` |
 | Port already in use | The app auto-picks a free port; if it fails, close the other instance |
 | API key error | Make sure `ANTHROPIC_API_KEY` is set in your environment |
+| No Administrator account exists | Set `ADMIN_PASSWORD` and restart; `ADMIN_USERNAME` defaults to `dk` |
 | Skills not loading | Verify `plugin/skills/` has the 6 skill folders each with a `SKILL.md` |
 | blank page in browser | Ensure you open the HTTP URL (not a file:// path) |
