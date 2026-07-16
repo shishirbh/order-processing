@@ -1,5 +1,8 @@
 # **VENDOR - HAFELE AMERICA CO.**
 
+> **⚠️ Active Process:** We are now following **SOP v1.0** (see bottom of document).
+> The original sections below are retained for reference only.
+
 # **Contents:**
 
 **SECTION 1 — OVERVIEW & DEFINITIONS**  
@@ -35,6 +38,9 @@ Table 2 - ETA Rules & Customer Notification
 
 Table 3 - Master Decision Matrix (All Scenarios)
 
+#   
+  
+
 # **SECTION 1 — OVERVIEW & DEFINITIONS**
 
 ### **1.1 Key Rules & Notes**
@@ -51,7 +57,7 @@ Table 3 - Master Decision Matrix (All Scenarios)
 
   - > Primary Method: Backoffice → Create PO (for in-house and expedited orders)
 
-> \*\* Note - Create PO is accessible only if order status is “New”
+> \*\* Note - Create PO is accessible only if order status is "New"
 
   - > Häfele Website Usage:
     
@@ -176,7 +182,7 @@ Table 2
 
 **1.7.1 Pre-Processing Checklist:**
 
-  - > Order status must be **“New”**
+  - > Order status must be **"New"**
 
   - > Confirm stock on Häfele website
 
@@ -196,7 +202,7 @@ Table 2
 
 **2.1.1 Step 1 — Verify Order Status**
 
-  - > Confirm the customer order status is “New”.
+  - > Confirm the customer order status is "New".
 
   - > Proceed only if Create PO option is available in backoffice.
 
@@ -216,7 +222,7 @@ Table 2
 
   - > Use the saved warehouse address for shipping.
 
-  - > Do not enter the customer’s address for in-house orders.
+  - > Do not enter the customer's address for in-house orders.
 
 **2.1.5 Step 5 — PO Details**
 
@@ -248,7 +254,7 @@ Verify the following before submission:
 
 ### **Always Avoid:**
 
-  - > Creating a PO when order status is not “New”
+  - > Creating a PO when order status is not "New"
 
   - > Proceeding without stock confirmation
 
@@ -262,7 +268,7 @@ Verify the following before submission:
 
 **2.2.1 Step 1 — Verify Order Status**
 
-  - > Confirm the customer order status is “New”.
+  - > Confirm the customer order status is "New".
 
   - > Proceed only if Create PO option is available in backoffice.
 
@@ -280,7 +286,7 @@ Verify the following before submission:
 
 **2.2.4 Step 4 — Address Selection**
 
-  - > Enter the customer’s shipping address.
+  - > Enter the customer's shipping address.
 
   - > Ensure address accuracy before proceeding.
 
@@ -326,7 +332,7 @@ Verify the following before submission:
 
   - > Absorbing large shipping cost differences without approval
 
-  - > Creating a PO when order status is not “New”
+  - > Creating a PO when order status is not "New"
 
 **2.3 PROCESSING A CUSTOMER ORDER — EXPEDITED DROPSHIP 2- BUSINESS DAY**
 
@@ -336,7 +342,7 @@ Verify the following before submission:
 
 **2.3.1 Step 1 — Verify Order Status**
 
-  - > Confirm the customer order status is “New”.
+  - > Confirm the customer order status is "New".
 
   - > Proceed only if Create PO option is available in backoffice.
 
@@ -354,7 +360,7 @@ Verify the following before submission:
 
 **2.3.4 Step 4 — Address Selection**
 
-  - > Enter the customer’s shipping address.
+  - > Enter the customer's shipping address.
 
   - > Ensure address accuracy before proceeding.
 
@@ -412,3 +418,80 @@ Table 3 - Häfele America Co. Processing Decision Matrix
 | ETA \> 1 month         | Any                      | Inform customer            |
 | Discontinued item      | Any                      | Inform & offer alternative |
 | Free item present      | Any                      | Copy code + quantity       |
+
+---
+
+---
+
+# ═══════════════════════════════════════════════
+# ✅ ACTIVE — SOP v1.0 (2026-07-17)
+# ═══════════════════════════════════════════════
+
+---
+
+# Hafele Detailed Operations Manual (SOP) — Version 1.0
+
+**Added:** 2026-07-17  
+**Purpose:** Complete SOP for Hafele purchasing workflows.
+
+---
+
+## SOP v1.0 — Business Rules
+
+- Items costing more than $10 are normally Drop Shipped.
+- Freight items also follow the Drop Ship rule.
+- Marketplace, International, HI, AK and PR orders are never Drop Shipped.
+- Each Customer Order requires a separate Drop Ship Vendor Order.
+- Standard ETA for In-House Vendor Orders is **7 days**.
+
+---
+
+## SOP v1.0 — Customer Order Process
+
+1. Review the customer order.
+2. Open each item on the Hafele website.
+3. Enter the required quantity and allow the page to refresh.
+4. Verify stock and quantity-specific ETA.
+5. If ETA is below one month continue. If above one month, inform the customer before processing.
+6. If the order is eligible and item cost exceeds $10, assign to Hafele Main, click **Create New** and choose **Drop Ship**.
+7. Create one Drop Ship Vendor Order per Customer Order.
+
+---
+
+## SOP v1.0 — Business Day Orders
+
+1. Add items to cart.
+2. Enter the customer's shipping address.
+3. Use the displayed 1 Business Day shipping quote.
+4. Estimate 2 Business Day shipping as roughly **70% of the 1 Day cost**.
+5. If shipping can be covered, continue. Otherwise contact the customer for additional shipping approval.
+
+---
+
+## SOP v1.0 — Drop Ship Vendor Order
+
+1. Open the new Drop Ship Vendor Order.
+2. Click **Create PO**.
+3. For Business Day orders choose **FedEx Overnight** or **FedEx 2Day** as appropriate.
+4. Click **Place Order**.
+
+---
+
+## SOP v1.0 — In-House Vendor Order
+
+1. Review every item exactly as during Customer Order processing.
+2. Remove any item that now qualifies for Drop Shipping and process it separately.
+3. After review, set the Vendor Order ETA to **7 days**.
+4. Click **Create PO**.
+5. Click **Place Order**.
+
+---
+
+## SOP v1.0 — Quality Checklist
+
+- [ ] Availability verified.
+- [ ] ETA reviewed.
+- [ ] Customer notified for ETAs over one month.
+- [ ] Drop Ship exceptions checked.
+- [ ] Correct shipping method selected.
+- [ ] Order placed successfully.
