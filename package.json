@@ -2,7 +2,9 @@
   "name": "dkhardware-order-processing",
   "version": "1.0.0",
   "description": "DK Hardware Order Processing — knowledge base + browser-based chat UI with full vendor data and skills",
-  "keywords": ["pi-package"],
+  "keywords": [
+    "pi-package"
+  ],
   "scripts": {
     "start": "node server/cli.mjs",
     "test": "node --test server/*.test.mjs"
@@ -26,7 +28,7 @@
     "@mariozechner/pi-coding-agent": "*"
   },
   "engines": {
-    "node": ">=18"
+    "node": "22.x"
   },
   "license": "UNLICENSED"
 }
