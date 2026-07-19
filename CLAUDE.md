@@ -114,13 +114,10 @@ Cite the master table with the specific row name when you used the rollup.
 
 ---
 
-## 5. Known gaps (as of 2026-04-26)
+## 5. Known gaps (validated by `npm run kb:check`)
 
-- Folders exist for all ~103 vendors inside `Vendors/`, but most Process Documents
-  and Issue Resolution Notes are stubs marked `_(to be filled)_`. For those vendors,
-  routing shipping/contact questions to the per-folder `Vendor Info.md` is
-  reliable; process and claims questions should fall back to `_shared_sops/`
-  and the root `Issue resolution.md`.
+- `Vendors/` contains 105 folders, 103 Vendor Info files, and 103 vendor-specific Issue Resolution files. Ideal Security and Pamex are explicitly classified as `known_incomplete` in `config/vendor-exceptions.json`; each currently has only process documentation.
+- 99 vendor-specific Issue Resolution files are stubs marked `_(to be filled)_`. For those vendors, route claims questions to the root `Issue resolution.md`. See `reports/vendor-completeness.json` for the complete generated list.
 - `orignal files/` is a leftover from the pre-cleanup layout. Excel held a lock
   on `Vendor Information.xlsx` so the folder could not be fully removed. Ignore
   it; the canonical archive is `_source_docx/`.
@@ -133,7 +130,8 @@ Cite the master table with the specific row name when you used the rollup.
 
 ## 6. When the user asks to update knowledge
 
-- Edit the per-vendor `.md` file (it's master), not the root rollup.
-- If the change affects a field that also appears in `Vendor Information.md`,
-  update both and flag that the rollup should be regenerated.
+- Edit the per-vendor `.md` file (it's master), never a generated rollup or index.
+- Regenerate `Vendor Information.md`, `Vendor Information.jsonl`, `INDEX.md`, and the completeness report with `npm run kb:generate`.
+- Inspect the generated diff, then validate it with `npm run kb:check`.
+- In the hosted application, use `knowledge_publish`; it versions the source document and regenerates these artifacts atomically in persistent storage.
 - Never edit files in `_source_docx/`.

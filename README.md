@@ -15,9 +15,10 @@ Internal source of truth for all vendor order-processing and sales questions at 
 
 ## Source-of-truth rules
 
-1. Per-vendor folder is master. The root `Vendor Information.md` may be out of date.
-2. `.md` is canonical. `.docx` / `.xlsx` originals are archive-only and excluded from git (see `.gitignore`).
-3. Don't invent data. If a field is blank in the source, say it's blank.
+1. Per-vendor files are master. `Vendor Information.md`, `Vendor Information.jsonl`, and `INDEX.md` are generated and must never be edited directly.
+2. Every vendor change follows one workflow: edit the per-vendor file, run `npm run kb:generate`, inspect the diff, then run `npm run kb:check`.
+3. `.md` is canonical. `.docx` / `.xlsx` originals are archive-only and excluded from git (see `.gitignore`).
+4. Don't invent data. If a field is blank in the source, say it's blank.
 
 ## Adding a new vendor
 
@@ -25,7 +26,7 @@ Internal source of truth for all vendor order-processing and sales questions at 
 2. Replace `/` with ` - ` in folder names (Windows doesn't allow slashes).
 3. Create the new vendor folder inside `Vendors/`, then add the three standard files using `Vendors/Deltana/` or `Vendors/IML/` as a template.
 4. Add aliases / sub-brands at the top of the Vendor Info file.
-5. Update the root master table and jsonl.
+5. Run `npm run kb:generate`, inspect the generated rollup/index/completeness diff, then run `npm run kb:check`.
 6. Keep `.docx` originals (if any) in `_source_docx/` — don't commit them.
 
 ## Install the Cowork plugin (for CS and Sales)
@@ -50,7 +51,7 @@ This repository deploys as one Node.js service: the same process serves the brow
    - `ADMIN_USERNAME` (defaults to `dk`; used only to bootstrap the first account)
    - `ADMIN_PASSWORD` (use a long, random value)
    - `SESSION_SECRET` (an independent random value of at least 32 bytes)
-3. For persistent chats and feedback, attach a Railway volume mounted at `/data` and set `DATA_DIR=/data`.
+3. Attach a Railway volume mounted at `/data` and set `DATA_DIR=/data`. Accounts, conversations, feedback, immutable Knowledge Document versions, publishing history, and rollback state all persist there.
 4. Generate a Railway domain after the deployment succeeds.
 
 Railway supplies `PORT` automatically. `railway.json` configures Railpack, `npm start`, and the unauthenticated `/health` health check. Employees sign in with individual accounts; Administrators manage accounts in the browser UI. Conversations are isolated by Employee under `DATA_DIR`, and Standard Users receive read-only agent tools.
@@ -59,5 +60,5 @@ Railway supplies `PORT` automatically. `railway.json` configures Railpack, `npm 
 
 ## Status (as of 2026-04-26)
 
-- 103 vendor folders exist inside `Vendors/`. 4 are hand-curated (`Vendors/Deltana`, `Vendors/IML`, `Vendors/STRUCTURE GLASS SOLUTIONS`, `Vendors/TopNotch`); 99 were auto-scaffolded from the jsonl — their Vendor Info is populated, but Process Document and Issue Resolution Notes are stubs marked `_(to be filled)_`.
-- Plugin v0.3.0 shipped with six skills: `vendor-lookup`, `add-new-vendor`, `sop-refresh`, `update-vendor-info`, `draft-claim-email`, `regenerate-vendor-rollup`. Evaluated against real DK prompts — see `_skill_evals/` for details.
+- `Vendors/` contains 105 folders, 103 Vendor Info files, and 103 Issue Resolution files. Ideal Security and Pamex are classified known-incomplete exceptions; 99 Issue Resolution files are stubs that fall back to the root playbook. `reports/vendor-completeness.json` is the generated source for current counts and paths.
+- Plugin v0.7.0 ships six production skills: `vendor-lookup`, `add-new-vendor`, `sop-refresh`, `update-vendor-info`, `draft-claim-email`, `regenerate-vendor-rollup`. The development-only `skill-refinement` workflow lives under `dev-skills/` and is excluded from releases.

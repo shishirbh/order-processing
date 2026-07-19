@@ -1,25 +1,13 @@
 # Vendor Alias INDEX
 
 <!--
-  ⚠️  Do not edit by hand unless adding/removing a vendor.
-  This file maps every vendor name and sub-brand alias to its
-  folder under Vendors/.  Lookups are case-insensitive.
-  Regenerate with the `regenerate-index` skill if the data changes.
+  ⚠️  GENERATED FILE — DO NOT EDIT BY HAND.
+  Edit per-vendor aliases or config/vendor-exceptions.json, then run `npm run kb:generate`.
 -->
 
-Quick-reference table for deterministic vendor → folder routing.
-When a user mentions a vendor name, sub-brand, or common variant,
-match it against the **Lookup key** column (case-insensitive) to
-find the folder path under `Vendors/`.
-
-If a lookup key appears in **BOTH** sections (e.g. "HD Supply"),
-the **Alias** entry wins — it points to the combined vendor folder.
-
----
+Lookup keys are case-insensitive. Alias entries take precedence over canonical names.
 
 ## Canonical names
-
-Every vendor folder maps directly to itself.
 
 | Lookup key | Vendor folder |
 |---|---|
@@ -129,54 +117,36 @@ Every vendor folder maps directly to itself.
 | Wood's Powr Grip (WPG) | Wood's Powr Grip (WPG) |
 | Wurth | Wurth |
 
----
-
 ## Sub-brand aliases
-
-Short names that map to a combined vendor folder.
 
 | Lookup key | Resolves to folder | Source |
 |---|---|---|
-| ACE | ACE - Emery Jensen | Alias |
-| Emery Jensen | ACE - Emery Jensen | Alias |
-| Assa Abloy | Assa Abloy - Pemco - Rockwood | Alias |
-| Pemco | Assa Abloy - Pemco - Rockwood | Alias |
-| Rockwood | Assa Abloy - Pemco - Rockwood | Alias |
-| Bohle | Bohle - Portals | Alias |
-| Portals | Bohle - Portals | Alias |
-| Home Depot | Home Depot - US lock - HD Supply | Alias |
-| US lock | Home Depot - US lock - HD Supply | Alias |
-| HD Supply | Home Depot - US lock - HD Supply | Alias |
-| Prime-Line | Prime-Line - Sentry | Alias |
-| Sentry | Prime-Line - Sentry | Alias |
-
----
+| ACE | ACE - Emery Jensen | Vendor Info |
+| Assa Abloy | Assa Abloy - Pemco - Rockwood | Vendor Info |
+| Bohle | Bohle - Portals | Vendor Info |
+| Emery Jensen | ACE - Emery Jensen | Vendor Info |
+| HD Supply | Home Depot - US lock - HD Supply | Vendor Info |
+| Home Depot | Home Depot - US lock - HD Supply | Vendor Info |
+| Pemco | Assa Abloy - Pemco - Rockwood | Vendor Info |
+| Portals | Bohle - Portals | Vendor Info |
+| Prime-Line | Prime-Line - Sentry | Vendor Info |
+| Rockwood | Assa Abloy - Pemco - Rockwood | Vendor Info |
+| Sentry | Prime-Line - Sentry | Vendor Info |
+| US lock | Home Depot - US lock - HD Supply | Vendor Info |
 
 ## Common name variants
-
-Alternate spellings / table names that differ from the folder name.
 
 | Lookup key | Resolves to folder | Reason |
 |---|---|---|
 | ATF | All tools & fasteners(ATF) | Abbreviation |
-| Structure Glass | STRUCTURE GLASS SOLUTIONS | Table name vs folder name |
-| Top Notch | TopNotch | Table name (with space) vs folder name |
+| Structure Glass | STRUCTURE GLASS SOLUTIONS | Common shortened name |
+| Top Notch | TopNotch | Spaced variant |
 | Top-Notch | TopNotch | Hyphenated variant |
 | WPG | Wood's Powr Grip (WPG) | Abbreviation |
 
----
+## Exceptions
 
-## Ambiguity notes
-
-- **"HD Supply"** appears in two places:
-  - As a sub-brand of **Home Depot - US lock - HD Supply** (the alias entry above).
-  - As a standalone vendor **HD Supply Solutions** (separate company, different account).
-  - **Rule:** "HD Supply" alone → Home Depot group. Only route to HD Supply Solutions
-    if the user explicitly says "HD Supply Solutions" (the full name).
-
-- **Ideal Security** and **Pamex** have folders under `Vendors/` but no row in the
-  master `Vendor Information.md` table yet. Their Process Documents exist; Vendor Info
-  is pending.
-
----
-Last regenerated: 2026-05-12
+| Vendor folder | Classification | Details |
+|---|---|---|
+| Ideal Security | known_incomplete | Process Document exists; Vendor Info and vendor-specific Issue Resolution Notes are pending. Use root rollups and Issue resolution.md only when they contain applicable data. |
+| Pamex | known_incomplete | Process Document exists; Vendor Info and vendor-specific Issue Resolution Notes are pending. Use root rollups and Issue resolution.md only when they contain applicable data. |

@@ -85,7 +85,8 @@ The window stays open so you can see any errors.
    - `regenerate-vendor-rollup` — rebuild the master vendor table
 3. **Auto-loads `CLAUDE.md`** as agent context — routing rules, folder map, citation contract
 4. **Starts an HTTP server** on a random port, serving the browser chat UI
-5. **Employee data saved** under `~/.dk-order-processing/` — accounts are stored in `accounts.json`, and each Employee's private conversations are stored under `users/<account-id>/sessions/`
+5. **Durable application data saved** under `DATA_DIR` (default `~/.dk-order-processing/`) — accounts, private conversations, immutable Knowledge Document versions, active-version metadata, and publishing audit events.
+6. **Confines agent access** to purpose-specific Knowledge Document tools. Standard Users can list/read allowlisted knowledge; Administrators can also publish, inspect history, and roll back. No hosted role receives general shell or filesystem tools.
 
 ---
 

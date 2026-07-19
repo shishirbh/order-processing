@@ -1,0 +1,3 @@
+# Persist hosted knowledge as immutable versions
+
+The hosted application must allow Administrators to maintain governed knowledge without granting general filesystem or shell access, while Railway only persists `DATA_DIR`. We therefore keep repository documents as the baseline, store immutable published Document Versions plus Active Version metadata under `DATA_DIR`, and expose only purpose-specific read, publish, history, and rollback operations. Production read-only mode was rejected because Administrators are expected to maintain the knowledge base; direct repository writes were rejected because they disappear on redeployment and expose unrelated server data.

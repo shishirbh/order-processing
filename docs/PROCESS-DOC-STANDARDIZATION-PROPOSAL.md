@@ -114,7 +114,7 @@ Cross-cutting rules — ones that have nothing to do with any specific vendor �
 - `❌ Mixing FedEx + BOL instructions` — same paragraph, different docs.
 - HI/AK/PR shipping rules — appear in only 7 docs but the rule itself is global; the other vendors that allow shipping there have the rule silently missing.
 - The DK FedEx account number `632647611` appears in 21 process docs and multiple formattings (`Account 632647611`, `Account #632647611`, `account No : 632647611`, etc.). One number, many presentations.
-- 17 process docs duplicate vendor email addresses that already live in `<Vendor> - Vendor Info.md` (which is itself a rollup of `Vendor Information.md`).
+- 17 process docs duplicate vendor email addresses that already live in the canonical `<Vendor> - Vendor Info.md` source (from which `Vendor Information.md` is generated).
 - 73 process docs mention damage / claim / return / issue-resolution-adjacent language — but per `CLAUDE.md`, claims belong in `<Vendor> - Issue Resolution Notes.md` and the root `Issue resolution.md`. That's the wrong file for that content unless the note is only a pointer.
 
 When a global rule changes (e.g., a new FedEx account, a new freight threshold), it has to be edited in dozens of vendor docs. That's how rules drift out of sync. §4 below proposes a Cross-Vendor Rules Library that fixes this at the root.

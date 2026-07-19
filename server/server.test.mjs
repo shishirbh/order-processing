@@ -56,6 +56,10 @@ test("accounts are authorized and conversations are private", async () => {
     assert.equal((await request(port, "/api/sessions")).status, 401);
 
     const adminCookie = await login(port, "admin", "admin-password-123");
+    assert.equal((await request(port, "/api/file?path=CLAUDE.md", { cookie: adminCookie })).status, 200);
+    assert.equal((await request(port, "/api/file?path=server%2Fauth.mjs", { cookie: adminCookie })).status, 403);
+    assert.equal((await request(port, "/api/file?path=..%2F.env", { cookie: adminCookie })).status, 403);
+
     const createdAccount = await request(port, "/api/accounts", { method: "POST", cookie: adminCookie, body: { username: "employee", password: "employee-pass-123", role: "standard" } });
     assert.equal(createdAccount.status, 201);
 

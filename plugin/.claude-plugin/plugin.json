@@ -1,7 +1,7 @@
 {
   "name": "order-processing",
-  "version": "0.6.0",
-  "description": "Vendor knowledge-base tools for DK Hardware Supply. Six skills: look up vendor info, onboard new suppliers, refresh SOPs, update vendor fields, draft claim emails, and regenerate the master vendor rollup.",
+  "version": "0.7.0",
+  "description": "Vendor knowledge-base tools for DK Hardware Supply. Six skills: look up vendor info, onboard new suppliers, refresh SOPs, update vendor fields, draft claim emails, and regenerate deterministic vendor artifacts.",
   "author": {
     "name": "Shishir Bhaskarwar"
   }

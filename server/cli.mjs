@@ -1,12 +1,15 @@
 #!/usr/bin/env node
 
 import { execSync } from "node:child_process";
-import { existsSync, readFileSync, writeFileSync, mkdirSync, readdirSync, unlinkSync, statSync, appendFileSync, rmSync, renameSync } from "node:fs";
+import { existsSync, readFileSync, writeFileSync, mkdirSync, readdirSync, unlinkSync, appendFileSync, rmSync, renameSync } from "node:fs";
 import { homedir } from "node:os";
 import { join, dirname, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
 import { createServer } from "node:http";
 import { createAuthStore } from "./auth.mjs";
+import { createKnowledgeStore } from "./knowledge-store.mjs";
+import { createKnowledgeTools } from "./knowledge-tools.mjs";
+import { readVendorConfig } from "../scripts/vendor-kb.mjs";
 
 import {
   createAgentSession,
@@ -38,6 +41,8 @@ const AUTH = createAuthStore({
   sessionSecret: process.env.SESSION_SECRET,
   secureCookies: Boolean(process.env.RAILWAY_PROJECT_ID || process.env.RAILWAY_ENVIRONMENT_NAME),
 });
+const KNOWLEDGE_STORE = createKnowledgeStore({ repositoryDir: REPO_DIR, dataDir: DATA_DIR });
+const VENDOR_CONFIG = readVendorConfig(REPO_DIR);
 
 // CLI flags. --dev (or -d) skips the git sync so uncommitted local work is
 // preserved across launches — use it when iterating on cli.mjs / index.html /
@@ -68,21 +73,14 @@ console.log(`   Skills: ${join(REPO_DIR, "plugin", "skills")}\n`);
 // The root Vendor Information.jsonl is a generated rollup that drifts; scan the
 // per-vendor Vendor Info.md title lines instead. Cache in memory.
 function loadVendorNames() {
-  const vendorsDir = join(REPO_DIR, "Vendors");
-  if (!existsSync(vendorsDir)) return [];
   const names = [];
-  for (const e of readdirSync(vendorsDir, { withFileTypes: true })) {
-    if (!e.isDirectory()) continue;
-    let canonical = e.name;
+  for (const path of KNOWLEDGE_STORE.list("Vendors").filter(path => path.endsWith(" - Vendor Info.md"))) {
+    const folder = path.split("/")[1];
+    let canonical = folder;
     try {
-      const folder = join(vendorsDir, e.name);
-      const infoFile = readdirSync(folder).find(f => f.endsWith(" - Vendor Info.md"));
-      if (infoFile) {
-        const head = readFileSync(join(folder, infoFile), "utf-8").split("\n", 5).join("\n");
-        // Match the title: "# <Canonical Name> — Vendor Info" (em-dash or hyphen)
-        const m = head.match(/^#\s+(.+?)\s+[—–-]\s+Vendor Info\s*$/m);
-        if (m) canonical = m[1].trim();
-      }
+      const head = KNOWLEDGE_STORE.read(path).content.split("\n", 5).join("\n");
+      const match = head.match(/^#\s+(.+?)\s+[—–-]\s+Vendor Info\s*$/m);
+      if (match) canonical = match[1].trim();
     } catch {}
     names.push(canonical);
   }
@@ -439,6 +437,12 @@ async function createAgent(account, chatId) {
       skills: [...current.skills, ...customSkills],
       diagnostics: current.diagnostics,
     }),
+    agentsFilesOverride: (current) => ({
+      agentsFiles: [...current.agentsFiles, {
+        path: "/virtual/HOSTED-KNOWLEDGE-TOOLS.md",
+        content: "# Hosted knowledge tool policy\n\nUse only knowledge_list and knowledge_read to consult governed content. Administrators may use knowledge_publish, knowledge_history, and knowledge_rollback. Never request or claim access to shell commands, arbitrary files, credentials, account storage, environment variables, or server internals. Generated rollups and INDEX.md are rebuilt atomically by knowledge_publish and knowledge_rollback; never publish generated files directly.",
+      }],
+    }),
   });
   await loader.reload();
 
@@ -449,18 +453,18 @@ async function createAgent(account, chatId) {
   // what was said before.
   const sessionManager = SessionManager.continueRecent(REPO_DIR, piSessionDir(account.id, chatId));
 
+  const customTools = createKnowledgeTools({ store: KNOWLEDGE_STORE, role: account.role, actor: account.username, vendorConfig: VENDOR_CONFIG });
   const { session } = await createAgentSession({
     cwd: REPO_DIR,
     sessionManager,
     resourceLoader: loader,
-    // Full file-editing toolset so bulk-change skills (sop-refresh,
-    // update-vendor-info, add-new-vendor, regenerate-vendor-rollup) can
-    // actually apply edits, not just plan them. Git tracks every change so
-    // anything wrong is recoverable. pi's real tool names are read/edit/
-    // write/bash — "grep"/"find"/"ls" aren't valid pi tools and were being
-    // silently dropped, which is why the agent was de-facto read-only.
-    tools: account.role === "administrator" ? ["read", "edit", "write", "bash"] : ["read"],
+    customTools,
+    tools: customTools.map(tool => tool.name),
   });
+  // Enforce the hosted security seam after all resource-loader extensions have
+  // initialized. This prevents a global/project extension or same-name tool
+  // collision from adding capabilities beyond this account's explicit set.
+  session.agent.state.tools = customTools;
   return session;
 }
 
@@ -749,55 +753,34 @@ const server = createServer(async (req, res) => {
     return;
   }
 
-  // ── File browser ──────────────────────────────────────────────────
-  const EXCLUDE_ROOT = new Set([
-    "node_modules", "_source_docx", "orignal files", "server",
-    "package.json", "package-lock.json", ".git", ".gitignore",
-  ]);
-
-  // List directory
+  // ── Governed Knowledge Document browser ──────────────────────────
   if (req.method === "GET" && path === "/api/files") {
     const dir = url.searchParams.get("path") || "";
-    const fullPath = join(REPO_DIR, dir);
-    if (!fullPath.startsWith(REPO_DIR)) return json(res, { error: "Invalid path" }, 403);
-    if (!existsSync(fullPath)) return json(res, { error: "Not found" }, 404);
     try {
-      const entries = readdirSync(fullPath, { withFileTypes: true });
-      const result = entries
-        .filter(e => {
-          if (e.name.startsWith(".")) return false;
-          if (dir === "" && EXCLUDE_ROOT.has(e.name)) return false;
-          return true;
-        })
-        .map(e => ({
-          name: e.name,
-          type: e.isDirectory() ? "dir" : "file",
-          path: dir ? `${dir}/${e.name}` : e.name,
-        }))
-        .sort((a, b) => {
-          if (a.type !== b.type) return a.type === "dir" ? -1 : 1;
-          return a.name.localeCompare(b.name);
+      const prefix = dir ? `${dir.replace(/\/$/, "")}/` : "";
+      const entries = new Map();
+      for (const documentPath of KNOWLEDGE_STORE.list(dir)) {
+        const remainder = documentPath.slice(prefix.length);
+        const [name, ...rest] = remainder.split("/");
+        entries.set(name, {
+          name,
+          type: rest.length ? "dir" : "file",
+          path: prefix ? `${prefix}${name}` : name,
         });
-      return json(res, result);
+      }
+      return json(res, [...entries.values()].sort((a, b) => a.type === b.type ? a.name.localeCompare(b.name) : (a.type === "dir" ? -1 : 1)));
     } catch (e) {
-      return json(res, { error: e.message }, 500);
+      return json(res, { error: e.message }, 403);
     }
   }
 
-  // Read file
   if (req.method === "GET" && path === "/api/file") {
-    const filePath = url.searchParams.get("path") || "";
-    const fullPath = join(REPO_DIR, filePath);
-    if (!fullPath.startsWith(REPO_DIR)) return json(res, { error: "Invalid path" }, 403);
-    if (!existsSync(fullPath)) return json(res, { error: "Not found" }, 404);
-    const st = statSync(fullPath);
-    if (st.isDirectory()) return json(res, { error: "Path is a directory" }, 400);
     try {
-      const content = readFileSync(fullPath, "utf-8");
-      const ext = filePath.split(".").pop().toLowerCase();
-      return json(res, { path: filePath, content, type: ext });
+      const document = KNOWLEDGE_STORE.read(url.searchParams.get("path") || "");
+      const ext = document.path.split(".").pop().toLowerCase();
+      return json(res, { path: document.path, content: document.content, type: ext, version: document.version });
     } catch (e) {
-      return json(res, { error: e.message }, 500);
+      return json(res, { error: e.message }, /outside|Invalid|relative/.test(e.message) ? 403 : 404);
     }
   }
 

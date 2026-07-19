@@ -34,7 +34,7 @@ Fires on "update this SOP," "refresh the playbook," "incorporate these changes."
 
 ### `update-vendor-info`
 
-Fires on field-level changes to existing vendors — "update Hafele's phone to X," "Pemco now only dropships under their account," "add Pemko as an alias for Pemco." Edits the right line in the per-vendor file, timestamps the change, doesn't touch anything else, reminds you the root rollup is now stale.
+Fires on field-level changes to existing vendors — "update Hafele's phone to X," "Pemco now only dropships under their account," "add Pemko as an alias for Pemco." Edits only the per-vendor source, timestamps the change, then regenerates and validates the rollups, index, and completeness report.
 
 ### `draft-claim-email`
 
@@ -42,7 +42,7 @@ Fires on problem reports — "CRL shipment came in with 2 cracked panels, draft 
 
 ### `regenerate-vendor-rollup`
 
-Fires when you want the root `Vendor Information.md` + `.jsonl` rebuilt from the per-vendor files — "rebuild the master table," "sync the rollup," or after a batch of vendor edits. Walks every vendor folder under `Vendors/`, regenerates both files with the do-not-edit-by-hand banner, reports which rows were added / changed / removed.
+Fires when generated vendor artifacts need rebuilding after per-vendor edits. Uses the repository's deterministic generator to rebuild `Vendor Information.md`, `Vendor Information.jsonl`, `INDEX.md`, and the completeness report, then validates parity with `npm run kb:check`.
 
 ## Benchmark
 
@@ -65,16 +65,13 @@ Full side-by-side test outputs are in `../_skill_evals/` — open the HTML files
 
 ```
 plugin/
-├── README.md                 ← this file
-├── .claude-plugin/
-│   └── plugin.json           ← manifest (name, version, description)
-├── skills/
-│   ├── vendor-lookup/SKILL.md
-│   ├── add-new-vendor/SKILL.md
-│   └── sop-refresh/SKILL.md
-└── dist/
-    └── order-processing.plugin  ← built, installable artifact
+├── README.md
+├── .claude-plugin/plugin.json
+├── skills/                    ← exactly six release skills
+└── dist/order-processing.plugin
 ```
+
+Development-only skills live outside this directory under `dev-skills/` and are never included in the release artifact.
 
 ## Contributing / editing a skill
 
@@ -82,23 +79,14 @@ Each skill's behavior lives in its `SKILL.md` file. To change what a skill does,
 
 ### Rebuilding the plugin (after editing a SKILL.md)
 
-From the repo root on Windows PowerShell:
-
-```powershell
-cd "C:\path\to\order_processing\plugin"
-# Create a fresh zip of the source, excluding dist/ itself
-Compress-Archive -Path .claude-plugin, skills, README.md -DestinationPath dist\order-processing.plugin -Force
-```
-
-Or on macOS/Linux:
+From the repository root on any supported platform:
 
 ```bash
-cd plugin
-rm -f dist/order-processing.plugin
-zip -r dist/order-processing.plugin .claude-plugin skills README.md -x "*.DS_Store"
+npm run plugin:build
+npm run plugin:check
 ```
 
-Then bump the version in `.claude-plugin/plugin.json` (e.g. `0.2.0` → `0.3.0`), commit, and push. Teammates pull, re-install the updated `.plugin`.
+The build uses sorted inputs and fixed ZIP metadata, so identical source produces an identical artifact. `plugin:check` fails if the manifest, six-skill release set, README version, or committed artifact differs from source. Bump `.claude-plugin/plugin.json`, add the matching README version entry, build, check, commit, and push.
 
 ### Adding a new skill
 
@@ -109,7 +97,7 @@ Then bump the version in `.claude-plugin/plugin.json` (e.g. `0.2.0` → `0.3.0`)
 
 ## Versioning
 
-- **0.7.0** (May 2026) — `sop-refresh` Mode A (single SOP) now also appends a per-run summary to `SOP-Refresh-Changelog.md`, mirroring Mode B's Step B5. Single-SOP drafts now build the same audit trail as bulk CSV runs.
+- **0.7.0** (May 2026) — added deterministic cross-platform packaging and parity checks; confirmed the six production skills and excluded the development-only refinement skill; `sop-refresh` Mode A now appends to `SOP-Refresh-Changelog.md`.
 - **0.6.0** (April 2026) — `sop-refresh` Mode B now also appends a run-level summary to a single global changelog at the root (`SOP-Refresh-Changelog.md`), in addition to the per-CSV detail file
 - **0.5.0** (April 2026) — added Mode B (bulk CSV) to `sop-refresh`: picks the newest CSV in `bulk_changes/`, applies each row to the matching vendor's Process Document, and writes a per-CSV changelog (`bulk_changes/<csv_basename>.changelog.md`) that accumulates across runs
 - **0.4.0** (April 2026) — restructured the knowledge base so every per-vendor folder lives under `Vendors/`; updated all six skills' path references ac

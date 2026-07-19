@@ -7,7 +7,12 @@
   ],
   "scripts": {
     "start": "node server/cli.mjs",
-    "test": "node --test server/*.test.mjs"
+    "test": "npm run test:unit && npm run kb:check && npm run plugin:check",
+    "test:unit": "node --test server/*.test.mjs",
+    "kb:generate": "node scripts/vendor-kb.mjs generate",
+    "kb:check": "node scripts/vendor-kb.mjs check",
+    "plugin:build": "node scripts/build-plugin.mjs build",
+    "plugin:check": "node scripts/build-plugin.mjs check"
   },
   "bin": {
     "pi-order-processing": "./server/cli.mjs",
@@ -16,12 +21,22 @@
   "files": [
     "server/cli.mjs",
     "server/auth.mjs",
+    "server/knowledge-store.mjs",
+    "server/knowledge-tools.mjs",
     "server/public/index.html",
+    "scripts/vendor-kb.mjs",
+    "config/vendor-exceptions.json",
     "setup.cmd",
     "plugin/skills/",
     "Vendors/",
     "CLAUDE.md",
+    "INDEX.md",
+    "Issue resolution.md",
+    "Order processing prompt.md",
+    "Vendor Information.md",
+    "Vendor Information.jsonl",
     "general_flow.md",
+    "reports/vendor-completeness.json",
     "_shared_sops/"
   ],
   "dependencies": {

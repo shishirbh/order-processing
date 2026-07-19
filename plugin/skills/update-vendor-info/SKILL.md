@@ -56,11 +56,9 @@ Also update the "Last updated" line at the top of the file to today's date, and 
 Last updated: 2026-04-24 (edited by <user or "Claude update-vendor-info skill">)
 ```
 
-### Step 4 — Remind about the rollup
+### Step 4 — Regenerate and validate
 
-The root `Vendor Information.md` and `Vendor Information.jsonl` are generated from per-vendor files. Your edit invalidated them until someone runs `regenerate-vendor-rollup`. Include a one-line reminder in your user-facing report:
-
-> Updated `Vendors/<Folder>/<Folder> - Vendor Info.md`. The root rollup (`Vendor Information.md` / `.jsonl`) is now stale — run `regenerate-vendor-rollup` (or ask me to) when you want bulk queries to reflect this change.
+The root rollups and `INDEX.md` are generated from per-vendor files and must never remain stale after a completed workflow. In a repository workspace, run `npm run kb:generate`, inspect the diff, then run `npm run kb:check`. In the hosted application, use `knowledge_publish`, which versions the source and regenerates the governed artifacts atomically. Report the validation result.
 
 ### Step 5 — Report back
 
@@ -69,13 +67,13 @@ Show:
 - Which vendor you updated (canonical name with slashes, not folder name)
 - Which field(s) changed, with old value and new value
 - The file path that was modified
-- The rollup-stale reminder
+- The generated-artifact validation result
 
 ## Mode B — Bulk CSV from `bulk_changes/`
 
 Use this mode when the user references the CSV / `bulk_changes/` folder / batch feedback. The same surgical-edit discipline from Mode A applies per row — resolve the vendor, identify the field, edit only that line, tag with `(Updated: YYYY-MM-DD)`, update the `Last updated` line. The only differences are: input is a CSV row instead of a user's message, target file is always `Vendors/<Vendor>/<Vendor> - Vendor Info.md`, the skill scans the `Changes Requested` text and extracts only vendor-info-related changes (ignoring SOP/process corrections), and every row's outcome appends to two changelogs — the per-CSV file and a global one.
 
-**⚠️ This is an active execution mode, not a simulation.** You MUST use the `read` tool to open each Vendor Info file, the `edit` tool to modify lines, and the `write` tool for new files. Do NOT just describe what would change — actually change the files. Every modified `Vendor Info.md` file must show visible diffs on disk after this run.
+**⚠️ This is an active execution mode, not a simulation.** In a repository workspace, use the available file tools to apply the changes, then run the deterministic generate/check workflow. In the hosted application, use `knowledge_read` and `knowledge_publish`; general file and shell tools are intentionally unavailable. Do not merely describe a change.
 
 ### Step B1 — Pick the CSV
 
@@ -273,7 +271,7 @@ Then prepend (newest entry on top, just under the `---` separator) a new entry:
 - **Reviewer(s):** Elina
 - **Rows:** 24 total — 3 vendor-info applied, 2 confirmed existing, 17 SOP-only (skipped), 1 no-vendor-folder, 1 no-change-required
 - **Vendors touched:** LAVI (address updated), Cal-Royal (min order noted), Pool Corp (min order noted)
-- **Rollup status:** ⚠️ Root `Vendor Information.md` and `Vendor Information.jsonl` are now stale — run `regenerate-vendor-rollup` to sync.
+- **Generated artifacts:** Regenerated and validated (`npm run kb:check`) after the source edit.
 - **Per-CSV detail:** [`bulk_changes/26April2026_ffedback_elina.changelog.md`](bulk_changes/26April2026_ffedback_elina.changelog.md)
 
 ---
@@ -285,7 +283,7 @@ Rules for the global entry:
 2. **Use the run's actual numbers**, not a template.
 3. **Always link to the per-CSV detail file** so a reader can drill in.
 4. **Never edit older entries.** Append-only history.
-5. **Always include the rollup-stale reminder** in the entry — this is the primary signal that `regenerate-vendor-rollup` needs to run.
+5. **Always include the generated-artifact validation result** in the entry. A completed run must regenerate and pass `npm run kb:check` (or report the hosted `knowledge_publish` validation).
 
 ### Step B7 — Verify, then report to the user
 
@@ -304,7 +302,7 @@ After verification, give a one-screen summary with actual counts from this run:
 > Per-row detail: `bulk_changes/26April2026_ffedback_elina.changelog.md`
 > Run-level history (all CSVs, newest first): `Vendor-Info-Update-Changelog.md`
 >
-> ⚠️ **Rollup stale:** 3 vendors had info changes. Root `Vendor Information.md` and `.jsonl` need regeneration — run `regenerate-vendor-rollup` (or ask me to) when ready.
+> **Generated artifacts:** Regenerated rollups, index, and completeness report after the 3 source changes; validation passed.
 
 Also remind the user that SOP/process changes in the CSV were not applied — they should run `sop-refresh` Mode B separately for those. The two skills work from the same CSV but target different files.
 
@@ -335,7 +333,7 @@ Flow:
 3. Check if the user's update actually changes anything. In this case: the existing file says "Ships under our account: No" which matches the user's claim. But they might be adding context — that dropship is only their account. That maps to `**Can we dropship?**` remaining "Yes," and a note somewhere about the account.
 4. Action: add a note under `## Notes` or append a clarification to the dropship line, e.g. `**Can we dropship?** Yes — dropships only under vendor's own account (not ours) (Updated: 2026-04-24)`.
 5. Update Last updated line.
-6. Report + rollup reminder.
+6. Regenerate artifacts, validate, and report the result.
 
 **Example 3 — new alias**
 
@@ -345,7 +343,7 @@ Flow:
 1. Resolve: `Vendors/Assa Abloy - Pemco - Rockwood/`.
 2. Open the `## Aliases / sub-brands` section.
 3. Add `- Pemko` as a bullet, tagged `(Updated: 2026-04-24)`.
-4. This alias will be picked up by `vendor-lookup` the next time someone asks about "Pemko." No rollup regeneration strictly needed for aliases, but mention it for consistency.
+4. Regenerate and validate so `INDEX.md` includes the alias immediately.
 
 **Example 4 — ambiguous vendor**
 
@@ -372,14 +370,14 @@ Flow:
    - **Row 15 — Pool Corp.** Read `Changes Requested`: "min order is $150.00". This is a vendor-info fact (pricing threshold). Use `edit` to add it under `## Notes` in `Vendors/Pool Corp/Pool Corp - Vendor Info.md`. Append to tracking: `| 15 | Pool Corp | applied | Min order value noted |`.
    - **Row 2 — IML Security Supply.** Read: "All good except not clear on what how are we ordering in house". This is purely SOP/process feedback. No vendor-info field match. Append to tracking: `| 2 | IML Security Supply | skipped | SOP/process only |` and move on.
    - **Row 13 — ERP.** "ERP" doesn't match any vendor folder. Append to tracking: `| 13 | ERP | skipped | no vendor folder |` and move on.
-5. After all rows are processed, read the tracking file to gather outcomes, then write the per-CSV changelog (Step B5) and global changelog (Step B6). Verify with `ls -la` (Step B7), give the user the screen summary, delete the tracking file, and remind them to run `sop-refresh` Mode B for the SOP parts and `regenerate-vendor-rollup` to sync the rollup.
+5. After all rows are processed, read the tracking file to gather outcomes, then write the per-CSV changelog (Step B5) and global changelog (Step B6). Verify the changed source files, run `npm run kb:generate` and `npm run kb:check`, give the user the screen summary, delete the tracking file, and remind them to run `sop-refresh` Mode B for the SOP parts.
 
 ## Anti-patterns to avoid
 
 1. **Don't silently change phone, email, or account numbers when the new value is similar but not identical to the existing one.** The downside (wrong contact used for months) is worse than asking a clarifying question.
 2. **Don't touch fields the user didn't ask about.** Every Updated tag is a promise that the specific line changed deliberately. Spreading tags across unrelated lines dilutes the signal.
 3. **Don't forget to update `Last updated:` at the top of the file.** That line is how readers know freshness at a glance.
-4. **Don't skip the rollup-stale reminder.** The user may not realize the root files are now out of date until they run a bulk query and get old data. Even a single sentence is enough.
+4. **Don't leave generated artifacts stale.** Regenerate, inspect the diff, validate, and report the result before calling the workflow complete.
 5. **Don't create the folder if the vendor isn't found — that's `add-new-vendor`'s job.** If the user asks to update vendor X and no folder exists, stop and ask: "I don't see X in the knowledge base. Do you want me to create a new folder for X using `add-new-vendor`, or did you mean a different existing vendor?"
 6. **Don't apply SOP/process changes in Mode B.** The `Changes Requested` column often mixes vendor info and process feedback. Apply only the parts that map to vendor info fields. Log the SOP parts — don't silently redirect them to the Vendor Info file. The user can run `sop-refresh` Mode B separately for those.
 7. **Don't silently skip a row in Mode B.** Every CSV row gets exactly one entry in the per-CSV changelog, even if the entry is "skipped — no vendor-info change detected". A row that vanishes from the changelog looks like a data-loss bug.

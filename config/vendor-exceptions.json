@@ -1,0 +1,43 @@
+{
+  "schemaVersion": 1,
+  "exceptions": {
+    "Ideal Security": {
+      "classification": "known_incomplete",
+      "reason": "Process Document exists; Vendor Info and vendor-specific Issue Resolution Notes are pending. Use root rollups and Issue resolution.md only when they contain applicable data."
+    },
+    "Pamex": {
+      "classification": "known_incomplete",
+      "reason": "Process Document exists; Vendor Info and vendor-specific Issue Resolution Notes are pending. Use root rollups and Issue resolution.md only when they contain applicable data."
+    }
+  },
+  "canonicalNames": {
+    "STRUCTURE GLASS SOLUTIONS": "Structure Glass Solutions"
+  },
+  "variants": [
+    {
+      "key": "ATF",
+      "folder": "All tools & fasteners(ATF)",
+      "reason": "Abbreviation"
+    },
+    {
+      "key": "Structure Glass",
+      "folder": "STRUCTURE GLASS SOLUTIONS",
+      "reason": "Common shortened name"
+    },
+    {
+      "key": "Top Notch",
+      "folder": "TopNotch",
+      "reason": "Spaced variant"
+    },
+    {
+      "key": "Top-Notch",
+      "folder": "TopNotch",
+      "reason": "Hyphenated variant"
+    },
+    {
+      "key": "WPG",
+      "folder": "Wood's Powr Grip (WPG)",
+      "reason": "Abbreviation"
+    }
+  ]
+}

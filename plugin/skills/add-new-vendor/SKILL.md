@@ -51,7 +51,7 @@ Keep the original slashed name in the file content and in the `Aliases / sub-bra
 Before creating the folder:
 
 1. Check if a folder with the sanitized name already exists inside `order_processing/Vendors/`.
-2. Check if the name or any alias appears in `order_processing/Vendor Information.md` (master table).
+2. Check `order_processing/INDEX.md` first for canonical names, aliases, and variants; use generated `Vendor Information.md` only as a fallback.
 3. Check if the vendor might be a sub-brand of an existing combined folder (e.g. "Pemco" would already be covered by `Vendors/Assa Abloy - Pemco - Rockwood/`).
 
 If any of the above, **stop and ask the user how to proceed**. Options: (a) update the existing folder instead, (b) add the new name as an alias to the existing folder, (c) create as a separate folder anyway (rare). Do not silently overwrite existing vendor folders — they may contain hand-curated content.
@@ -163,9 +163,7 @@ _(to be filled)_
 
 ### Step 5 — Remind the user about the master table
 
-The per-vendor folder is the source of truth for that vendor, but the root `order_processing/Vendor Information.md` and `Vendor Information.jsonl` are cross-vendor rollups used by other workflows. After creating the folder, tell the user:
-
-> Created `Vendors/<Folder>/` with the 3 standard files. To finish onboarding, also add a row to `Vendor Information.md` and a record to `Vendor Information.jsonl` with the fields you have — the per-vendor folder is canonical, but the root rollup is used for bulk lookups.
+The per-vendor folder is the source of truth. Never edit generated rollups or `INDEX.md` directly. After creating all three files, run `npm run kb:generate`, inspect the generated diff, and run `npm run kb:check`. In the hosted application, publish all three source documents with `knowledge_publish`; each publish creates immutable versions and automatically regenerates the governed artifacts.
 
 Offer to do that update if they want — you can write the row yourself once they confirm.
 
@@ -194,7 +192,7 @@ User: "Add a new vendor: Bulldog Fasteners."
 > - Bulldog Fasteners Process Document.md (stub)
 > - Bulldog Fasteners - Issue Resolution Notes.md (stub)
 >
-> Next: add a row for Bulldog Fasteners to `Vendor Information.md` and `Vendor Information.jsonl`. Want me to do that?
+> Generated `Vendor Information.md`, `Vendor Information.jsonl`, `INDEX.md`, and the completeness report from the new per-vendor files; `npm run kb:check` passes.
 
 **Example 2 — with contact card**
 
