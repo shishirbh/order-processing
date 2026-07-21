@@ -378,6 +378,10 @@
     font-weight: 600;
     color: var(--text);
     letter-spacing: -0.1px;
+    min-width: 0;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
   }
   .topbar .stats {
     margin-left: auto;
@@ -1463,6 +1467,26 @@
     text-align: center;
     padding: 24px 12px;
   }
+  @media (max-width: 1600px) {
+    .changelog-panel {
+      position: fixed;
+      top: 52px;
+      right: 0;
+      bottom: 0;
+      height: auto;
+      z-index: 30;
+      box-shadow: var(--shadow-lg);
+    }
+  }
+  @media (max-width: 1200px) {
+    .topbar { padding: 0 10px; gap: 8px; }
+    .topbar .stats { gap: 6px; }
+    .topbar .action-label, .topbar .stat-badge, .topbar .user-label { display: none; }
+    .topbar-action { padding: 6px 8px; }
+  }
+  @media (max-width: 760px) {
+    .topbar .session-title { display: none; }
+  }
   @media (max-width: 900px) {
     .changelog-panel { display: none; }
   }
@@ -1537,12 +1561,12 @@
       <button class="mode-tab" data-mode="general" onclick="setMode('general')" title="General order-processing flow">General</button>
     </div>
     <div class="stats">
-      <button class="topbar-action" id="changelogToggleBtn" onclick="toggleChangelogPanel()" title="Toggle SOP Changelog ticker">📜 Changelog</button>
-      <button class="topbar-action" id="exportChatBtn" onclick="exportCurrentChat()" title="Export this chat as Markdown" disabled>⬇ Export</button>
-      <button class="topbar-action" id="accountsBtn" onclick="openAccounts()" style="display:none">👥 Accounts</button>
+      <button class="topbar-action" id="changelogToggleBtn" onclick="toggleChangelogPanel()" title="Toggle SOP Changelog ticker" aria-label="Toggle SOP Changelog ticker"><span aria-hidden="true">📜</span><span class="action-label">Changelog</span></button>
+      <button class="topbar-action" id="exportChatBtn" onclick="exportCurrentChat()" title="Export this chat as Markdown" aria-label="Export this chat as Markdown" disabled><span aria-hidden="true">⬇</span><span class="action-label">Export</span></button>
+      <button class="topbar-action" id="accountsBtn" onclick="openAccounts()" style="display:none" aria-label="Employee accounts"><span aria-hidden="true">👥</span><span class="action-label">Accounts</span></button>
       <span class="stat-badge" id="modeStat"><span class="stat-num">103</span> vendors</span>
       <span class="stat-badge"><span class="stat-num">6</span> skills</span>
-      <div class="user-menu"><span class="user-label" id="currentEmployee"></span><button class="topbar-action" onclick="logout()">Sign out</button></div>
+      <div class="user-menu"><span class="user-label" id="currentEmployee"></span><button class="topbar-action" onclick="logout()" title="Sign out" aria-label="Sign out"><span aria-hidden="true">↪</span><span class="action-label">Sign out</span></button></div>
       <div class="theme-toggle" role="group" aria-label="Theme">
         <button class="theme-opt" data-theme="dark" onclick="setTheme('dark')" title="Dark theme" aria-label="Dark theme">🌙</button>
         <button class="theme-opt" data-theme="light" onclick="setTheme('light')" title="Light theme" aria-label="Light theme">☀</button>

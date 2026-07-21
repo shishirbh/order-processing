@@ -15,6 +15,11 @@ function extractFunction(source, name) {
   throw new Error(`Unclosed function: ${name}`);
 }
 
+test("responsive changelog becomes a drawer below the topbar before it can cover account controls", () => {
+  const html = readFileSync(new URL("./public/index.html", import.meta.url), "utf8");
+  assert.match(html, /@media \(max-width: 1600px\) \{\s*\.changelog-panel \{\s*position: fixed;\s*top: 52px;\s*right: 0;\s*bottom: 0;/);
+});
+
 test("renaming a Conversation sends the new name after replacing the label with an input", async () => {
   const html = readFileSync(new URL("./public/index.html", import.meta.url), "utf8");
   const source = extractFunction(html, "startRename");
