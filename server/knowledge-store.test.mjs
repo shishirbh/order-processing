@@ -1,6 +1,6 @@
 import test from "node:test";
 import assert from "node:assert/strict";
-import { mkdtempSync, mkdirSync, rmSync, symlinkSync, writeFileSync } from "node:fs";
+import { mkdtempSync, mkdirSync, readFileSync, rmSync, symlinkSync, writeFileSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
 import { createKnowledgeStore, normalizeKnowledgePath } from "./knowledge-store.mjs";
@@ -34,6 +34,41 @@ test("knowledge paths reject traversal, absolute paths, server files, and escapi
   } finally { cleanup(); }
 });
 
+test("first publication preserves the repository baseline as rollback-capable history", () => {
+  const { root, dataDir, cleanup } = fixture();
+  try {
+    const store = createKnowledgeStore({ repositoryDir: root, dataDir, now: () => "2026-01-01T00:00:00.000Z" });
+    const path = "Vendors/Acme/Acme - Vendor Info.md";
+    const original = store.read(path);
+    store.publishBatch([{ path, content: "# Acme — Vendor Info\nupdated\n", expectedVersion: original.version }], { actor: "admin" });
+    const history = store.history(path).history;
+    assert.equal(history[0].action, "baseline");
+    assert.equal(history[0].version, original.version.replace("repository:", "sha256:"));
+    assert.equal(store.contentAtVersion(path, history[0].version), original.content);
+  } finally { cleanup(); }
+});
+
+test("startup migrates legacy published history by preserving the repository baseline", () => {
+  const { root, dataDir, cleanup } = fixture();
+  try {
+    const path = "Vendors/Acme/Acme - Vendor Info.md";
+    let store = createKnowledgeStore({ repositoryDir: root, dataDir });
+    const original = store.read(path);
+    store.publishBatch([{ path, content: "# Acme — Vendor Info\nlegacy publication\n", expectedVersion: original.version }], { actor: "admin" });
+
+    const manifestPath = join(dataDir, "knowledge", "manifest.json");
+    const legacy = JSON.parse(readFileSync(manifestPath, "utf8"));
+    delete legacy.documents[path].baselineVersion;
+    legacy.documents[path].history = legacy.documents[path].history.filter(item => item.action !== "baseline");
+    writeFileSync(manifestPath, `${JSON.stringify(legacy, null, 2)}\n`);
+
+    store = createKnowledgeStore({ repositoryDir: root, dataDir });
+    const baseline = store.history(path).history[0];
+    assert.equal(baseline.action, "baseline");
+    assert.equal(store.contentAtVersion(path, baseline.version), original.content);
+  } finally { cleanup(); }
+});
+
 test("published versions survive restart and rollback creates an auditable active version", () => {
   const { root, dataDir, cleanup } = fixture();
   try {
@@ -45,8 +80,8 @@ test("published versions survive restart and rollback creates an auditable activ
     assert.match(store.read(path).content, /updated/);
     const publishedVersion = store.read(path).version;
     store.publishBatch([{ path, content: store.contentAtVersion(path, publishedVersion), expectedVersion: publishedVersion, action: `rollback:${publishedVersion}` }], { actor: "admin" });
-    assert.equal(store.history(path).history.length, 2);
-    assert.match(store.history(path).history[1].action, /^rollback:/);
+    assert.equal(store.history(path).history.length, 3);
+    assert.match(store.history(path).history[2].action, /^rollback:/);
   } finally { cleanup(); }
 });
 

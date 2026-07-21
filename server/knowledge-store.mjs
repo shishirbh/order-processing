@@ -109,6 +109,23 @@ export function createKnowledgeStore({ repositoryDir, dataDir, now = () => new D
     if (!existsSync(file)) throw new Error("Document version is unavailable");
     return readFileSync(file, "utf8");
   };
+  const preserveRepositoryBaseline = (path, entry) => {
+    if (entry.baselineVersion || entry.history?.some(item => item.action === "baseline")) return false;
+    const content = repositoryContent(path);
+    if (content === null) return false;
+    const version = `sha256:${digest(content)}`;
+    const blobPath = join(versionsDir, `${version.slice(7)}.content`);
+    if (!existsSync(blobPath)) atomicWrite(blobPath, content);
+    entry.baselineVersion = version;
+    entry.history = [{ version, timestamp: null, actor: "repository", action: "baseline" }, ...(entry.history || [])];
+    return true;
+  };
+  let migratedBaseline = false;
+  for (const [path, entry] of Object.entries(manifest.documents)) {
+    if (preserveRepositoryBaseline(path, entry)) migratedBaseline = true;
+  }
+  if (migratedBaseline) atomicWrite(manifestPath, `${JSON.stringify(manifest, null, 2)}\n`);
+
   const read = input => {
     const path = normalizeKnowledgePath(input);
     const activeVersion = manifest.documents[path]?.activeVersion;
@@ -143,6 +160,7 @@ export function createKnowledgeStore({ repositoryDir, dataDir, now = () => new D
       const blobPath = join(versionsDir, `${version.slice(7)}.content`);
       if (!existsSync(blobPath)) atomicWrite(blobPath, change.content);
       const entry = next.documents[path] || { activeVersion: null, history: [] };
+      preserveRepositoryBaseline(path, entry);
       entry.activeVersion = version;
       entry.history.push({ version, timestamp, actor, action: change.action || action });
       next.documents[path] = entry;

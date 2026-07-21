@@ -1836,15 +1836,16 @@ function clearSessionSearch() {
 function startRename(id, nameEl) {
   if (!nameEl) return;
   const current = nameEl.textContent;
+  const parent = nameEl.parentNode;
   const input = document.createElement("input");
   input.type = "text";
   input.className = "name-input";
   input.value = current;
   input.maxLength = 80;
   const finish = async (commit) => {
-    if (input.parentNode !== nameEl.parentNode) return;
+    if (input.parentNode !== parent) return;
     const newName = input.value.trim();
-    nameEl.parentNode.replaceChild(nameEl, input);
+    parent.replaceChild(nameEl, input);
     if (commit && newName && newName !== current) {
       try {
         await fetchJSON(`${API}/sessions/${encodeURIComponent(id)}`, {
@@ -1861,7 +1862,7 @@ function startRename(id, nameEl) {
       }
     }
   };
-  nameEl.parentNode.replaceChild(input, nameEl);
+  parent.replaceChild(input, nameEl);
   input.focus();
   input.select();
   input.addEventListener("keydown", (e) => {
