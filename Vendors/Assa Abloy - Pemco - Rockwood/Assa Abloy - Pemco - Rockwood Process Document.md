@@ -39,7 +39,7 @@ Table 3 - Master Decision Matrix (All Scenarios)
 
 ### **1.1 Key Rules & Notes**
 
-  - > Minimum Order Value is $2,000.
+  - > Minimum Order Value is $2,500.
 
   - > Orders are placed through the vendor’s website, with the default fulfillment method set to In-House Ground shipping.
 
@@ -122,7 +122,7 @@ Some ASSA ABLOY items require manual configuration. Process:
 
   - > Item is oversized
 
-  - > Item value \> $2,000
+  - > Item value \> $2,500
 
 **Result:**
 
@@ -268,7 +268,7 @@ Table 2
 
 # **2.2 PROCESSING A CUSTOMER ORDER — OVERSIZED DROPSHIP**
 
-2.2.1 Step 1 — Confirm oversized + value \> $2,000  
+2.2.1 Step 1 — Confirm oversized + value \> $2,500  
   
 2.2.2 Step 2 — Enter customer address  
   
@@ -316,7 +316,7 @@ Table 3 - Assa Abloy Processing Decision Matrix
 | Stock not shown         | In-house               | ❌             | ❌       | Backorders allowed |
 | Discontinued (red)      | Stop & inform customer | ❌             | ❌       | Offer alternatives |
 | Manual configuration    | Configure first        | ❌             | ❌       | Confirm if unsure  |
-| Oversized + \>$2,000    | Vendor ships           | ✅             | ❌       | Free shipping      |
+| Oversized + \>$2,500    | Vendor ships           | ✅             | ❌       | Free shipping      |
 | Expedited + stock shown | Dropship               | ✅             | ❌       | FedEx acc required |
 | Expedited + no stock    | Do not dropship        | ❌             | ❌       | In-house only      |
 | Price mismatch          | Adjust price           | N/A           | N/A     | Universal rule     |
